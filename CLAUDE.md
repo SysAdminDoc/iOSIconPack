@@ -30,7 +30,7 @@ Our job is providing the icon assets and XML configuration:
 - v1.0.0 scaffolded
 - 110 placeholder icons (colored squircles) across 6 iOS eras
 - 20 icons per era (14, 15, 16, 17, 18) + 10 Liquid Glass
-- ~50 appfilter entries mapping to popular Android apps
+- 214 appfilter entries mapping to popular Android apps
 - AMOLED dark theme with iOS blue accent (#007AFF / #0A84FF)
 - Billing/license checking disabled (free & open source)
 - Supports 30+ launchers via Blueprint manifest intent-filters
@@ -63,4 +63,4 @@ Our job is providing the icon assets and XML configuration:
 - Create proper app icon (ic_launcher PNGs for pre-v26)
 
 ## Version History
-- v1.0.0 - Initial scaffold, 110 placeholder icons, Blueprint dashboard
+- v1.0.0 - Initial scaffold, 110 placeholder icons, 214 appfilter entries, Blueprint dashboard, Gradle wrapper
