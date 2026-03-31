@@ -4,7 +4,27 @@
     android:height="192dp"
     android:viewportWidth="192"
     android:viewportHeight="192">
+    <!-- Background squircle -->
     <path
         android:pathData="M38,4h116c18.78,0 34,15.22 34,34v116c0,18.78 -15.22,34 -34,34H38c-18.78,0 -34,-15.22 -34,-34V38C4,19.22 19.22,4 38,4z"
         android:fillColor="#007AFF" />
+    <!-- Compass circle -->
+    <path
+        android:pathData="M96,36 A60,60 0 1,1 96,156 A60,60 0 1,1 96,36z"
+        android:strokeColor="#FFFFFF"
+        android:strokeWidth="4"
+        android:fillColor="#00000000" />
+    <!-- N/S/E/W tick marks -->
+    <path android:pathData="M96,40L96,50" android:strokeColor="#FFFFFF" android:strokeWidth="3" />
+    <path android:pathData="M96,142L96,152" android:strokeColor="#FFFFFF" android:strokeWidth="3" />
+    <path android:pathData="M40,96L50,96" android:strokeColor="#FFFFFF" android:strokeWidth="3" />
+    <path android:pathData="M142,96L152,96" android:strokeColor="#FFFFFF" android:strokeWidth="3" />
+    <!-- Compass needle - red (north) -->
+    <path
+        android:pathData="M96,96L82,68L96,56L110,68z"
+        android:fillColor="#FF3B30" />
+    <!-- Compass needle - white (south) -->
+    <path
+        android:pathData="M96,96L82,124L96,136L110,124z"
+        android:fillColor="#FFFFFF" />
 </vector>

@@ -10,6 +10,15 @@ android {
         disable 'MissingTranslation', 'GoogleAppIndexingWarning'
     }
 
+    signingConfigs {
+        release {
+            storeFile file("../iosicons.jks")
+            storePassword "iconpack123"
+            keyAlias "iosicons"
+            keyPassword "iconpack123"
+        }
+    }
+
     namespace MyApp.appId
     defaultConfig {
         applicationId MyApp.appId
@@ -32,6 +41,7 @@ android {
 
     buildTypes {
         release {
+            signingConfig signingConfigs.release
             debuggable false
             zipAlignEnabled true
             minifyEnabled true
