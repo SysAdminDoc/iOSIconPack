@@ -8,7 +8,7 @@ Users pick and choose which era's icons to apply per-app.
 - **Dashboard**: Blueprint v2.5.1 by Jahir Fiquitiva (BottomNavigationBlueprintActivity)
 - **Language**: Kotlin
 - **Min SDK**: 23 / Target SDK: 36
-- **Build**: Gradle 8.12, AGP 8.12.0, Kotlin 2.2.21, KSP 2.3.4
+- **Build**: Gradle 8.13, AGP 8.12.0, Kotlin 2.2.21, KSP 2.3.4
 - **Package**: com.sysadmindoc.iosicons
 
 ## Architecture
@@ -26,14 +26,21 @@ Our job is providing the icon assets and XML configuration:
 - `ios{version}_{app_name}` - e.g. `ios18_safari`, `ios14_messages`
 - `ios26_lg_{app_name}` - Liquid Glass variant
 
-## Current State
-- v1.0.0 scaffolded
-- 110 placeholder icons (colored squircles) across 6 iOS eras
+## Current State (v1.0.0 - Build Verified)
+- 110 icons with proper glyphs across 6 iOS eras
 - 20 icons per era (14, 15, 16, 17, 18) + 10 Liquid Glass
-- 214 appfilter entries mapping to popular Android apps
+- Each icon has recognizable glyph: compass (Safari), chat bubble (Messages), flower (Photos), camera body (Camera), gear (Settings), music notes, envelope (Mail), folded map with pin (Maps), clock face, sun+cloud (Weather), notepad (Notes), phone handset, calendar "31", A-shape (App Store), video camera (FaceTime), card stack (Wallet), heart (Health), folder (Files), calc grid (Calculator), compass needle (Compass)
+- Each era uses shifted color palettes; Liquid Glass uses washed-out pastels
+- 214 appfilter entries covering Google/Samsung/Xiaomi/OnePlus/Huawei OEM + 100+ third-party apps
 - AMOLED dark theme with iOS blue accent (#007AFF / #0A84FF)
 - Billing/license checking disabled (free & open source)
-- Supports 30+ launchers via Blueprint manifest intent-filters
+- Signing config with keystore (iosicons.jks, gitignored)
+- Debug APK builds successfully (12MB)
+
+## Build Gotchas
+- **Gradle version**: AGP 8.12.0 requires Gradle 8.13+, not 8.12
+- **SplashScreen style**: Parent must be `Frames.SplashScreen`, NOT `Blueprint.SplashScreen` (doesn't exist)
+- **Dual XML copies**: `appfilter.xml` and `drawable.xml` must exist in BOTH `res/xml/` AND `assets/` — Blueprint reads from both locations depending on context
 
 ## Adding New Icons
 1. Create vector drawable in `res/drawable/ios{ver}_{name}.xml`
@@ -44,8 +51,8 @@ Our job is providing the icon assets and XML configuration:
 
 ## Build
 ```bash
-./gradlew assembleDebug    # Debug APK
-./gradlew assembleRelease  # Release APK (needs signing config)
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 ```
 
 ## Key Files
@@ -53,14 +60,13 @@ Our job is providing the icon assets and XML configuration:
 - `app/src/main/kotlin/.../MainActivity.kt` - Dashboard config
 - `app/src/main/res/values/colors.xml` - iOS-inspired color palette
 - `app/src/main/res/values/blueprint_setup.xml` - Blueprint behavior config
+- `app/src/main/res/values/styles.xml` - Theme styles (parent: Frames.SplashScreen)
 
 ## Next Steps
-- Replace placeholder squircles with actual iOS-inspired icon art
+- Expand icon coverage (more third-party app icons per era)
 - Add more appfilter entries (target 500+ apps)
-- Add Google, Social, Games category icons
-- Generate Gradle wrapper (gradlew/gradlew.bat)
-- Add signing config for release builds
-- Create proper app icon (ic_launcher PNGs for pre-v26)
+- Fill out Google, Social, Games categories with dedicated icons
+- Create proper app icon PNGs for pre-v26 devices
 
 ## Version History
-- v1.0.0 - Initial scaffold, 110 placeholder icons, 214 appfilter entries, Blueprint dashboard, Gradle wrapper
+- v1.0.0 - 110 glyphed icons, 214 appfilter entries, Blueprint dashboard, build verified
