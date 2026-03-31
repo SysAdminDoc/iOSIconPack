@@ -1,0 +1,18 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation,ExtraTranslation">
+    <string name="toolbar_logo"></string>
+    <bool name="notifications_enabled_by_default">false</bool>
+    <bool name="animations_enabled_by_default">true</bool>
+    <string name="privacy_policy_link">""</string>
+    <string name="terms_conditions_link">""</string>
+    <bool name="show_versions_in_settings">true</bool>
+
+    <!-- Default to AMOLED dark -->
+    <integer name="default_theme">1</integer>
+    <bool name="amoled_theme_enabled_by_default">true</bool>
+    <bool name="material_you_enabled_by_default">true</bool>
+
+    <string-array name="donation_items">
+        <item></item>
+    </string-array>
+</resources>

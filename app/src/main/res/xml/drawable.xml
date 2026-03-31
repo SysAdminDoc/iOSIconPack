@@ -1,0 +1,132 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    drawable.xml - Categorized icon list for the dashboard browser.
+    Icons are organized by iOS generation so users can browse by era.
+-->
+<resources>
+
+    <version>1</version>
+
+    <category title="iOS 18" />
+    <item drawable="ios18_safari" />
+    <item drawable="ios18_messages" />
+    <item drawable="ios18_photos" />
+    <item drawable="ios18_camera" />
+    <item drawable="ios18_settings" />
+    <item drawable="ios18_music" />
+    <item drawable="ios18_mail" />
+    <item drawable="ios18_maps" />
+    <item drawable="ios18_clock" />
+    <item drawable="ios18_weather" />
+    <item drawable="ios18_notes" />
+    <item drawable="ios18_phone" />
+    <item drawable="ios18_calendar" />
+    <item drawable="ios18_appstore" />
+    <item drawable="ios18_facetime" />
+    <item drawable="ios18_wallet" />
+    <item drawable="ios18_health" />
+    <item drawable="ios18_files" />
+    <item drawable="ios18_calculator" />
+    <item drawable="ios18_compass" />
+
+    <category title="iOS 17" />
+    <item drawable="ios17_safari" />
+    <item drawable="ios17_messages" />
+    <item drawable="ios17_photos" />
+    <item drawable="ios17_camera" />
+    <item drawable="ios17_settings" />
+    <item drawable="ios17_music" />
+    <item drawable="ios17_mail" />
+    <item drawable="ios17_maps" />
+    <item drawable="ios17_clock" />
+    <item drawable="ios17_weather" />
+    <item drawable="ios17_notes" />
+    <item drawable="ios17_phone" />
+    <item drawable="ios17_calendar" />
+    <item drawable="ios17_appstore" />
+    <item drawable="ios17_facetime" />
+    <item drawable="ios17_wallet" />
+    <item drawable="ios17_health" />
+    <item drawable="ios17_files" />
+    <item drawable="ios17_calculator" />
+    <item drawable="ios17_compass" />
+
+    <category title="iOS 16" />
+    <item drawable="ios16_safari" />
+    <item drawable="ios16_messages" />
+    <item drawable="ios16_photos" />
+    <item drawable="ios16_camera" />
+    <item drawable="ios16_settings" />
+    <item drawable="ios16_music" />
+    <item drawable="ios16_mail" />
+    <item drawable="ios16_maps" />
+    <item drawable="ios16_clock" />
+    <item drawable="ios16_weather" />
+    <item drawable="ios16_notes" />
+    <item drawable="ios16_phone" />
+    <item drawable="ios16_calendar" />
+    <item drawable="ios16_appstore" />
+    <item drawable="ios16_facetime" />
+    <item drawable="ios16_wallet" />
+    <item drawable="ios16_health" />
+    <item drawable="ios16_files" />
+    <item drawable="ios16_calculator" />
+    <item drawable="ios16_compass" />
+
+    <category title="iOS 15" />
+    <item drawable="ios15_safari" />
+    <item drawable="ios15_messages" />
+    <item drawable="ios15_photos" />
+    <item drawable="ios15_camera" />
+    <item drawable="ios15_settings" />
+    <item drawable="ios15_music" />
+    <item drawable="ios15_mail" />
+    <item drawable="ios15_maps" />
+    <item drawable="ios15_clock" />
+    <item drawable="ios15_weather" />
+    <item drawable="ios15_notes" />
+    <item drawable="ios15_phone" />
+    <item drawable="ios15_calendar" />
+    <item drawable="ios15_appstore" />
+    <item drawable="ios15_facetime" />
+    <item drawable="ios15_wallet" />
+    <item drawable="ios15_health" />
+    <item drawable="ios15_files" />
+    <item drawable="ios15_calculator" />
+    <item drawable="ios15_compass" />
+
+    <category title="iOS 14" />
+    <item drawable="ios14_safari" />
+    <item drawable="ios14_messages" />
+    <item drawable="ios14_photos" />
+    <item drawable="ios14_camera" />
+    <item drawable="ios14_settings" />
+    <item drawable="ios14_music" />
+    <item drawable="ios14_mail" />
+    <item drawable="ios14_maps" />
+    <item drawable="ios14_clock" />
+    <item drawable="ios14_weather" />
+    <item drawable="ios14_notes" />
+    <item drawable="ios14_phone" />
+    <item drawable="ios14_calendar" />
+    <item drawable="ios14_appstore" />
+    <item drawable="ios14_facetime" />
+    <item drawable="ios14_wallet" />
+    <item drawable="ios14_health" />
+    <item drawable="ios14_files" />
+    <item drawable="ios14_calculator" />
+    <item drawable="ios14_compass" />
+
+    <category title="iOS 26 - Liquid Glass" />
+    <item drawable="ios26_lg_safari" />
+    <item drawable="ios26_lg_messages" />
+    <item drawable="ios26_lg_photos" />
+    <item drawable="ios26_lg_camera" />
+    <item drawable="ios26_lg_settings" />
+    <item drawable="ios26_lg_music" />
+    <item drawable="ios26_lg_mail" />
+    <item drawable="ios26_lg_maps" />
+    <item drawable="ios26_lg_clock" />
+    <item drawable="ios26_lg_weather" />
+
+</resources>

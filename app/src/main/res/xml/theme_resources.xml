@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    theme_resources.xml - Required by some launchers for icon pack detection.
+    Auto-generated from appfilter.xml
+-->
+<Theme version="1">
+    <Label value="iOS Icon Pack" />
+    <Wallpaper image="wallpaper_01" />
+    <LockScreenWallpaper image="wallpaper_01" />
+    <ThemePreview image1="preview1" image2="preview2" />
+    <ThemePreviewWork image1="preview1" image2="preview2" />
+    <ThemePreviewMenu image1="preview1" image2="preview2" />
+    <DockMenuAppIcon selector="drawer_icon" />
+</Theme>

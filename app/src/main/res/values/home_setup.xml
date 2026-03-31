@@ -1,0 +1,25 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingDefaultResource">
+    <integer name="home_actions_style">1</integer>
+    <bool name="show_overview">true</bool>
+    <bool name="show_menu_in_home_page">false</bool>
+    <bool name="show_quick_apply_text">true</bool>
+    <string name="quick_apply_custom_text">Apply Icons</string>
+
+    <string-array name="home_list_titles">
+        <item>GitHub</item>
+        <item>Icon Requests</item>
+    </string-array>
+    <string-array name="home_list_descriptions">
+        <item>View source code and contribute icons</item>
+        <item>Request icons for your favorite apps</item>
+    </string-array>
+    <string-array name="home_list_icons">
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+    </string-array>
+    <string-array name="home_list_links">
+        <item>https://github.com/SysAdminDoc/iOSIconPack</item>
+        <item>mailto:sysadmindoc@gmail.com</item>
+    </string-array>
+</resources>

@@ -1,0 +1,77 @@
+apply plugin: 'com.android.application'
+apply plugin: 'org.jetbrains.kotlin.android'
+apply plugin: 'kotlin-parcelize'
+apply plugin: 'com.google.devtools.ksp'
+
+android {
+    lint {
+        abortOnError false
+        checkReleaseBuilds true
+        disable 'MissingTranslation', 'GoogleAppIndexingWarning'
+    }
+
+    namespace MyApp.appId
+    defaultConfig {
+        applicationId MyApp.appId
+        minSdkVersion Versions.minSdk
+        compileSdk Versions.targetSdk
+        targetSdkVersion Versions.targetSdk
+        versionCode MyApp.version
+        versionName MyApp.versionName
+        setProperty("archivesBaseName", applicationId + "-" + versionName)
+        vectorDrawables.useSupportLibrary = true
+        proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+        consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+
+        ksp {
+            arg("room.schemaLocation", "$projectDir/schemas")
+            arg("room.incremental", "true")
+            arg("room.expandProjection", "true")
+        }
+    }
+
+    buildTypes {
+        release {
+            debuggable false
+            zipAlignEnabled true
+            minifyEnabled true
+            shrinkResources false
+            proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+            consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
+        }
+    }
+
+    sourceSets {
+        main.java.srcDirs += 'src/main/kotlin'
+    }
+
+    packagingOptions {
+        resources {
+            pickFirsts += [
+                    'META-INF/core_debug.kotlin_module',
+                    'META-INF/core_release.kotlin_module',
+                    'META-INF/library_debug.kotlin_module',
+                    'META-INF/library_release.kotlin_module'
+            ]
+        }
+    }
+
+    compileOptions {
+        sourceCompatibility JavaVersion.VERSION_17
+        targetCompatibility JavaVersion.VERSION_17
+    }
+
+    kotlinOptions {
+        jvmTarget = '17'
+    }
+
+    buildFeatures {
+        buildConfig = true
+    }
+}
+
+dependencies {
+    implementation(Libs.blueprint) {
+        transitive = true
+    }
+}

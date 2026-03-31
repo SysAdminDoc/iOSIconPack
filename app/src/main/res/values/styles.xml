@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <style name="MyApp.SplashScreen" parent="Blueprint.SplashScreen" />
+
+    <style name="MyApp.Default" parent="Blueprint.Default" />
+    <style name="MyApp.Default.Amoled" parent="Blueprint.Default.Amoled" />
+    <style name="MyApp.Default.MaterialYou" parent="Blueprint.Default.MaterialYou" />
+    <style name="MyApp.Default.Amoled.MaterialYou" parent="Blueprint.Default.Amoled.MaterialYou" />
+</resources>

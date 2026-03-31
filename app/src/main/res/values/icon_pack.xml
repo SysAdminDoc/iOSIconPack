@@ -1,0 +1,344 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
+
+    <!-- Preview icons shown on the home screen hero area (min 8) -->
+    <string-array name="icons_preview">
+        <item>ios18_safari</item>
+        <item>ios18_messages</item>
+        <item>ios18_photos</item>
+        <item>ios18_camera</item>
+        <item>ios18_settings</item>
+        <item>ios18_music</item>
+        <item>ios18_mail</item>
+        <item>ios18_maps</item>
+        <item>ios18_clock</item>
+        <item>ios18_weather</item>
+        <item>ios18_notes</item>
+        <item>ios18_phone</item>
+    </string-array>
+
+    <!--
+        Categories by iOS generation.
+        Users browse by era, then pick icons per-app.
+    -->
+    <string-array name="icon_filters">
+        <item>all</item>
+        <item>ios18</item>
+        <item>ios17</item>
+        <item>ios16</item>
+        <item>ios15</item>
+        <item>ios14</item>
+        <item>ios26_liquid_glass</item>
+        <item>system</item>
+        <item>google</item>
+        <item>social</item>
+        <item>media</item>
+        <item>productivity</item>
+        <item>games</item>
+    </string-array>
+
+    <!--
+        =============================================
+        STARTER ICONS - 20 per iOS generation
+        These are placeholder entries. Replace drawable
+        names with your actual icon drawable filenames
+        (without .png/.xml extension).
+        =============================================
+    -->
+
+    <!-- All icons combined -->
+    <string-array name="all">
+        <!-- iOS 18 -->
+        <item>ios18_safari</item>
+        <item>ios18_messages</item>
+        <item>ios18_photos</item>
+        <item>ios18_camera</item>
+        <item>ios18_settings</item>
+        <item>ios18_music</item>
+        <item>ios18_mail</item>
+        <item>ios18_maps</item>
+        <item>ios18_clock</item>
+        <item>ios18_weather</item>
+        <item>ios18_notes</item>
+        <item>ios18_phone</item>
+        <item>ios18_calendar</item>
+        <item>ios18_appstore</item>
+        <item>ios18_facetime</item>
+        <item>ios18_wallet</item>
+        <item>ios18_health</item>
+        <item>ios18_files</item>
+        <item>ios18_calculator</item>
+        <item>ios18_compass</item>
+        <!-- iOS 17 -->
+        <item>ios17_safari</item>
+        <item>ios17_messages</item>
+        <item>ios17_photos</item>
+        <item>ios17_camera</item>
+        <item>ios17_settings</item>
+        <item>ios17_music</item>
+        <item>ios17_mail</item>
+        <item>ios17_maps</item>
+        <item>ios17_clock</item>
+        <item>ios17_weather</item>
+        <item>ios17_notes</item>
+        <item>ios17_phone</item>
+        <item>ios17_calendar</item>
+        <item>ios17_appstore</item>
+        <item>ios17_facetime</item>
+        <item>ios17_wallet</item>
+        <item>ios17_health</item>
+        <item>ios17_files</item>
+        <item>ios17_calculator</item>
+        <item>ios17_compass</item>
+        <!-- iOS 16 -->
+        <item>ios16_safari</item>
+        <item>ios16_messages</item>
+        <item>ios16_photos</item>
+        <item>ios16_camera</item>
+        <item>ios16_settings</item>
+        <item>ios16_music</item>
+        <item>ios16_mail</item>
+        <item>ios16_maps</item>
+        <item>ios16_clock</item>
+        <item>ios16_weather</item>
+        <item>ios16_notes</item>
+        <item>ios16_phone</item>
+        <item>ios16_calendar</item>
+        <item>ios16_appstore</item>
+        <item>ios16_facetime</item>
+        <item>ios16_wallet</item>
+        <item>ios16_health</item>
+        <item>ios16_files</item>
+        <item>ios16_calculator</item>
+        <item>ios16_compass</item>
+        <!-- iOS 15 -->
+        <item>ios15_safari</item>
+        <item>ios15_messages</item>
+        <item>ios15_photos</item>
+        <item>ios15_camera</item>
+        <item>ios15_settings</item>
+        <item>ios15_music</item>
+        <item>ios15_mail</item>
+        <item>ios15_maps</item>
+        <item>ios15_clock</item>
+        <item>ios15_weather</item>
+        <item>ios15_notes</item>
+        <item>ios15_phone</item>
+        <item>ios15_calendar</item>
+        <item>ios15_appstore</item>
+        <item>ios15_facetime</item>
+        <item>ios15_wallet</item>
+        <item>ios15_health</item>
+        <item>ios15_files</item>
+        <item>ios15_calculator</item>
+        <item>ios15_compass</item>
+        <!-- iOS 14 -->
+        <item>ios14_safari</item>
+        <item>ios14_messages</item>
+        <item>ios14_photos</item>
+        <item>ios14_camera</item>
+        <item>ios14_settings</item>
+        <item>ios14_music</item>
+        <item>ios14_mail</item>
+        <item>ios14_maps</item>
+        <item>ios14_clock</item>
+        <item>ios14_weather</item>
+        <item>ios14_notes</item>
+        <item>ios14_phone</item>
+        <item>ios14_calendar</item>
+        <item>ios14_appstore</item>
+        <item>ios14_facetime</item>
+        <item>ios14_wallet</item>
+        <item>ios14_health</item>
+        <item>ios14_files</item>
+        <item>ios14_calculator</item>
+        <item>ios14_compass</item>
+        <!-- iOS 26 Liquid Glass -->
+        <item>ios26_lg_safari</item>
+        <item>ios26_lg_messages</item>
+        <item>ios26_lg_photos</item>
+        <item>ios26_lg_camera</item>
+        <item>ios26_lg_settings</item>
+        <item>ios26_lg_music</item>
+        <item>ios26_lg_mail</item>
+        <item>ios26_lg_maps</item>
+        <item>ios26_lg_clock</item>
+        <item>ios26_lg_weather</item>
+    </string-array>
+
+    <!-- iOS 18 - Tinted/Dark Mode support, refined gradients -->
+    <string-array name="ios18">
+        <item>ios18_safari</item>
+        <item>ios18_messages</item>
+        <item>ios18_photos</item>
+        <item>ios18_camera</item>
+        <item>ios18_settings</item>
+        <item>ios18_music</item>
+        <item>ios18_mail</item>
+        <item>ios18_maps</item>
+        <item>ios18_clock</item>
+        <item>ios18_weather</item>
+        <item>ios18_notes</item>
+        <item>ios18_phone</item>
+        <item>ios18_calendar</item>
+        <item>ios18_appstore</item>
+        <item>ios18_facetime</item>
+        <item>ios18_wallet</item>
+        <item>ios18_health</item>
+        <item>ios18_files</item>
+        <item>ios18_calculator</item>
+        <item>ios18_compass</item>
+    </string-array>
+
+    <!-- iOS 17 - Refined flat style -->
+    <string-array name="ios17">
+        <item>ios17_safari</item>
+        <item>ios17_messages</item>
+        <item>ios17_photos</item>
+        <item>ios17_camera</item>
+        <item>ios17_settings</item>
+        <item>ios17_music</item>
+        <item>ios17_mail</item>
+        <item>ios17_maps</item>
+        <item>ios17_clock</item>
+        <item>ios17_weather</item>
+        <item>ios17_notes</item>
+        <item>ios17_phone</item>
+        <item>ios17_calendar</item>
+        <item>ios17_appstore</item>
+        <item>ios17_facetime</item>
+        <item>ios17_wallet</item>
+        <item>ios17_health</item>
+        <item>ios17_files</item>
+        <item>ios17_calculator</item>
+        <item>ios17_compass</item>
+    </string-array>
+
+    <!-- iOS 16 - Bold colors, refined squircle -->
+    <string-array name="ios16">
+        <item>ios16_safari</item>
+        <item>ios16_messages</item>
+        <item>ios16_photos</item>
+        <item>ios16_camera</item>
+        <item>ios16_settings</item>
+        <item>ios16_music</item>
+        <item>ios16_mail</item>
+        <item>ios16_maps</item>
+        <item>ios16_clock</item>
+        <item>ios16_weather</item>
+        <item>ios16_notes</item>
+        <item>ios16_phone</item>
+        <item>ios16_calendar</item>
+        <item>ios16_appstore</item>
+        <item>ios16_facetime</item>
+        <item>ios16_wallet</item>
+        <item>ios16_health</item>
+        <item>ios16_files</item>
+        <item>ios16_calculator</item>
+        <item>ios16_compass</item>
+    </string-array>
+
+    <!-- iOS 15 - Flat design, subtle shadows -->
+    <string-array name="ios15">
+        <item>ios15_safari</item>
+        <item>ios15_messages</item>
+        <item>ios15_photos</item>
+        <item>ios15_camera</item>
+        <item>ios15_settings</item>
+        <item>ios15_music</item>
+        <item>ios15_mail</item>
+        <item>ios15_maps</item>
+        <item>ios15_clock</item>
+        <item>ios15_weather</item>
+        <item>ios15_notes</item>
+        <item>ios15_phone</item>
+        <item>ios15_calendar</item>
+        <item>ios15_appstore</item>
+        <item>ios15_facetime</item>
+        <item>ios15_wallet</item>
+        <item>ios15_health</item>
+        <item>ios15_files</item>
+        <item>ios15_calculator</item>
+        <item>ios15_compass</item>
+    </string-array>
+
+    <!-- iOS 14 - Flat with gradient backgrounds -->
+    <string-array name="ios14">
+        <item>ios14_safari</item>
+        <item>ios14_messages</item>
+        <item>ios14_photos</item>
+        <item>ios14_camera</item>
+        <item>ios14_settings</item>
+        <item>ios14_music</item>
+        <item>ios14_mail</item>
+        <item>ios14_maps</item>
+        <item>ios14_clock</item>
+        <item>ios14_weather</item>
+        <item>ios14_notes</item>
+        <item>ios14_phone</item>
+        <item>ios14_calendar</item>
+        <item>ios14_appstore</item>
+        <item>ios14_facetime</item>
+        <item>ios14_wallet</item>
+        <item>ios14_health</item>
+        <item>ios14_files</item>
+        <item>ios14_calculator</item>
+        <item>ios14_compass</item>
+    </string-array>
+
+    <!-- iOS 26 Liquid Glass - Translucent, frosted glass aesthetic -->
+    <string-array name="ios26_liquid_glass">
+        <item>ios26_lg_safari</item>
+        <item>ios26_lg_messages</item>
+        <item>ios26_lg_photos</item>
+        <item>ios26_lg_camera</item>
+        <item>ios26_lg_settings</item>
+        <item>ios26_lg_music</item>
+        <item>ios26_lg_mail</item>
+        <item>ios26_lg_maps</item>
+        <item>ios26_lg_clock</item>
+        <item>ios26_lg_weather</item>
+    </string-array>
+
+    <!-- Cross-generation categories by app type -->
+    <string-array name="system">
+        <item>ios18_settings</item>
+        <item>ios18_phone</item>
+        <item>ios18_mail</item>
+        <item>ios18_calendar</item>
+        <item>ios18_calculator</item>
+        <item>ios18_compass</item>
+        <item>ios18_clock</item>
+        <item>ios18_files</item>
+        <item>ios18_health</item>
+        <item>ios18_weather</item>
+    </string-array>
+
+    <string-array name="google">
+        <!-- Placeholder: Google app icons to be added -->
+    </string-array>
+
+    <string-array name="social">
+        <!-- Placeholder: Social media icons to be added -->
+    </string-array>
+
+    <string-array name="media">
+        <item>ios18_music</item>
+        <item>ios18_photos</item>
+        <item>ios18_camera</item>
+        <item>ios18_facetime</item>
+    </string-array>
+
+    <string-array name="productivity">
+        <item>ios18_safari</item>
+        <item>ios18_notes</item>
+        <item>ios18_files</item>
+        <item>ios18_mail</item>
+        <item>ios18_calendar</item>
+    </string-array>
+
+    <string-array name="games">
+        <!-- Placeholder: Game icons to be added -->
+    </string-array>
+
+</resources>

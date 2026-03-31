@@ -1,0 +1,151 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!--
+    appfilter.xml - Maps Android app components to icon drawables.
+    Each <item> maps a specific app's activity to one of our iOS-style icons.
+    Multiple entries per app allow users to choose between iOS generations.
+
+    Format:
+    component="ComponentInfo{package.name/activity.name}"
+    drawable="icon_drawable_name" (without extension)
+
+    NAMING CONVENTION:
+    ios{version}_{app_name}     e.g. ios18_safari, ios14_messages
+    ios26_lg_{app_name}         e.g. ios26_lg_safari (Liquid Glass)
+-->
+<resources>
+
+    <!-- ==================== -->
+    <!-- PHONE / DIALER       -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.dialer/com.google.android.dialer.extensions.GoogleDialtactsActivity}" drawable="ios18_phone" />
+    <item component="ComponentInfo{com.android.dialer/com.android.dialer.DialtactsActivity}" drawable="ios18_phone" />
+    <item component="ComponentInfo{com.samsung.android.dialer/com.samsung.android.dialer.DialtactsActivity}" drawable="ios18_phone" />
+
+    <!-- ==================== -->
+    <!-- MESSAGES / SMS       -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.messaging/com.google.android.apps.messaging.ui.ConversationListActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{com.samsung.android.messaging/com.samsung.android.messaging.ui.view.setting.MainSettingActivity}" drawable="ios18_messages" />
+
+    <!-- ==================== -->
+    <!-- CONTACTS             -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.contacts/com.android.contacts.activities.PeopleActivity}" drawable="ios18_phone" />
+    <item component="ComponentInfo{com.android.contacts/com.android.contacts.activities.PeopleActivity}" drawable="ios18_phone" />
+
+    <!-- ==================== -->
+    <!-- BROWSER              -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}" drawable="ios18_safari" />
+    <item component="ComponentInfo{org.mozilla.firefox/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.brave.browser/com.brave.browser.BraveActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.opera.browser/com.opera.android.BrowserActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.samsung.android.app.sbrowser/com.sec.android.app.sbrowser.SBrowserMainActivity}" drawable="ios18_safari" />
+
+    <!-- ==================== -->
+    <!-- CAMERA               -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.GoogleCamera/com.android.camera.CameraLauncher}" drawable="ios18_camera" />
+    <item component="ComponentInfo{com.samsung.android.camera/com.sec.android.app.camera.Camera}" drawable="ios18_camera" />
+    <item component="ComponentInfo{com.android.camera2/com.android.camera.CameraLauncher}" drawable="ios18_camera" />
+
+    <!-- ==================== -->
+    <!-- PHOTOS / GALLERY     -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.photos/com.google.android.apps.photos.home.HomeActivity}" drawable="ios18_photos" />
+    <item component="ComponentInfo{com.samsung.android.gallery/com.samsung.android.gallery.app.activity.GalleryActivity}" drawable="ios18_photos" />
+
+    <!-- ==================== -->
+    <!-- SETTINGS             -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.android.settings/com.android.settings.Settings}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.samsung.android.app.settings/com.android.settings.Settings}" drawable="ios18_settings" />
+
+    <!-- ==================== -->
+    <!-- EMAIL                -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.ConversationListActivityGmail}" drawable="ios18_mail" />
+    <item component="ComponentInfo{com.microsoft.office.outlook/com.microsoft.office.outlook.MainActivity}" drawable="ios18_mail" />
+
+    <!-- ==================== -->
+    <!-- MAPS                 -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.maps.MapsActivity}" drawable="ios18_maps" />
+
+    <!-- ==================== -->
+    <!-- CLOCK / ALARM        -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.deskclock/com.android.deskclock.DeskClock}" drawable="ios18_clock" />
+    <item component="ComponentInfo{com.samsung.android.app.clockpack/com.sec.android.app.clockpackage.ClockPackage}" drawable="ios18_clock" />
+
+    <!-- ==================== -->
+    <!-- WEATHER              -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.weather/com.google.android.apps.weather.WeatherActivity}" drawable="ios18_weather" />
+    <item component="ComponentInfo{com.samsung.android.weather/com.samsung.android.weather.WeatherMainActivity}" drawable="ios18_weather" />
+
+    <!-- ==================== -->
+    <!-- NOTES                -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.samsung.android.app.notes/com.samsung.android.app.notes.memolist.MemoListActivity}" drawable="ios18_notes" />
+
+    <!-- ==================== -->
+    <!-- CALENDAR             -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
+
+    <!-- ==================== -->
+    <!-- APP STORE            -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.android.vending/com.google.android.finsky.activities.MainActivity}" drawable="ios18_appstore" />
+
+    <!-- ==================== -->
+    <!-- VIDEO CALLS          -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.MainActivity}" drawable="ios18_facetime" />
+
+    <!-- ==================== -->
+    <!-- MUSIC                -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.youtube.music/com.google.android.apps.youtube.music.activities.MusicActivity}" drawable="ios18_music" />
+    <item component="ComponentInfo{com.spotify.music/com.spotify.music.MainActivity}" drawable="ios18_music" />
+
+    <!-- ==================== -->
+    <!-- WALLET / PAY         -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.walletnfcrel/com.google.android.apps.walletnfcrel.WalletActivity}" drawable="ios18_wallet" />
+
+    <!-- ==================== -->
+    <!-- FILES                -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.nbu.files/com.google.android.apps.nbu.files.home.HomeActivity}" drawable="ios18_files" />
+    <item component="ComponentInfo{com.samsung.android.app.myfiles/com.samsung.android.app.myfiles.MyFilesActivity}" drawable="ios18_files" />
+
+    <!-- ==================== -->
+    <!-- CALCULATOR           -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.calculator/com.android.calculator2.Calculator}" drawable="ios18_calculator" />
+    <item component="ComponentInfo{com.samsung.android.calculator/com.samsung.android.calculator.Calculator}" drawable="ios18_calculator" />
+
+    <!-- ==================== -->
+    <!-- HEALTH / FITNESS     -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.fitness/com.google.android.apps.fitness.FitMainActivity}" drawable="ios18_health" />
+    <item component="ComponentInfo{com.samsung.android.shealth/com.samsung.android.shealth.app.home.HomeActivity}" drawable="ios18_health" />
+
+    <!-- ==================== -->
+    <!-- SOCIAL MEDIA         -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.instagram.android/com.instagram.mainactivity.InstagramMainActivity}" drawable="ios18_camera" />
+    <item component="ComponentInfo{com.twitter.android/com.twitter.app.main.MainActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.whatsapp/com.whatsapp.HomeActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{org.telegram.messenger/org.telegram.ui.LaunchActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{com.discord/com.discord.main.MainActivity}" drawable="ios18_messages" />
+
+    <!-- ==================== -->
+    <!-- YOUTUBE              -->
+    <!-- ==================== -->
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="ios18_facetime" />
+
+</resources>

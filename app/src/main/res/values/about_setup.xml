@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
+    <string-array name="credits_photos">
+    </string-array>
+    <string-array name="credits_titles">
+        <item>SysAdminDoc</item>
+        <item>Blueprint Dashboard</item>
+    </string-array>
+    <string-array name="credits_descriptions">
+        <item>Icon Pack Creator</item>
+        <item>Dashboard by Jahir Fiquitiva</item>
+    </string-array>
+    <string-array name="credits_links">
+        <item>https://github.com/SysAdminDoc</item>
+        <item>https://github.com/jahirfiquitiva/Blueprint</item>
+    </string-array>
+</resources>
