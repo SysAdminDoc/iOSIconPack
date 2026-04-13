@@ -1,5 +1,7 @@
 # iOS Icon Pack
 
+![Version](https://img.shields.io/badge/version-v2.5.1-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-Kotlin-lightgrey)
+
 The ultimate iOS-style icon pack for Android. Every iOS generation in one app - pick and choose which era's icons to apply per-app.
 
 ## Features
