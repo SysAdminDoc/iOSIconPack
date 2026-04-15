@@ -14,3 +14,4 @@ buildSrc/build
 icons_raw/
 fetch_icons.py
 gen_icons.py
+CLAUDE.md
