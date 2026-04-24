@@ -40,8 +40,22 @@ jobs:
       - name: Validate appfilter consistency
         run: python3 scripts/validate_appfilter.py
 
+      - name: Materialise release keystore (if base64 secret is provided)
+        id: keystore
+        env:
+          KEYSTORE_BASE64: ${{ secrets.IOSICONS_KEYSTORE_BASE64 }}
+        run: |
+          if [ -n "$KEYSTORE_BASE64" ]; then
+            echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/iosicons.jks"
+            echo "path=$RUNNER_TEMP/iosicons.jks" >> "$GITHUB_OUTPUT"
+          else
+            echo "::warning::IOSICONS_KEYSTORE_BASE64 not set — release build will be unsigned."
+            echo "path=" >> "$GITHUB_OUTPUT"
+          fi
+
       - name: Build Release APK
         env:
+          IOSICONS_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
           IOSICONS_KEY_ALIAS: ${{ secrets.IOSICONS_KEY_ALIAS }}
           IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}
@@ -49,6 +63,7 @@ jobs:
 
       - name: Build Release AAB
         env:
+          IOSICONS_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
           IOSICONS_KEY_ALIAS: ${{ secrets.IOSICONS_KEY_ALIAS }}
           IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}

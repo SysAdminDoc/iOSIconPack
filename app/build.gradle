@@ -12,14 +12,25 @@ android {
 
     signingConfigs {
         release {
-            // Credentials read from env vars in CI; fallback to the committed dev
-            // keystore credentials so offline contributors can still produce a
-            // signed release artifact. Production releases must override via
-            // IOSICONS_STORE_PASSWORD / IOSICONS_KEY_ALIAS / IOSICONS_KEY_PASSWORD.
-            storeFile file("../iosicons.jks")
-            storePassword System.getenv('IOSICONS_STORE_PASSWORD') ?: "iconpack123"
-            keyAlias System.getenv('IOSICONS_KEY_ALIAS') ?: "iosicons"
-            keyPassword System.getenv('IOSICONS_KEY_PASSWORD') ?: "iconpack123"
+            // Resolution order for the release keystore:
+            //   1. IOSICONS_KEYSTORE_PATH env var (CI step that materialises the
+            //      keystore from an IOSICONS_KEYSTORE_BASE64 secret).
+            //   2. ../iosicons.jks next to the repo root (local contributors).
+            // Passwords follow the same env-first, dev-fallback pattern.
+            def envKeystorePath = System.getenv('IOSICONS_KEYSTORE_PATH')
+            def envKeystore = envKeystorePath ? file(envKeystorePath) : null
+            def localKeystore = rootProject.file('iosicons.jks')
+            def resolvedKeystore = (envKeystore && envKeystore.exists())
+                    ? envKeystore
+                    : (localKeystore.exists() ? localKeystore : null)
+            if (resolvedKeystore != null) {
+                storeFile resolvedKeystore
+                storePassword System.getenv('IOSICONS_STORE_PASSWORD') ?: "iconpack123"
+                keyAlias System.getenv('IOSICONS_KEY_ALIAS') ?: "iosicons"
+                keyPassword System.getenv('IOSICONS_KEY_PASSWORD') ?: "iconpack123"
+            } else {
+                logger.warn("iOSIconPack: no release keystore found; assembleRelease will produce an unsigned APK.")
+            }
         }
     }
 
@@ -45,7 +56,7 @@ android {
 
     buildTypes {
         release {
-            signingConfig signingConfigs.release
+            signingConfig signingConfigs.release.storeFile ? signingConfigs.release : null
             debuggable false
             zipAlignEnabled true
             minifyEnabled true
