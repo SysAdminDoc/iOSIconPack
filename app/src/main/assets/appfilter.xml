@@ -29,7 +29,7 @@
     <item component="ComponentInfo{com.samsung.android.contacts/com.samsung.android.contacts.ContactsActivity}" drawable="ios18_phone" />
 
     <!-- ==================== BROWSERS ==================== -->
-    <item component="ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}" drawable="tp_chrome" />
     <item component="ComponentInfo{org.mozilla.firefox/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
     <item component="ComponentInfo{org.mozilla.firefox_beta/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
     <item component="ComponentInfo{org.mozilla.fenix/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
@@ -69,7 +69,7 @@
     <item component="ComponentInfo{com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}" drawable="ios18_settings" />
 
     <!-- ==================== EMAIL ==================== -->
-    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.ConversationListActivityGmail}" drawable="ios18_mail" />
+    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.ConversationListActivityGmail}" drawable="tp_gmail" />
     <item component="ComponentInfo{com.microsoft.office.outlook/com.microsoft.office.outlook.MainActivity}" drawable="ios18_mail" />
     <item component="ComponentInfo{com.samsung.android.email.provider/com.samsung.android.email.composer.activity.MessageList}" drawable="ios18_mail" />
     <item component="ComponentInfo{com.yahoo.mobile.client.android.mail/com.yahoo.mail.ui.YahooMainTabActivity}" drawable="ios18_mail" />
@@ -78,7 +78,7 @@
     <item component="ComponentInfo{com.fsck.k9/com.fsck.k9.activity.MessageList}" drawable="ios18_mail" />
 
     <!-- ==================== MAPS / NAVIGATION ==================== -->
-    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.maps.MapsActivity}" drawable="ios18_maps" />
+    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.maps.MapsActivity}" drawable="tp_google_maps" />
     <item component="ComponentInfo{com.waze/com.waze.FreeMapAppActivity}" drawable="ios18_maps" />
     <item component="ComponentInfo{com.here.app.maps/com.here.app.maps.appwidget.AppWidgetMainActivity}" drawable="ios18_maps" />
     <item component="ComponentInfo{com.mapbox.mapboxgl.testapp/com.mapbox.mapboxgl.testapp.activity.FeatureOverviewActivity}" drawable="ios18_maps" />
@@ -120,14 +120,14 @@
 
     <!-- ==================== VIDEO CALLS ==================== -->
     <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.MainActivity}" drawable="ios18_facetime" />
-    <item component="ComponentInfo{us.zoom.videomeetings/us.zoom.videomeetings.ZoomActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{us.zoom.videomeetings/us.zoom.videomeetings.ZoomActivity}" drawable="tp_zoom" />
     <item component="ComponentInfo{com.microsoft.teams/com.microsoft.skype.teams.Launcher}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.skype.raider/com.skype.raider.Main}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.google.android.apps.meetings/com.google.android.apps.meetings.launch.MeetLaunchActivity}" drawable="ios18_facetime" />
 
     <!-- ==================== MUSIC / AUDIO ==================== -->
     <item component="ComponentInfo{com.google.android.apps.youtube.music/com.google.android.apps.youtube.music.activities.MusicActivity}" drawable="ios18_music" />
-    <item component="ComponentInfo{com.spotify.music/com.spotify.music.MainActivity}" drawable="ios18_music" />
+    <item component="ComponentInfo{com.spotify.music/com.spotify.music.MainActivity}" drawable="tp_spotify" />
     <item component="ComponentInfo{com.apple.android.music/com.apple.android.music.AppleMusicActivity}" drawable="ios18_music" />
     <item component="ComponentInfo{com.amazon.mp3/com.amazon.mp3.MainActivity}" drawable="ios18_music" />
     <item component="ComponentInfo{deezer.android.app/deezer.android.app.activity.LaunchActivity}" drawable="ios18_music" />
@@ -141,8 +141,8 @@
     <!-- ==================== WALLET / PAY ==================== -->
     <item component="ComponentInfo{com.google.android.apps.walletnfcrel/com.google.android.apps.walletnfcrel.WalletActivity}" drawable="ios18_wallet" />
     <item component="ComponentInfo{com.samsung.android.spay/com.samsung.android.spay.ui.app.SamsungPayMainActivity}" drawable="ios18_wallet" />
-    <item component="ComponentInfo{com.paypal.android.p2pmobile/com.paypal.android.p2pmobile.activity.SplashActivity}" drawable="ios18_wallet" />
-    <item component="ComponentInfo{com.venmo/com.venmo.controller.InitialActivity}" drawable="ios18_wallet" />
+    <item component="ComponentInfo{com.paypal.android.p2pmobile/com.paypal.android.p2pmobile.activity.SplashActivity}" drawable="tp_paypal" />
+    <item component="ComponentInfo{com.venmo/com.venmo.controller.InitialActivity}" drawable="tp_venmo" />
     <item component="ComponentInfo{com.squareup.cash/com.squareup.cash.ui.MainActivity}" drawable="ios18_wallet" />
 
     <!-- ==================== FILES ==================== -->
@@ -163,38 +163,38 @@
     <!-- ==================== HEALTH / FITNESS ==================== -->
     <item component="ComponentInfo{com.google.android.apps.fitness/com.google.android.apps.fitness.FitMainActivity}" drawable="ios18_health" />
     <item component="ComponentInfo{com.samsung.android.shealth/com.samsung.android.shealth.app.home.HomeActivity}" drawable="ios18_health" />
-    <item component="ComponentInfo{com.strava/com.strava.ui.splash.SplashActivity}" drawable="ios18_health" />
+    <item component="ComponentInfo{com.strava/com.strava.ui.splash.SplashActivity}" drawable="tp_strava" />
     <item component="ComponentInfo{com.myfitnesspal.android/com.myfitnesspal.android.ui.app.SplashActivity}" drawable="ios18_health" />
     <item component="ComponentInfo{com.fitbit.FitbitMobile/com.fitbit.FitbitMobile.ui.splash.SplashScreenActivity}" drawable="ios18_health" />
 
     <!-- ==================== SOCIAL MEDIA ==================== -->
-    <item component="ComponentInfo{com.instagram.android/com.instagram.mainactivity.InstagramMainActivity}" drawable="ios18_camera" />
-    <item component="ComponentInfo{com.twitter.android/com.twitter.app.main.MainActivity}" drawable="ios18_safari" />
-    <item component="ComponentInfo{com.whatsapp/com.whatsapp.HomeActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{com.whatsapp.w4b/com.whatsapp.HomeActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{org.telegram.messenger/org.telegram.ui.LaunchActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{org.telegram.messenger.web/org.telegram.ui.LaunchActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{com.discord/com.discord.main.MainActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{com.facebook.katana/com.facebook.katana.LoginActivity}" drawable="ios18_safari" />
-    <item component="ComponentInfo{com.facebook.orca/com.facebook.orca.auth.StartScreenActivity}" drawable="ios18_messages" />
-    <item component="ComponentInfo{com.snapchat.android/com.snapchat.android.LandingPageActivity}" drawable="ios18_camera" />
-    <item component="ComponentInfo{com.reddit.frontpage/com.reddit.frontpage.MainActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.instagram.android/com.instagram.mainactivity.InstagramMainActivity}" drawable="tp_instagram" />
+    <item component="ComponentInfo{com.twitter.android/com.twitter.app.main.MainActivity}" drawable="tp_twitter" />
+    <item component="ComponentInfo{com.whatsapp/com.whatsapp.HomeActivity}" drawable="tp_whatsapp" />
+    <item component="ComponentInfo{com.whatsapp.w4b/com.whatsapp.HomeActivity}" drawable="tp_whatsapp" />
+    <item component="ComponentInfo{org.telegram.messenger/org.telegram.ui.LaunchActivity}" drawable="tp_telegram" />
+    <item component="ComponentInfo{org.telegram.messenger.web/org.telegram.ui.LaunchActivity}" drawable="tp_telegram" />
+    <item component="ComponentInfo{com.discord/com.discord.main.MainActivity}" drawable="tp_discord" />
+    <item component="ComponentInfo{com.facebook.katana/com.facebook.katana.LoginActivity}" drawable="tp_facebook" />
+    <item component="ComponentInfo{com.facebook.orca/com.facebook.orca.auth.StartScreenActivity}" drawable="tp_facebook" />
+    <item component="ComponentInfo{com.snapchat.android/com.snapchat.android.LandingPageActivity}" drawable="tp_snapchat" />
+    <item component="ComponentInfo{com.reddit.frontpage/com.reddit.frontpage.MainActivity}" drawable="tp_reddit" />
     <item component="ComponentInfo{com.linkedin.android/com.linkedin.android.authenticator.LaunchActivity}" drawable="ios18_safari" />
-    <item component="ComponentInfo{com.pinterest/com.pinterest.activity.PinterestActivity}" drawable="ios18_camera" />
+    <item component="ComponentInfo{com.pinterest/com.pinterest.activity.PinterestActivity}" drawable="tp_pinterest" />
     <item component="ComponentInfo{com.tiktok/com.ss.android.ugc.aweme.splash.SplashActivity}" drawable="ios18_camera" />
-    <item component="ComponentInfo{com.zhiliaoapp.musically/com.ss.android.ugc.aweme.splash.SplashActivity}" drawable="ios18_camera" />
-    <item component="ComponentInfo{com.Slack/com.Slack.ui.HomeActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{com.zhiliaoapp.musically/com.ss.android.ugc.aweme.splash.SplashActivity}" drawable="tp_tiktok" />
+    <item component="ComponentInfo{com.Slack/com.Slack.ui.HomeActivity}" drawable="tp_slack" />
     <item component="ComponentInfo{com.viber.voip/com.viber.voip.WelcomeActivity}" drawable="ios18_messages" />
     <item component="ComponentInfo{org.signal.signal/org.thoughtcrime.securesms.MainActivity}" drawable="ios18_messages" />
     <item component="ComponentInfo{com.mastodon.android/com.mastodon.android.MainActivity}" drawable="ios18_safari" />
 
     <!-- ==================== YOUTUBE ==================== -->
-    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="ios18_facetime" />
-    <item component="ComponentInfo{com.vanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="ios18_facetime" />
-    <item component="ComponentInfo{app.revanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
+    <item component="ComponentInfo{com.vanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
+    <item component="ComponentInfo{app.revanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
 
     <!-- ==================== STREAMING / VIDEO ==================== -->
-    <item component="ComponentInfo{com.netflix.mediaclient/com.netflix.mediaclient.ui.launch.UIWebViewActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.netflix.mediaclient/com.netflix.mediaclient.ui.launch.UIWebViewActivity}" drawable="tp_netflix" />
     <item component="ComponentInfo{com.disney.disneyplus/com.bamtechmedia.dominguez.main.MainActivity}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.hbo.hbonow/com.hbo.hbonow.app.HBOMainActivity}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.amazon.avod.thirdpartyclient/com.amazon.avod.thirdpartyclient.LauncherActivity}" drawable="ios18_facetime" />
@@ -226,23 +226,23 @@
     <item component="ComponentInfo{com.microsoft.onedrive/com.microsoft.onedrive.MainActivity}" drawable="ios18_files" />
 
     <!-- ==================== SHOPPING ==================== -->
-    <item component="ComponentInfo{com.amazon.mShop.android.shopping/com.amazon.mShop.home.HomeActivity}" drawable="ios18_appstore" />
+    <item component="ComponentInfo{com.amazon.mShop.android.shopping/com.amazon.mShop.home.HomeActivity}" drawable="tp_amazon" />
     <item component="ComponentInfo{com.ebay.mobile/com.ebay.mobile.activities.MainActivity}" drawable="ios18_appstore" />
     <item component="ComponentInfo{com.shopify.arrive/com.shopify.arrive.activities.LaunchActivity}" drawable="ios18_appstore" />
     <item component="ComponentInfo{com.alibaba.aliexpresshd/com.alibaba.aliexpresshd.home.ui.SplashActivity}" drawable="ios18_appstore" />
 
     <!-- ==================== BANKING / FINANCE ==================== -->
-    <item component="ComponentInfo{com.robinhood.android/com.robinhood.android.app.TopLevelActivity}" drawable="ios18_wallet" />
+    <item component="ComponentInfo{com.robinhood.android/com.robinhood.android.app.TopLevelActivity}" drawable="tp_robinhood" />
     <item component="ComponentInfo{com.coinbase.android/com.coinbase.android.ui.MainActivity}" drawable="ios18_wallet" />
     <item component="ComponentInfo{piuk.blockchain.android/piuk.blockchain.android.ui.launcher.LauncherActivity}" drawable="ios18_wallet" />
 
     <!-- ==================== TRANSPORTATION ==================== -->
-    <item component="ComponentInfo{com.ubercab/com.ubercab.presidio.app.core.root.RootActivity}" drawable="ios18_maps" />
+    <item component="ComponentInfo{com.ubercab/com.ubercab.presidio.app.core.root.RootActivity}" drawable="tp_uber" />
     <item component="ComponentInfo{com.lyft.android/com.lyft.android.ui.LyftSplashActivity}" drawable="ios18_maps" />
 
     <!-- ==================== FOOD DELIVERY ==================== -->
     <item component="ComponentInfo{com.dd.doordash/com.dd.doordash.activity.SplashScreenActivity}" drawable="ios18_maps" />
-    <item component="ComponentInfo{com.ubereats/com.ubercab.eats.ui.root.RootActivity}" drawable="ios18_maps" />
+    <item component="ComponentInfo{com.ubereats/com.ubercab.eats.ui.root.RootActivity}" drawable="tp_uber" />
     <item component="ComponentInfo{com.grubhub.android/com.grubhub.android.ui.SplashActivity}" drawable="ios18_maps" />
 
     <!-- ==================== UTILITIES ==================== -->
@@ -299,5 +299,68 @@
     <!-- ==================== DEV TOOLS ==================== -->
     <item component="ComponentInfo{com.github.android/com.github.android.activities.SplashActivity}" drawable="ios18_safari" />
     <item component="ComponentInfo{com.termux/com.termux.app.TermuxActivity}" drawable="ios18_settings" />
+
+
+    <!-- ==================== THIRD-PARTY (iOS Icon Pack v1.1.1) ==================== -->
+    <!-- Apps that ship a dedicated tp_* PNG rather than reusing a stock iOS glyph. -->
+    <item component="ComponentInfo{com.amazon.mShop.android.shopping/com.amazon.mShop.home.HomeActivity}" drawable="tp_amazon" />
+    <item component="ComponentInfo{com.amazon.windowshop/com.amazon.windowshop.WindowshopActivity}" drawable="tp_amazon" />
+    <item component="ComponentInfo{com.shazam.android/com.shazam.android.activities.LaunchActivity}" drawable="tp_shazam" />
+    <!-- Threads (by Instagram team) - use Instagram tp icon until dedicated art ships -->
+    <item component="ComponentInfo{com.instagram.barcelona/com.instagram.barcelona.MainActivity}" drawable="tp_instagram" />
+    <!-- X (new Twitter package) -->
+    <item component="ComponentInfo{com.x.android/com.twitter.app.main.MainActivity}" drawable="tp_twitter" />
+    <!-- BeReal, photo-sharing-but-really-social -->
+    <item component="ComponentInfo{com.bereal.ft/com.bereal.ft.MainActivity}" drawable="tp_instagram" />
+    <!-- Threema, secure messenger -->
+    <item component="ComponentInfo{ch.threema.app/ch.threema.app.activities.HomeActivity}" drawable="tp_whatsapp" />
+    <!-- Signal Private Messenger -->
+    <item component="ComponentInfo{org.thoughtcrime.securesms/org.thoughtcrime.securesms.RoutingActivity}" drawable="tp_whatsapp" />
+    <!-- Session, onion-routed messenger -->
+    <item component="ComponentInfo{network.loki.messenger/org.thoughtcrime.securesms.home.HomeActivity}" drawable="tp_telegram" />
+    <!-- Microsoft Teams -->
+    <item component="ComponentInfo{com.microsoft.teams/com.microsoft.teams.LauncherActivity}" drawable="tp_slack" />
+    <!-- Lemmy clients - use Reddit icon -->
+    <item component="ComponentInfo{com.jerboa/com.jerboa.MainActivity}" drawable="tp_reddit" />
+    <item component="ComponentInfo{com.jerboa.debug/com.jerboa.MainActivity}" drawable="tp_reddit" />
+    <!-- Mastodon -->
+    <item component="ComponentInfo{org.joinmastodon.android/org.joinmastodon.android.MainActivity}" drawable="tp_twitter" />
+    <item component="ComponentInfo{com.sct.elk/com.sct.elk.MainActivity}" drawable="tp_twitter" />
+    <!-- Bluesky -->
+    <item component="ComponentInfo{xyz.blueskyweb.app/xyz.blueskyweb.app.MainActivity}" drawable="tp_twitter" />
+    <!-- Lyft - alternate rideshare uses uber tp icon until dedicated art ships -->
+    <item component="ComponentInfo{me.lyft.android/com.lyft.android.app.MainActivity}" drawable="tp_uber" />
+    <!-- DoorDash, food delivery -->
+    <item component="ComponentInfo{com.dd.doordash/com.dd.doordash.ui.store.LandingActivity}" drawable="tp_uber" />
+    <!-- Grubhub -->
+    <item component="ComponentInfo{com.grubhub.android/com.grubhub.android.MainActivity}" drawable="tp_uber" />
+    <!-- Cash App -->
+    <item component="ComponentInfo{com.squareup.cash/com.squareup.cash.launcher.real.RealLauncherActivity}" drawable="tp_venmo" />
+    <!-- Audible - audiobooks, use Amazon tp icon -->
+    <item component="ComponentInfo{com.audible.application/com.audible.application.SplashActivity}" drawable="tp_amazon" />
+    <!-- GitHub mobile -->
+    <item component="ComponentInfo{com.github.android/com.github.android.activities.MainActivity}" drawable="ios18_files" />
+    <!-- Obsidian notes -->
+    <item component="ComponentInfo{md.obsidian/md.obsidian.MainActivity}" drawable="ios18_notes" />
+    <!-- Google Keep -->
+    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_notes" />
+    <!-- Notion -->
+    <item component="ComponentInfo{notion.id/notion.id.main.MainActivity}" drawable="ios18_notes" />
+    <!-- Bear Notes - use notes icon -->
+    <item component="ComponentInfo{com.bear.notes/com.bear.notes.MainActivity}" drawable="ios18_notes" />
+    <!-- Todoist -->
+    <item component="ComponentInfo{com.todoist/com.todoist.MainActivity}" drawable="ios18_calendar" />
+    <!-- Google Calendar -->
+    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
+    <item component="ComponentInfo{com.yahoo.mobile.client.android.mail/com.yahoo.mobile.client.android.mail.MainActivity}" drawable="ios18_mail" />
+    <!-- Proton Mail -->
+    <item component="ComponentInfo{ch.protonmail.android/ch.protonmail.android.MainActivity}" drawable="ios18_mail" />
+    <!-- 1Password -->
+    <item component="ComponentInfo{com.onepassword.android/com.onepassword.android.SplashActivity}" drawable="ios18_wallet" />
+    <item component="ComponentInfo{com.kunzisoft.keepass.free/com.kunzisoft.keepass.activities.FileDatabaseSelectActivity}" drawable="ios18_wallet" />
+    <!-- Duolingo -->
+    <item component="ComponentInfo{com.duolingo/com.duolingo.splash.LaunchActivity}" drawable="ios18_appstore" />
+    <!-- Khan Academy -->
+    <item component="ComponentInfo{org.khanacademy.android/org.khanacademy.android.activity.MainActivity}" drawable="ios18_appstore" />
 
 </resources>
