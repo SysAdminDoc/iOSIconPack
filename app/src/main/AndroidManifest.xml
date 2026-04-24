@@ -106,6 +106,32 @@
                 <action android:name="android.intent.action.MAIN" />
                 <category android:name="com.fede.launcher.THEME_ICONPACK" />
             </intent-filter>
+            <!-- Microsoft Launcher -->
+            <intent-filter>
+                <action android:name="com.microsoft.launcher.THEMES" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Action Launcher -->
+            <intent-filter>
+                <action android:name="com.actionlauncher.playstore.THEME" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- POCO Launcher (Xiaomi) -->
+            <intent-filter>
+                <action android:name="com.mi.launcher.THEMES" />
+                <action android:name="com.miui.home.launcher.action.PICK_ICON" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Pixel Launcher / NexusLauncher -->
+            <intent-filter>
+                <action android:name="com.google.android.apps.nexuslauncher.ACTION_ICON_PACK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
+            <!-- Niagara Launcher (reads standard ACTION_PICK_ICON — listed for completeness) -->
+            <intent-filter>
+                <action android:name="bitpit.launcher.ICON_PACK" />
+                <category android:name="android.intent.category.DEFAULT" />
+            </intent-filter>
             <!-- Generic -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />
