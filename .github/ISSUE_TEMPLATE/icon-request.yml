@@ -1,0 +1,66 @@
+name: Icon request
+description: Request an icon for an app that is not yet covered
+title: "[Icon] "
+labels: ["icon-request"]
+body:
+  - type: markdown
+    attributes:
+      value: |
+        Thanks for helping expand iOS Icon Pack. Fill in as much as you can so
+        the icon can be drawn and wired into `appfilter.xml` in one pass.
+
+  - type: input
+    id: app-name
+    attributes:
+      label: App name
+      description: User-facing name in the Play Store.
+      placeholder: e.g. Obsidian
+    validations:
+      required: true
+
+  - type: input
+    id: package-name
+    attributes:
+      label: Package name
+      description: Shown on the Play Store URL (after `id=`). Exact match required for `appfilter.xml`.
+      placeholder: e.g. md.obsidian
+    validations:
+      required: true
+
+  - type: input
+    id: component-name
+    attributes:
+      label: ComponentInfo (optional)
+      description: |
+        Output of `adb shell pm dump <pkg> | grep -A 1 "MAIN"` — the `ComponentInfo{…}` value.
+        Helps us map launch activities that differ from the package name.
+      placeholder: "ComponentInfo{md.obsidian/md.obsidian.MainActivity}"
+
+  - type: dropdown
+    id: eras
+    attributes:
+      label: Which iOS eras should ship this icon?
+      multiple: true
+      options:
+        - iOS 14
+        - iOS 15
+        - iOS 16
+        - iOS 17
+        - iOS 18
+        - iOS 26 (Liquid Glass)
+    validations:
+      required: true
+
+  - type: input
+    id: play-store-url
+    attributes:
+      label: Play Store URL
+      placeholder: https://play.google.com/store/apps/details?id=…
+
+  - type: textarea
+    id: notes
+    attributes:
+      label: Notes / reference imagery
+      description: |
+        Drop screenshots or links that show the desired iOS-style treatment.
+        Attach by dragging images into this box.

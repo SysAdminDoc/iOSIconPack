@@ -1,0 +1,36 @@
+name: Feature request
+description: Suggest an improvement to the pack, dashboard, or tooling
+title: "[Feature] "
+labels: ["enhancement"]
+body:
+  - type: textarea
+    id: summary
+    attributes:
+      label: Summary
+      description: One paragraph — what should the pack or dashboard do that it does not today?
+    validations:
+      required: true
+
+  - type: textarea
+    id: motivation
+    attributes:
+      label: Motivation
+      description: Why does this matter? What is the user story? Similar OSS packs that already do it?
+    validations:
+      required: true
+
+  - type: textarea
+    id: alternatives
+    attributes:
+      label: Alternatives considered
+
+  - type: checkboxes
+    id: scope
+    attributes:
+      label: Scope
+      options:
+        - label: Icon artwork (new era, redraw, theming)
+        - label: Dashboard UI (Blueprint config, AMOLED polish)
+        - label: Build tooling (`fetch_icons.py`, CI, validators)
+        - label: Launcher integration (new launcher support, per-launcher install flow)
+        - label: Documentation

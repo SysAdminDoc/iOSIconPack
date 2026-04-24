@@ -1,0 +1,54 @@
+name: Bug report
+description: Something in the icon pack or dashboard is broken
+title: "[Bug] "
+labels: ["bug"]
+body:
+  - type: input
+    id: app-version
+    attributes:
+      label: iOS Icon Pack version
+      placeholder: v1.1.0
+    validations:
+      required: true
+
+  - type: input
+    id: launcher
+    attributes:
+      label: Launcher + version
+      placeholder: "Nova Launcher 8.0.2 / Lawnchair 14 / Niagara 1.16"
+    validations:
+      required: true
+
+  - type: input
+    id: android-version
+    attributes:
+      label: Android version + OEM skin
+      placeholder: "Android 14 / One UI 6.1 / Pixel stock / OxygenOS 14"
+    validations:
+      required: true
+
+  - type: textarea
+    id: repro
+    attributes:
+      label: Reproduction steps
+      description: Enumerate the exact steps. A short screen recording helps more than screenshots for gesture bugs.
+      placeholder: |
+        1. Apply pack via Nova > Settings > Look & feel
+        2. Tap Safari icon
+        3. Observe: launcher returns to home instead of launching Safari
+    validations:
+      required: true
+
+  - type: textarea
+    id: expected-actual
+    attributes:
+      label: Expected vs actual
+    validations:
+      required: true
+
+  - type: textarea
+    id: logs
+    attributes:
+      label: Logcat / crash trace (optional)
+      description: Paste `adb logcat` output or crash trace inside the code fence below.
+      render: shell
