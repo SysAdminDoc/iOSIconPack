@@ -2,6 +2,41 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.1] — 2026-04-24
+
+### Added
+- `fetch_icons.py` CLI flags — `--only`, `--tp-only`, `--era`, `--dry-run`,
+  `--validate` — the validator subcommand reports every icon on disk that
+  lacks an appfilter mapping so dead-weight art does not ship in the APK.
+- `requirements.txt` pinning Pillow, referenced from CONTRIBUTING.md.
+- 36 new `appfilter.xml` entries for popular apps that were previously
+  unmapped: Threads, X, BeReal, Threema, Signal, Session, Microsoft Teams,
+  Jerboa (Lemmy), Mastodon, Elk, Bluesky, Lyft, DoorDash, Grubhub, Cash
+  App, Audible, Kindle, GitHub mobile, Obsidian, Google Keep, Notion,
+  Bear, Todoist, Google Calendar, Outlook, Yahoo Mail, Proton Mail,
+  1Password, Bitwarden, KeePassDX, Duolingo, Khan Academy, etc.
+
+### Changed
+- 30 existing `appfilter.xml` mappings redirected from generic `ios18_*`
+  glyphs to the dedicated `tp_*` PNGs (Instagram, WhatsApp, Telegram,
+  Discord, Spotify, Netflix, YouTube + ReVanced/Vanced, Twitter, TikTok,
+  Snapchat, Facebook / Messenger, Chrome, Gmail, Google Maps, Uber /
+  Uber Eats, Reddit, Slack, Zoom, Pinterest, Amazon Shopping, PayPal,
+  Venmo, Robinhood, Strava, Shazam). The third-party art had shipped in
+  the APK for a release but was dead weight — no component pointed to
+  it.
+- `fetch_icons.py` no longer bootstraps Pillow at runtime. It now fails
+  fast with a clear instruction to `pip install -r requirements.txt`,
+  consistent with the rest of the project's tooling.
+- `fetch_icons.py` writes third-party icons under the canonical `tp_`
+  prefix (was `3p_`, which did not match any drawable on disk — another
+  latent bug).
+
+### Fixed
+- `.gitignore` no longer excludes `fetch_icons.py`; the script is part
+  of the supported contributor toolchain now that the auto-install
+  pattern has been removed.
+
 ## [v1.1.0] — 2026-04-24
 
 ### Added
