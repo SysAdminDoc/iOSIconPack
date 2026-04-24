@@ -1,18 +1,27 @@
-# iOS Icon Pack
+<p align="center"><img src="icon.png" width="128" alt="iOS Icon Pack"></p>
 
-![Version](https://img.shields.io/badge/version-v2.5.1-blue) ![License](https://img.shields.io/badge/license-MIT-green) ![Platform](https://img.shields.io/badge/platform-Kotlin-lightgrey)
+<h1 align="center">iOS Icon Pack</h1>
 
-The ultimate iOS-style icon pack for Android. Every iOS generation in one app - pick and choose which era's icons to apply per-app.
+<p align="center">
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.1.0-58A6FF?style=for-the-badge">
+  <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
+  <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
+  <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26-58A6FF?style=for-the-badge">
+</p>
+
+The ultimate iOS-style icon pack for Android. Every iOS generation in one app — pick and choose which era's icons to apply per-app.
 
 ## Features
 
-- **6 iOS Eras** - iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
-- **Mix & Match** - Apply different generations to different apps
-- **110+ Icons** - 20 per era covering the most popular apps
-- **30+ Launcher Support** - Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, and more
-- **AMOLED Dark Theme** - Native dark mode dashboard
-- **Icon Requests** - Request icons for apps not yet covered
-- **Free & Open Source** - No ads, no tracking, no IAP
+- **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
+- **Mix & Match** — Apply different generations to different apps
+- **110+ Icons** — 20 per era covering the most popular apps
+- **Monochrome themed icons** — Full Android 13+ dynamic theming support across every era
+- **Auto-generated placeholders** — Colored letter tiles for any app not yet hand-drawn
+- **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, and more
+- **AMOLED Dark Theme** — Native dark mode dashboard
+- **Icon Requests** — Request icons for apps not yet covered
+- **Free & Open Source** — No ads, no tracking, no IAP
 
 ## iOS Generations
 
@@ -23,31 +32,34 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app - 
 | iOS 16 | Bold colors, refined squircle | 20 |
 | iOS 17 | Refined flat | 20 |
 | iOS 18 | Tinted/dark mode, refined gradients | 20 |
-| iOS 26 | Liquid Glass - frosted translucent | 10 |
+| iOS 26 | Liquid Glass — frosted translucent | 10 |
 
 ## Supported Launchers
 
-Nova, Lawnchair, Apex, Smart Launcher, OnePlus, Samsung One UI, LG Home, Sony, Projectivy, GO Launcher, ADW, Holo, and 20+ more.
+Nova, Lawnchair, Apex, Smart Launcher, OnePlus, Samsung One UI, LG Home, Sony, Projectivy, GO Launcher, ADW, Holo, Niagara, and 20+ more.
 
 ## Build
 
 ```bash
-./gradlew assembleDebug
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 ```
+
+See [CLAUDE.md](CLAUDE.md) for build gotchas.
 
 ## Contributing Icons
 
 1. Design your icon as a 192x192 SVG with the iOS squircle shape
 2. Convert to Android Vector Drawable XML
 3. Place in `app/src/main/res/drawable/` following naming: `ios{ver}_{app}.xml`
-4. Update `appfilter.xml`, `drawable.xml`, `appmap.xml`, and `icon_pack.xml`
+4. Update `appfilter.xml`, `drawable.xml`, `appmap.xml`, and `icon_pack.xml` (both `res/xml/` and `assets/` copies)
 5. Submit a PR
 
 ## Credits
 
 - Dashboard: [Blueprint](https://github.com/jahirfiquitiva/Blueprint) by Jahir Fiquitiva
-- Built with Kotlin and Android SDK
+- Built with Kotlin and the Android SDK
 
 ## License
 
-Apache License 2.0
+MIT — see [LICENSE](LICENSE).
