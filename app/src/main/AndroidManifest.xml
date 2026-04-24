@@ -127,11 +127,7 @@
                 <action android:name="com.google.android.apps.nexuslauncher.ACTION_ICON_PACK" />
                 <category android:name="android.intent.category.DEFAULT" />
             </intent-filter>
-            <!-- Niagara Launcher (reads standard ACTION_PICK_ICON — listed for completeness) -->
-            <intent-filter>
-                <action android:name="bitpit.launcher.ICON_PACK" />
-                <category android:name="android.intent.category.DEFAULT" />
-            </intent-filter>
+            <!-- Niagara reads the generic org.adw.launcher.THEMES channel above; no bespoke filter needed. -->
             <!-- Generic -->
             <intent-filter>
                 <action android:name="android.intent.action.MAIN" />

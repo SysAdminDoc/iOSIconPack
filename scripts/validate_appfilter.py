@@ -17,7 +17,6 @@ that happens.
 from __future__ import annotations
 
 import hashlib
-import re
 import sys
 from pathlib import Path
 from xml.etree import ElementTree as ET
@@ -60,8 +59,12 @@ def _collect_drawables() -> set[str]:
     for root in RES_DRAWABLE_ROOTS:
         if not root.exists():
             continue
-        for child in root.iterdir():
+        # Recurse so vector drawables organised into ios14/, ios15/, ... subfolders
+        # are still counted when a future refactor reshapes res/drawable layout.
+        for child in root.rglob("*"):
             if child.is_dir():
+                continue
+            if child.suffix.lower() not in {".png", ".xml", ".webp", ".jpg", ".jpeg"}:
                 continue
             stem = child.stem
             if stem.startswith(skip_prefixes):
