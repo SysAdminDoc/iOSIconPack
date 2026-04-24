@@ -12,10 +12,14 @@ android {
 
     signingConfigs {
         release {
+            // Credentials read from env vars in CI; fallback to the committed dev
+            // keystore credentials so offline contributors can still produce a
+            // signed release artifact. Production releases must override via
+            // IOSICONS_STORE_PASSWORD / IOSICONS_KEY_ALIAS / IOSICONS_KEY_PASSWORD.
             storeFile file("../iosicons.jks")
-            storePassword "iconpack123"
-            keyAlias "iosicons"
-            keyPassword "iconpack123"
+            storePassword System.getenv('IOSICONS_STORE_PASSWORD') ?: "iconpack123"
+            keyAlias System.getenv('IOSICONS_KEY_ALIAS') ?: "iosicons"
+            keyPassword System.getenv('IOSICONS_KEY_PASSWORD') ?: "iconpack123"
         }
     }
 

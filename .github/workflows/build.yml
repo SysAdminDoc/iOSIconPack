@@ -1,10 +1,15 @@
-name: Build APK
+name: Build APK + AAB
 
 on:
   push:
     tags:
       - 'v*'
   workflow_dispatch:
+    inputs:
+      version:
+        description: 'Version tag to publish (e.g. v1.1.2). Leave blank for a dry-run build.'
+        required: false
+        type: string
 
 permissions:
   contents: write
@@ -24,22 +29,68 @@ jobs:
 
       - name: Setup Gradle
         uses: gradle/actions/setup-gradle@v4
+        with:
+          cache-read-only: ${{ github.ref != 'refs/heads/master' }}
+
+      - name: Set up Python for validators
+        uses: actions/setup-python@v5
+        with:
+          python-version: '3.12'
+
+      - name: Validate appfilter consistency
+        run: python3 scripts/validate_appfilter.py
 
       - name: Build Release APK
+        env:
+          IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
+          IOSICONS_KEY_ALIAS: ${{ secrets.IOSICONS_KEY_ALIAS }}
+          IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}
         run: ./gradlew assembleRelease
 
-      - name: Upload APK
+      - name: Build Release AAB
+        env:
+          IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
+          IOSICONS_KEY_ALIAS: ${{ secrets.IOSICONS_KEY_ALIAS }}
+          IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}
+        run: ./gradlew bundleRelease
+
+      - name: Upload APK artifact
         uses: actions/upload-artifact@v4
         with:
           name: ios-icon-pack-apk
           path: app/build/outputs/apk/release/*.apk
 
-      - name: Create Release
+      - name: Upload AAB artifact
+        uses: actions/upload-artifact@v4
+        with:
+          name: ios-icon-pack-aab
+          path: app/build/outputs/bundle/release/*.aab
+
+      - name: Create Release (tag push)
         if: startsWith(github.ref, 'refs/tags/')
         run: |
-          gh release create ${{ github.ref_name }} \
+          gh release create "${{ github.ref_name }}" \
             app/build/outputs/apk/release/*.apk \
+            app/build/outputs/bundle/release/*.aab \
             --title "iOS Icon Pack ${{ github.ref_name }}" \
             --generate-notes
+        env:
+          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
+
+      - name: Create Release (manual dispatch)
+        if: github.event_name == 'workflow_dispatch' && inputs.version != ''
+        run: |
+          TAG="${{ inputs.version }}"
+          git tag -f "$TAG"
+          git push -f origin "$TAG"
+          gh release create "$TAG" \
+            app/build/outputs/apk/release/*.apk \
+            app/build/outputs/bundle/release/*.aab \
+            --title "iOS Icon Pack $TAG" \
+            --generate-notes \
+            || gh release upload "$TAG" \
+              app/build/outputs/apk/release/*.apk \
+              app/build/outputs/bundle/release/*.aab \
+              --clobber
         env:
           GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
