@@ -1,0 +1,5 @@
+# Runtime requirements for the icon-fetching and validator scripts.
+# Install in a virtualenv before running fetch_icons.py:
+#     python3 -m venv .venv && source .venv/bin/activate
+#     pip install -r requirements.txt
+Pillow>=10.0.0
