@@ -7,7 +7,10 @@ object Versions {
     const val ksp = "2.3.4"
 
     // App
-    const val minSdk = 23
+    // minSdk 26 (Android 8.0) — adaptive icons are a mandatory feature of the
+    // pack, and Android 13+ themed icons require the monochrome layer introduced
+    // in API 33. API 23 is below both thresholds. Stack convention is 26.
+    const val minSdk = 26
     const val targetSdk = 36
     const val buildTools = "36.0.0"
 

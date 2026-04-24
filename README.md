@@ -3,10 +3,10 @@
 <h1 align="center">iOS Icon Pack</h1>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v1.1.1-58A6FF?style=for-the-badge">
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.1.2-58A6FF?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
   <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
-  <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26-58A6FF?style=for-the-badge">
+  <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26_(Android_8.0)-58A6FF?style=for-the-badge">
 </p>
 
 The ultimate iOS-style icon pack for Android. Every iOS generation in one app — pick and choose which era's icons to apply per-app.
@@ -16,9 +16,8 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
 - **Mix & Match** — Apply different generations to different apps
 - **135 Icons + 247 appfilter entries** — 110 iOS stock across 6 eras + 25 dedicated third-party (Instagram, WhatsApp, Spotify, Netflix, YouTube…), and 247 component mappings covering popular Android apps
-- **Monochrome themed icons** — Full Android 13+ dynamic theming support across every era
-- **Auto-generated placeholders** — Colored letter tiles for any app not yet hand-drawn
-- **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, and more
+- **Monochrome themed launcher icon** — Android 13+ dynamic theming support
+- **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **AMOLED Dark Theme** — Native dark mode dashboard
 - **Icon Requests** — Request icons for apps not yet covered
 - **Free & Open Source** — No ads, no tracking, no IAP

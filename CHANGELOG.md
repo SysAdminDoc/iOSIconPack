@@ -2,6 +2,26 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.2] — 2026-04-24
+
+### Changed
+- `minSdk` bumped from 23 to 26 (Android 8.0). Adaptive icons are a
+  mandatory feature of the pack and Android 13+ themed icons need API 33;
+  both were already above the old floor. Aligns with the project stack
+  convention (minSdk 26 unless a specific need for lower).
+
+### Removed
+- `app/src/main/res/drawable/ic_launcher_background.xml` — orphan since
+  v1.1.0 when the adaptive icon switched to `@color/ic_launcher_background`
+  in `ic_launcher_colors.xml`. Kept no references; dropped to avoid the
+  namespace collision where a drawable and a color share the same id.
+
+### Fixed
+- README feature list no longer claims an "Auto-generated placeholders"
+  feature that does not exist. The placeholder engine is on the roadmap
+  but was not shipped. Replaced that bullet with the accurate list of
+  new launcher integrations.
+
 ## [v1.1.1] — 2026-04-24
 
 ### Added
