@@ -233,6 +233,84 @@ footer {
     text-align: center;
 }
 footer a { color: var(--accent); text-decoration: none; }
+
+/* Tab nav */
+.tab-bar {
+    display: flex;
+    gap: 0.25rem;
+    border-bottom: 1px solid var(--border);
+    padding: 0 1.5rem;
+    background: var(--surface);
+}
+.tab-btn {
+    background: transparent;
+    border: none;
+    border-bottom: 2px solid transparent;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.82rem;
+    padding: 0.6rem 0.9rem;
+    margin-bottom: -1px;
+    transition: color 0.15s, border-color 0.15s;
+}
+.tab-btn:hover { color: var(--text); }
+.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+/* Compare grid */
+.compare-note {
+    color: var(--muted);
+    font-size: 0.8rem;
+    margin-bottom: 1.25rem;
+}
+.cmp-scroll { overflow-x: auto; }
+.cmp-table {
+    border-collapse: collapse;
+    min-width: 520px;
+    width: 100%;
+}
+.cmp-table th, .cmp-table td {
+    padding: 0.4rem 0.5rem;
+    text-align: center;
+    vertical-align: middle;
+}
+.cmp-table thead th {
+    font-size: 0.7rem;
+    font-weight: 700;
+    letter-spacing: 0.06em;
+    text-transform: uppercase;
+    position: sticky;
+    top: 0;
+}
+.cmp-label-th {
+    text-align: left !important;
+    color: var(--muted) !important;
+    background: var(--bg) !important;
+    border-bottom: none !important;
+    font-size: 0.7rem !important;
+    min-width: 80px;
+}
+.cmp-table tbody tr:hover { background: var(--surface); }
+.cmp-table tbody tr:hover .cmp-label { color: var(--text); }
+.cmp-label {
+    text-align: left;
+    font-size: 0.72rem;
+    color: var(--muted);
+    white-space: nowrap;
+    padding-right: 1rem;
+}
+.cmp-img {
+    width: 44px;
+    height: 44px;
+    border-radius: 11px;
+    border: 1px solid transparent;
+    object-fit: contain;
+    display: block;
+    margin: 0 auto;
+    transition: transform 0.15s;
+}
+.cmp-img:hover { transform: scale(1.15); }
+.cmp-missing { color: var(--border); font-size: 0.9rem; }
+#compare-view { padding-top: 0.5rem; }
           </style>
         </head>
         <body>
@@ -262,8 +340,15 @@ footer a { color: var(--accent); text-decoration: none; }
           </div>
         </header>
 
+        <nav class="tab-bar">
+          <button class="tab-btn active" data-tab="browse">Browse</button>
+          <button class="tab-btn" data-tab="compare">Compare Eras</button>
+          <a class="tab-btn" href="requests.html" style="text-decoration:none">Requests ↗</a>
+        </nav>
+
         <main>
-          <section class="era-section" data-era="ios-18">
+          <div id="browse-view">
+            <section class="era-section" data-era="ios-18">
   <h2 class="era-heading"><span class="era-dot" style="background:#58A6FF"></span>iOS 18<span class="icon-count">20</span></h2>
   <div class="icon-grid">
 <div class="icon-card" data-name="ios18_safari" data-era="ios-18">
@@ -1114,7 +1199,41 @@ footer a { color: var(--accent); text-decoration: none; }
 </div>
 </div>
 </section>
-          <p id="empty-msg">No icons match your search.</p>
+            <p id="empty-msg">No icons match your search.</p>
+          </div>
+          <section id="compare-view" hidden>
+  <p class="compare-note">Every stock iOS app icon shown across all 6 design eras.
+    Liquid Glass column only exists for the first 10 icons.</p>
+  <div class="cmp-scroll">
+    <table class="cmp-table">
+      <thead>
+        <tr><th class="cmp-label-th">App</th><th style="color:#F8717140;background:#F8717115;border-bottom:2px solid #F87171;">14</th><th style="color:#FBBF2440;background:#FBBF2415;border-bottom:2px solid #FBBF24;">15</th><th style="color:#34D39940;background:#34D39915;border-bottom:2px solid #34D399;">16</th><th style="color:#A78BFA40;background:#A78BFA15;border-bottom:2px solid #A78BFA;">17</th><th style="color:#58A6FF40;background:#58A6FF15;border-bottom:2px solid #58A6FF;">18</th><th style="color:#9CA3AF40;background:#9CA3AF15;border-bottom:2px solid #9CA3AF;">iOS 26</th></tr>
+      </thead>
+      <tbody>
+<tr><td class="cmp-label">appstore</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_appstore.png" alt="ios14_appstore" loading="lazy" title="ios14_appstore" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_appstore.png" alt="ios15_appstore" loading="lazy" title="ios15_appstore" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_appstore.png" alt="ios16_appstore" loading="lazy" title="ios16_appstore" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_appstore.png" alt="ios17_appstore" loading="lazy" title="ios17_appstore" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_appstore.png" alt="ios18_appstore" loading="lazy" title="ios18_appstore" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">calculator</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_calculator.png" alt="ios14_calculator" loading="lazy" title="ios14_calculator" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_calculator.png" alt="ios15_calculator" loading="lazy" title="ios15_calculator" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_calculator.png" alt="ios16_calculator" loading="lazy" title="ios16_calculator" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_calculator.png" alt="ios17_calculator" loading="lazy" title="ios17_calculator" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_calculator.png" alt="ios18_calculator" loading="lazy" title="ios18_calculator" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">calendar</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_calendar.png" alt="ios14_calendar" loading="lazy" title="ios14_calendar" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_calendar.png" alt="ios15_calendar" loading="lazy" title="ios15_calendar" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_calendar.png" alt="ios16_calendar" loading="lazy" title="ios16_calendar" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_calendar.png" alt="ios17_calendar" loading="lazy" title="ios17_calendar" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_calendar.png" alt="ios18_calendar" loading="lazy" title="ios18_calendar" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">camera</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_camera.png" alt="ios14_camera" loading="lazy" title="ios14_camera" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_camera.png" alt="ios15_camera" loading="lazy" title="ios15_camera" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_camera.png" alt="ios16_camera" loading="lazy" title="ios16_camera" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_camera.png" alt="ios17_camera" loading="lazy" title="ios17_camera" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_camera.png" alt="ios18_camera" loading="lazy" title="ios18_camera" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_camera.png" alt="ios26_lg_camera" loading="lazy" title="ios26_lg_camera" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">clock</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_clock.png" alt="ios14_clock" loading="lazy" title="ios14_clock" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_clock.png" alt="ios15_clock" loading="lazy" title="ios15_clock" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_clock.png" alt="ios16_clock" loading="lazy" title="ios16_clock" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_clock.png" alt="ios17_clock" loading="lazy" title="ios17_clock" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_clock.png" alt="ios18_clock" loading="lazy" title="ios18_clock" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_clock.png" alt="ios26_lg_clock" loading="lazy" title="ios26_lg_clock" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">compass</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_compass.png" alt="ios14_compass" loading="lazy" title="ios14_compass" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_compass.png" alt="ios15_compass" loading="lazy" title="ios15_compass" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_compass.png" alt="ios16_compass" loading="lazy" title="ios16_compass" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_compass.png" alt="ios17_compass" loading="lazy" title="ios17_compass" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_compass.png" alt="ios18_compass" loading="lazy" title="ios18_compass" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">facetime</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_facetime.png" alt="ios14_facetime" loading="lazy" title="ios14_facetime" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_facetime.png" alt="ios15_facetime" loading="lazy" title="ios15_facetime" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_facetime.png" alt="ios16_facetime" loading="lazy" title="ios16_facetime" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_facetime.png" alt="ios17_facetime" loading="lazy" title="ios17_facetime" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_facetime.png" alt="ios18_facetime" loading="lazy" title="ios18_facetime" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">files</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_files.png" alt="ios14_files" loading="lazy" title="ios14_files" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_files.png" alt="ios15_files" loading="lazy" title="ios15_files" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_files.png" alt="ios16_files" loading="lazy" title="ios16_files" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_files.png" alt="ios17_files" loading="lazy" title="ios17_files" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_files.png" alt="ios18_files" loading="lazy" title="ios18_files" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">health</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_health.png" alt="ios14_health" loading="lazy" title="ios14_health" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_health.png" alt="ios15_health" loading="lazy" title="ios15_health" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_health.png" alt="ios16_health" loading="lazy" title="ios16_health" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_health.png" alt="ios17_health" loading="lazy" title="ios17_health" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_health.png" alt="ios18_health" loading="lazy" title="ios18_health" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">mail</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_mail.png" alt="ios14_mail" loading="lazy" title="ios14_mail" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_mail.png" alt="ios15_mail" loading="lazy" title="ios15_mail" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_mail.png" alt="ios16_mail" loading="lazy" title="ios16_mail" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_mail.png" alt="ios17_mail" loading="lazy" title="ios17_mail" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_mail.png" alt="ios18_mail" loading="lazy" title="ios18_mail" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_mail.png" alt="ios26_lg_mail" loading="lazy" title="ios26_lg_mail" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">maps</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_maps.png" alt="ios14_maps" loading="lazy" title="ios14_maps" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_maps.png" alt="ios15_maps" loading="lazy" title="ios15_maps" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_maps.png" alt="ios16_maps" loading="lazy" title="ios16_maps" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_maps.png" alt="ios17_maps" loading="lazy" title="ios17_maps" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_maps.png" alt="ios18_maps" loading="lazy" title="ios18_maps" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_maps.png" alt="ios26_lg_maps" loading="lazy" title="ios26_lg_maps" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">messages</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_messages.png" alt="ios14_messages" loading="lazy" title="ios14_messages" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_messages.png" alt="ios15_messages" loading="lazy" title="ios15_messages" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_messages.png" alt="ios16_messages" loading="lazy" title="ios16_messages" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_messages.png" alt="ios17_messages" loading="lazy" title="ios17_messages" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_messages.png" alt="ios18_messages" loading="lazy" title="ios18_messages" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_messages.png" alt="ios26_lg_messages" loading="lazy" title="ios26_lg_messages" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">music</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_music.png" alt="ios14_music" loading="lazy" title="ios14_music" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_music.png" alt="ios15_music" loading="lazy" title="ios15_music" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_music.png" alt="ios16_music" loading="lazy" title="ios16_music" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_music.png" alt="ios17_music" loading="lazy" title="ios17_music" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_music.png" alt="ios18_music" loading="lazy" title="ios18_music" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_music.png" alt="ios26_lg_music" loading="lazy" title="ios26_lg_music" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">notes</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_notes.png" alt="ios14_notes" loading="lazy" title="ios14_notes" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_notes.png" alt="ios15_notes" loading="lazy" title="ios15_notes" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_notes.png" alt="ios16_notes" loading="lazy" title="ios16_notes" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_notes.png" alt="ios17_notes" loading="lazy" title="ios17_notes" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_notes.png" alt="ios18_notes" loading="lazy" title="ios18_notes" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">phone</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_phone.png" alt="ios14_phone" loading="lazy" title="ios14_phone" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_phone.png" alt="ios15_phone" loading="lazy" title="ios15_phone" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_phone.png" alt="ios16_phone" loading="lazy" title="ios16_phone" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_phone.png" alt="ios17_phone" loading="lazy" title="ios17_phone" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_phone.png" alt="ios18_phone" loading="lazy" title="ios18_phone" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">photos</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_photos.png" alt="ios14_photos" loading="lazy" title="ios14_photos" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_photos.png" alt="ios15_photos" loading="lazy" title="ios15_photos" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_photos.png" alt="ios16_photos" loading="lazy" title="ios16_photos" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_photos.png" alt="ios17_photos" loading="lazy" title="ios17_photos" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_photos.png" alt="ios18_photos" loading="lazy" title="ios18_photos" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_photos.png" alt="ios26_lg_photos" loading="lazy" title="ios26_lg_photos" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">safari</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_safari.png" alt="ios14_safari" loading="lazy" title="ios14_safari" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_safari.png" alt="ios15_safari" loading="lazy" title="ios15_safari" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_safari.png" alt="ios16_safari" loading="lazy" title="ios16_safari" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_safari.png" alt="ios17_safari" loading="lazy" title="ios17_safari" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_safari.png" alt="ios18_safari" loading="lazy" title="ios18_safari" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_safari.png" alt="ios26_lg_safari" loading="lazy" title="ios26_lg_safari" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">settings</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_settings.png" alt="ios14_settings" loading="lazy" title="ios14_settings" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_settings.png" alt="ios15_settings" loading="lazy" title="ios15_settings" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_settings.png" alt="ios16_settings" loading="lazy" title="ios16_settings" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_settings.png" alt="ios17_settings" loading="lazy" title="ios17_settings" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_settings.png" alt="ios18_settings" loading="lazy" title="ios18_settings" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_settings.png" alt="ios26_lg_settings" loading="lazy" title="ios26_lg_settings" style="border-color:#9CA3AF33"></td></tr>
+<tr><td class="cmp-label">wallet</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_wallet.png" alt="ios14_wallet" loading="lazy" title="ios14_wallet" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_wallet.png" alt="ios15_wallet" loading="lazy" title="ios15_wallet" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_wallet.png" alt="ios16_wallet" loading="lazy" title="ios16_wallet" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_wallet.png" alt="ios17_wallet" loading="lazy" title="ios17_wallet" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_wallet.png" alt="ios18_wallet" loading="lazy" title="ios18_wallet" style="border-color:#58A6FF33"></td><td><span class="cmp-missing">—</span></td></tr>
+<tr><td class="cmp-label">weather</td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_weather.png" alt="ios14_weather" loading="lazy" title="ios14_weather" style="border-color:#F8717133"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_weather.png" alt="ios15_weather" loading="lazy" title="ios15_weather" style="border-color:#FBBF2433"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_weather.png" alt="ios16_weather" loading="lazy" title="ios16_weather" style="border-color:#34D39933"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_weather.png" alt="ios17_weather" loading="lazy" title="ios17_weather" style="border-color:#A78BFA33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_weather.png" alt="ios18_weather" loading="lazy" title="ios18_weather" style="border-color:#58A6FF33"></td><td><img class="cmp-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_weather.png" alt="ios26_lg_weather" loading="lazy" title="ios26_lg_weather" style="border-color:#9CA3AF33"></td></tr>
+      </tbody>
+    </table>
+  </div>
+</section>
         </main>
 
         <footer>
@@ -1130,6 +1249,9 @@ footer a { color: var(--accent); text-decoration: none; }
     const cards = document.querySelectorAll('.icon-card');
     const sections = document.querySelectorAll('.era-section');
     const emptyMsg = document.getElementById('empty-msg');
+    const browseView = document.getElementById('browse-view');
+    const compareView = document.getElementById('compare-view');
+    const tabBtns = document.querySelectorAll('.tab-btn');
 
     let activeEra = 'all';
 
@@ -1163,6 +1285,23 @@ footer a { color: var(--accent); text-decoration: none; }
             btn.classList.add('active');
             activeEra = btn.dataset.era;
             update();
+        });
+    });
+
+    // Tab switching
+    tabBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            tabBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            const tab = btn.dataset.tab;
+            browseView.hidden = tab !== 'browse';
+            compareView.hidden = tab !== 'compare';
+            // Hide search/filter bar in compare mode
+            const searchWrap = document.querySelector('.search-wrap');
+            const filterBar = document.querySelector('.filter-bar');
+            const hide = tab === 'compare';
+            if (searchWrap) searchWrap.style.display = hide ? 'none' : '';
+            if (filterBar) filterBar.style.display = hide ? 'none' : '';
         });
     });
 })();

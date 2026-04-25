@@ -604,9 +604,60 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     return 0
 
 
-# ---------------------------------------------------------------------------
-# CLI wiring
-# ---------------------------------------------------------------------------
+def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
+    """Print icon pack statistics: counts by era, top apps by mapping count."""
+    # ── per-era PNG counts from disk ──────────────────────────────────────────
+    era_counts: dict[str, int] = {}
+    for f in sorted(DRAWABLE_HDPI.glob("*.png")):
+        prefix = _era_prefix(f.stem)
+        if prefix:
+            era_counts[prefix] = era_counts.get(prefix, 0) + 1
+
+    # ── component counts per drawable (from appfilter.xml) ───────────────────
+    af = _read(APPFILTER_RES)
+    mapping_counts: dict[str, int] = {}
+    for m in re.finditer(r'drawable="([^"]+)"', af):
+        name = m.group(1)
+        mapping_counts[name] = mapping_counts.get(name, 0) + 1
+
+    total_pngs     = sum(era_counts.values())
+    total_mappings = sum(mapping_counts.values())
+
+    # ── era name lookup ───────────────────────────────────────────────────────
+    prefix_to_name: dict[str, str] = {
+        "ios14_":    "iOS 14",
+        "ios15_":    "iOS 15",
+        "ios16_":    "iOS 16",
+        "ios17_":    "iOS 17",
+        "ios18_":    "iOS 18",
+        "ios26_lg_": "iOS 26 Liquid Glass",
+        "tp_":       "Third Party",
+    }
+
+    print("=" * 42)
+    print("iOS Icon Pack — Stats")
+    print("=" * 42)
+    print(f"{'Era':<24} {'Icons':>6}  {'Mappings':>8}")
+    print("-" * 42)
+
+    for prefix in ERA_PREFIXES:
+        name        = prefix_to_name.get(prefix, prefix.rstrip("_"))
+        icon_count  = era_counts.get(prefix, 0)
+        map_count   = sum(v for k, v in mapping_counts.items() if k.startswith(prefix))
+        print(f"  {name:<22} {icon_count:>6}  {map_count:>8}")
+
+    print("-" * 42)
+    print(f"  {'TOTAL':<22} {total_pngs:>6}  {total_mappings:>8}")
+    print()
+
+    # ── top N drawables by mapping count ─────────────────────────────────────
+    top_n: int = getattr(args, "top", 10)
+    top = sorted(mapping_counts.items(), key=lambda x: x[1], reverse=True)[:top_n]
+    print(f"Top {top_n} drawables by appfilter mapping count:")
+    for i, (name, count) in enumerate(top, 1):
+        print(f"  {i:>2}. {name:<32} {count:>3} mapping{'s' if count != 1 else ''}")
+
+    return 0
 
 def _build_parser() -> argparse.ArgumentParser:
     p = argparse.ArgumentParser(
@@ -704,6 +755,20 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run the full validate_appfilter.py validator",
     )
     check_p.set_defaults(func=cmd_check)
+
+    # --- stats ---
+    stats_p = sub.add_parser(
+        "stats",
+        help="Print icon and mapping counts by era, and top drawables by mapping count",
+    )
+    stats_p.add_argument(
+        "--top", "-t",
+        type=int,
+        default=10,
+        metavar="N",
+        help="Number of top drawables to show (default: 10)",
+    )
+    stats_p.set_defaults(func=cmd_stats)
 
     return p
 

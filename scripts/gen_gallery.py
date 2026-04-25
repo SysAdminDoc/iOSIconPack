@@ -28,6 +28,7 @@ from pathlib import Path
 REPO_ROOT = Path(__file__).parent.parent
 DRAWABLE_XML = REPO_ROOT / "app/src/main/res/xml/drawable.xml"
 APPFILTER_XML = REPO_ROOT / "app/src/main/res/xml/appfilter.xml"
+PACK_DIR = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 OUT_FILE = REPO_ROOT / "docs/index.html"
 
 RAW_BASE = (
@@ -55,6 +56,24 @@ ERA_SHORT: dict[str, str] = {
     "iOS 26 - Liquid Glass": "26",
     "Third Party":           "TP",
 }
+
+# Prefix → category title mapping (for comparison grid)
+PREFIX_TO_ERA: dict[str, str] = {
+    "ios18_":    "iOS 18",
+    "ios17_":    "iOS 17",
+    "ios16_":    "iOS 16",
+    "ios15_":    "iOS 15",
+    "ios14_":    "iOS 14",
+    "ios26_lg_": "iOS 26 - Liquid Glass",
+}
+COMPARE_ERAS: list[tuple[str, str]] = [
+    ("ios14_",    "iOS 14"),
+    ("ios15_",    "iOS 15"),
+    ("ios16_",    "iOS 16"),
+    ("ios17_",    "iOS 17"),
+    ("ios18_",    "iOS 18"),
+    ("ios26_lg_", "iOS 26"),
+]
 
 
 # ---------------------------------------------------------------------------
@@ -337,6 +356,84 @@ def _css() -> str:
             text-align: center;
         }
         footer a { color: var(--accent); text-decoration: none; }
+
+        /* Tab nav */
+        .tab-bar {
+            display: flex;
+            gap: 0.25rem;
+            border-bottom: 1px solid var(--border);
+            padding: 0 1.5rem;
+            background: var(--surface);
+        }
+        .tab-btn {
+            background: transparent;
+            border: none;
+            border-bottom: 2px solid transparent;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.82rem;
+            padding: 0.6rem 0.9rem;
+            margin-bottom: -1px;
+            transition: color 0.15s, border-color 0.15s;
+        }
+        .tab-btn:hover { color: var(--text); }
+        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+
+        /* Compare grid */
+        .compare-note {
+            color: var(--muted);
+            font-size: 0.8rem;
+            margin-bottom: 1.25rem;
+        }
+        .cmp-scroll { overflow-x: auto; }
+        .cmp-table {
+            border-collapse: collapse;
+            min-width: 520px;
+            width: 100%;
+        }
+        .cmp-table th, .cmp-table td {
+            padding: 0.4rem 0.5rem;
+            text-align: center;
+            vertical-align: middle;
+        }
+        .cmp-table thead th {
+            font-size: 0.7rem;
+            font-weight: 700;
+            letter-spacing: 0.06em;
+            text-transform: uppercase;
+            position: sticky;
+            top: 0;
+        }
+        .cmp-label-th {
+            text-align: left !important;
+            color: var(--muted) !important;
+            background: var(--bg) !important;
+            border-bottom: none !important;
+            font-size: 0.7rem !important;
+            min-width: 80px;
+        }
+        .cmp-table tbody tr:hover { background: var(--surface); }
+        .cmp-table tbody tr:hover .cmp-label { color: var(--text); }
+        .cmp-label {
+            text-align: left;
+            font-size: 0.72rem;
+            color: var(--muted);
+            white-space: nowrap;
+            padding-right: 1rem;
+        }
+        .cmp-img {
+            width: 44px;
+            height: 44px;
+            border-radius: 11px;
+            border: 1px solid transparent;
+            object-fit: contain;
+            display: block;
+            margin: 0 auto;
+            transition: transform 0.15s;
+        }
+        .cmp-img:hover { transform: scale(1.15); }
+        .cmp-missing { color: var(--border); font-size: 0.9rem; }
+        #compare-view { padding-top: 0.5rem; }
     """).strip()
 
 
@@ -348,6 +445,9 @@ def _js() -> str:
             const cards = document.querySelectorAll('.icon-card');
             const sections = document.querySelectorAll('.era-section');
             const emptyMsg = document.getElementById('empty-msg');
+            const browseView = document.getElementById('browse-view');
+            const compareView = document.getElementById('compare-view');
+            const tabBtns = document.querySelectorAll('.tab-btn');
 
             let activeEra = 'all';
 
@@ -383,6 +483,23 @@ def _js() -> str:
                     update();
                 });
             });
+
+            // Tab switching
+            tabBtns.forEach(btn => {
+                btn.addEventListener('click', () => {
+                    tabBtns.forEach(b => b.classList.remove('active'));
+                    btn.classList.add('active');
+                    const tab = btn.dataset.tab;
+                    browseView.hidden = tab !== 'browse';
+                    compareView.hidden = tab !== 'compare';
+                    // Hide search/filter bar in compare mode
+                    const searchWrap = document.querySelector('.search-wrap');
+                    const filterBar = document.querySelector('.filter-bar');
+                    const hide = tab === 'compare';
+                    if (searchWrap) searchWrap.style.display = hide ? 'none' : '';
+                    if (filterBar) filterBar.style.display = hide ? 'none' : '';
+                });
+            });
         })();
     """).strip()
 
@@ -414,6 +531,66 @@ def _card_html(
         f'  {comp_html}\n'
         f'</div>'
     )
+
+
+def _base_app_names() -> list[str]:
+    """Return sorted base names (e.g. 'mail') that have an ios18_* drawable on disk."""
+    names: list[str] = []
+    for p in sorted(PACK_DIR.glob("ios18_*.png")):
+        names.append(p.stem.removeprefix("ios18_"))
+    return names
+
+
+def _comparison_html() -> str:
+    """Return HTML for the era-comparison grid section."""
+    bases = _base_app_names()
+
+    col_headers = "".join(
+        f'<th style="color:{ERA_COLOURS.get(label, "#9CA3AF")}40;'
+        f'background:{ERA_COLOURS.get(label, "#9CA3AF")}15;'
+        f'border-bottom:2px solid {ERA_COLOURS.get(label, "#9CA3AF")};">'
+        f'{short}</th>'
+        for _, label in COMPARE_ERAS
+        for short in [ERA_SHORT.get(label, label)]
+    )
+
+    rows: list[str] = []
+    for base in bases:
+        cells = ""
+        for prefix, label in COMPARE_ERAS:
+            drawable = f"{prefix}{base}"
+            exists = (PACK_DIR / f"{drawable}.png").exists()
+            colour = ERA_COLOURS.get(label, "#9CA3AF")
+            if exists:
+                img_url = f"{RAW_BASE}/{drawable}.png"
+                cells += (
+                    f'<td><img class="cmp-img" src="{img_url}" '
+                    f'alt="{drawable}" loading="lazy" '
+                    f'title="{drawable}" '
+                    f'style="border-color:{colour}33"></td>'
+                )
+            else:
+                cells += '<td><span class="cmp-missing">—</span></td>'
+        rows.append(
+            f'<tr><td class="cmp-label">{base}</td>{cells}</tr>'
+        )
+
+    rows_html = "\n".join(rows)
+    return f"""\
+<section id="compare-view" hidden>
+  <p class="compare-note">Every stock iOS app icon shown across all 6 design eras.
+    Liquid Glass column only exists for the first 10 icons.</p>
+  <div class="cmp-scroll">
+    <table class="cmp-table">
+      <thead>
+        <tr><th class="cmp-label-th">App</th>{col_headers}</tr>
+      </thead>
+      <tbody>
+{rows_html}
+      </tbody>
+    </table>
+  </div>
+</section>"""
 
 
 def _generate_html() -> str:
@@ -480,9 +657,18 @@ def _generate_html() -> str:
           </div>
         </header>
 
+        <nav class="tab-bar">
+          <button class="tab-btn active" data-tab="browse">Browse</button>
+          <button class="tab-btn" data-tab="compare">Compare Eras</button>
+          <a class="tab-btn" href="requests.html" style="text-decoration:none">Requests ↗</a>
+        </nav>
+
         <main>
-          {sections_joined}
-          <p id="empty-msg">No icons match your search.</p>
+          <div id="browse-view">
+            {sections_joined}
+            <p id="empty-msg">No icons match your search.</p>
+          </div>
+          {_comparison_html()}
         </main>
 
         <footer>

@@ -2,6 +2,28 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.8] — 2026-04-25
+
+### Added
+- Gallery **Compare Eras** tab — side-by-side grid of every stock iOS app across
+  all 6 design eras (iOS 14 → iOS 18 → iOS 26 Liquid Glass). Era columns are
+  colour-coded; Liquid Glass column present only for the 10 Liquid Glass subset
+  apps. Implemented in `gen_gallery.py` (`_comparison_html()`, `_base_app_names()`).
+- `icontool stats` subcommand — prints per-era icon counts, component-mapping
+  counts, and top-N drawables by mapping (default top 10, `--top N` to override).
+- Squircle corner compliance check in `validate_drawables.py` (`check_squircle_corners()`).
+  Requires Pillow; skips gracefully when not installed. WARN-only (exits 0).
+  Reports summary count of icons with opaque corners; notes expected behaviour for
+  Apple-sourced icons whose squircle mask is applied by the launcher at runtime.
+
+### Changed
+- `gen_gallery.py`: added tab-bar nav (Browse / Compare Eras / Requests ↗),
+  `_js()` extended with tab-switching logic that hides search+filter bar in
+  Compare view. `PACK_DIR` and `COMPARE_ERAS` / `PREFIX_TO_ERA` constants added.
+- `validate_drawables.py`: squircle check integrated; output unchanged on pass
+  (still shows `OK (135 PNGs …)`), squircle summary line appended if Pillow present.
+- `scripts/icontool.py`: `stats` subcommand wired into `_build_parser()`.
+
 ## [v1.1.7] — 2026-04-25
 
 ### Added
