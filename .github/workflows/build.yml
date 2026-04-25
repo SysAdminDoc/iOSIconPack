@@ -32,7 +32,7 @@ jobs:
         with:
           cache-read-only: ${{ github.ref != 'refs/heads/master' }}
 
-      - name: Set up Python for validators
+      - name: Set up Python
         uses: actions/setup-python@v5
         with:
           python-version: '3.12'
@@ -49,19 +49,34 @@ jobs:
             echo "$KEYSTORE_BASE64" | base64 -d > "$RUNNER_TEMP/iosicons.jks"
             echo "path=$RUNNER_TEMP/iosicons.jks" >> "$GITHUB_OUTPUT"
           else
-            echo "::warning::IOSICONS_KEYSTORE_BASE64 not set — release build will be unsigned."
+            echo "::warning::IOSICONS_KEYSTORE_BASE64 not set — release builds will be unsigned."
             echo "path=" >> "$GITHUB_OUTPUT"
           fi
 
-      - name: Build Release APK
+      - name: Build per-era release APKs
         env:
           IOSICONS_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
           IOSICONS_KEY_ALIAS: ${{ secrets.IOSICONS_KEY_ALIAS }}
           IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}
-        run: ./gradlew assembleRelease
+        run: |
+          VERSION=$(grep versionName buildSrc/src/main/java/MyApp.kt | grep -oP '"\K[^"]+')
+          mkdir -p era-apks
 
-      - name: Build Release AAB
+          for ERA in ios14 ios15 ios16 ios17 ios18 ios26; do
+            echo "::group::Building $ERA era"
+            python3 scripts/set_era.py "$ERA"
+            ./gradlew assembleRelease
+            SRC=$(ls app/build/outputs/apk/release/*.apk | head -1)
+            cp "$SRC" "era-apks/iOSIconPack-v${VERSION}-${ERA}.apk"
+            echo "  → era-apks/iOSIconPack-v${VERSION}-${ERA}.apk"
+            echo "::endgroup::"
+          done
+
+          # Restore default era for AAB
+          python3 scripts/set_era.py ios18
+
+      - name: Build Release AAB (ios18 default)
         env:
           IOSICONS_KEYSTORE_PATH: ${{ steps.keystore.outputs.path }}
           IOSICONS_STORE_PASSWORD: ${{ secrets.IOSICONS_STORE_PASSWORD }}
@@ -69,11 +84,11 @@ jobs:
           IOSICONS_KEY_PASSWORD: ${{ secrets.IOSICONS_KEY_PASSWORD }}
         run: ./gradlew bundleRelease
 
-      - name: Upload APK artifact
+      - name: Upload APK artifacts
         uses: actions/upload-artifact@v4
         with:
-          name: ios-icon-pack-apk
-          path: app/build/outputs/apk/release/*.apk
+          name: ios-icon-pack-apks
+          path: era-apks/*.apk
 
       - name: Upload AAB artifact
         uses: actions/upload-artifact@v4
@@ -85,7 +100,7 @@ jobs:
         if: startsWith(github.ref, 'refs/tags/')
         run: |
           gh release create "${{ github.ref_name }}" \
-            app/build/outputs/apk/release/*.apk \
+            era-apks/*.apk \
             app/build/outputs/bundle/release/*.aab \
             --title "iOS Icon Pack ${{ github.ref_name }}" \
             --generate-notes
@@ -99,12 +114,12 @@ jobs:
           git tag -f "$TAG"
           git push -f origin "$TAG"
           gh release create "$TAG" \
-            app/build/outputs/apk/release/*.apk \
+            era-apks/*.apk \
             app/build/outputs/bundle/release/*.aab \
             --title "iOS Icon Pack $TAG" \
             --generate-notes \
             || gh release upload "$TAG" \
-              app/build/outputs/apk/release/*.apk \
+              era-apks/*.apk \
               app/build/outputs/bundle/release/*.aab \
               --clobber
         env:
