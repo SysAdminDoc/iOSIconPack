@@ -800,4 +800,85 @@
     <item component="ComponentInfo{com.visa.app.android/com.visa.app.android.MainActivity}" drawable="ios18_wallet" />
     <item component="ComponentInfo{com.barclays.android.barclaysmobilebanking/com.barclays.android.barclaysmobilebanking.LoginActivity}" drawable="ios18_wallet" />
     <item component="ComponentInfo{com.robinhood.android/com.robinhood.android.feature.login.LoginAndroidActivity}" drawable="tp_robinhood" />
+
+    <!-- ==================== AI ASSISTANTS ==================== -->
+    <item component="ComponentInfo{com.openai.chatgpt/com.openai.voice.assistant.AssistantActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.anthropic.claude/com.anthropic.claude.MainActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.perplexity.ask/com.perplexity.ask.MainActivity}" drawable="ios18_safari" />
+
+    <!-- ==================== PRODUCTIVITY ==================== -->
+    <item component="ComponentInfo{com.notion.android/com.notion.android.NotionMainActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.canva.editor/com.canva.app.editor.splash.SplashActivity}" drawable="ios18_photos" />
+    <item component="ComponentInfo{com.adobe.reader/com.adobe.reader.AdobeReader}" drawable="ios18_files" />
+    <item component="ComponentInfo{com.adobe.lrmobile/com.adobe.lrmobile.MainActivity}" drawable="ios18_photos" />
+    <item component="ComponentInfo{com.adobe.scan/com.adobe.scan.android.SplashScreenActivity}" drawable="ios18_camera" />
+    <item component="ComponentInfo{com.medium.reader/com.medium.android.donkey.start.SplashActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.feedly.android.app/com.devhd.feedly.LaunchActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.pocket.ui/com.ideashower.readitlater.activity.Main}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.quora.android/com.quora.android.LauncherActivity}" drawable="ios18_safari" />
+
+    <!-- ==================== STREAMING / ENTERTAINMENT ==================== -->
+    <item component="ComponentInfo{com.amazon.avod/com.amazon.avod.LauncherActivity}" drawable="tp_amazon" />
+    <item component="ComponentInfo{com.paramount.paramount/com.cbs.ott.android.launch.SplashActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{tv.pluto.android/tv.pluto.android.activities.SplashActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.funimation.funimationapp/com.funimation.funimationapp.ui.splash.SplashActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.deezer.android/com.deezer.android.ui.activity.LauncherActivity}" drawable="ios18_music" />
+    <item component="ComponentInfo{com.zhiliaoapp.musically.go/com.ss.android.ugc.aweme.splash.SplashActivity}" drawable="ios18_camera" />
+
+    <!-- ==================== DATING ==================== -->
+    <item component="ComponentInfo{com.tinder/com.tinder.activities.LoginActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{com.bumble.app/com.bumble.app.LaunchActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{com.badoo.mobile/com.badoo.mobile.SplashScreenActivity}" drawable="ios18_messages" />
+
+    <!-- ==================== SIGNAL / SECURE MESSAGING ==================== -->
+    <item component="ComponentInfo{org.signal.android/org.thoughtcrime.securesms.RoutingActivity}" drawable="ios18_messages" />
+    <item component="ComponentInfo{org.thoughtcrime.securesms/org.thoughtcrime.securesms.RoutingActivity}" drawable="ios18_messages" />
+
+    <!-- ==================== FITNESS / HEALTH ==================== -->
+    <item component="ComponentInfo{com.nike.omega/com.nike.ntc.activity.MainFeedActivity}" drawable="ios18_health" />
+    <item component="ComponentInfo{com.underarmour.myfitnesspal/com.myfitnesspal.android.ui.LaunchActivity}" drawable="ios18_health" />
+    <item component="ComponentInfo{com.peloton.peloton/com.peloton.android.splash.SplashActivity}" drawable="ios18_health" />
+
+    <!-- ==================== PRIVACY / VPN ==================== -->
+    <item component="ComponentInfo{me.proton.mail/ch.protonmail.android.activities.SplashActivity}" drawable="ios18_mail" />
+    <item component="ComponentInfo{me.proton.pass/me.proton.pass.MainActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.protonvpn.android/com.protonvpn.android.ui.main.MobileMainActivity}" drawable="ios18_settings" />
+
+    <!-- ==================== FINANCE / CRYPTO ==================== -->
+    <item component="ComponentInfo{com.binance.dev/com.binance.dev.ui.splash.SplashActivity}" drawable="ios18_wallet" />
+    <item component="ComponentInfo{com.coinbase.android/com.coinbase.android.SplashActivity}" drawable="ios18_wallet" />
+    <item component="ComponentInfo{com.squareup.cash/com.squareup.cash.ui.MainActivity}" drawable="ios18_wallet" />
+
+    <!-- ==================== SAMSUNG SYSTEM APPS ==================== -->
+    <item component="ComponentInfo{com.sec.android.app.myfiles/com.sec.android.app.myfiles.MainTabActivity}" drawable="ios18_files" />
+    <item component="ComponentInfo{com.sec.android.app.clock/com.sec.android.app.clock.ClockPackage}" drawable="ios18_clock" />
+    <item component="ComponentInfo{com.sec.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
+    <item component="ComponentInfo{com.samsung.android.sm/com.samsung.android.sm.ui.dashboard.SmartManagerDashBoardActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.samsung.android.lool/com.samsung.android.sm.battery.ui.BatterySettingActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.samsung.android.forest/com.samsung.android.forest.main.MainActivity}" drawable="ios18_health" />
+    <item component="ComponentInfo{com.samsung.android.app.routines/com.samsung.android.app.routines.main.LauncherActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.samsung.android.app.sreminder/com.samsung.android.app.sreminder.main.MainActivity}" drawable="ios18_notes" />
+
+    <!-- ==================== OEM LAUNCHERS ==================== -->
+    <item component="ComponentInfo{com.google.android.apps.nexuslauncher/com.google.android.apps.nexuslauncher.NexusLauncherActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.lge.launcher3/com.lge.launcher3.LauncherExtension}" drawable="ios18_settings" />
+    <item component="ComponentInfo{net.oneplus.launcher/net.oneplus.launcher.Launcher}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.mi.android.globallauncher/com.miui.home.launcher.Launcher}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.miui.home/com.miui.home.launcher.Launcher}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.oppo.launcher/com.oppo.launcher.Launcher}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.coloros.launcher/com.oppo.launcher.Launcher}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.vivo.launcher/com.vivo.launcher.Launcher}" drawable="ios18_settings" />
+
+    <!-- ==================== GOOGLE APPS (additional) ==================== -->
+    <item component="ComponentInfo{com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.google.android.apps.subscriptions.red/com.google.android.apps.subscriptions.red.LaunchActivity}" drawable="ios18_appstore" />
+    <item component="ComponentInfo{com.google.android.apps.cloudconsole/com.google.android.apps.cloudconsole.CloudConsoleActivity}" drawable="ios18_settings" />
+
+    <!-- ==================== MOTOROLA SYSTEM ==================== -->
+    <item component="ComponentInfo{com.motorola.ccc/com.motorola.ccc.ota.ui.UpgradeActivity}" drawable="ios18_settings" />
+    <item component="ComponentInfo{com.motorola.motocare/com.motorola.motocare.internal.HomeActivity}" drawable="ios18_settings" />
+
+    <!-- ==================== SHOPPING ==================== -->
+    <item component="ComponentInfo{com.shopify.mobile/com.shopify.mobile.MainActivity}" drawable="ios18_appstore" />
+
 </resources>

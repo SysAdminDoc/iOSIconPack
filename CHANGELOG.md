@@ -2,6 +2,24 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.9] — 2026-04-25
+
+### Added
+- 54 new appfilter component mappings (618->672): AI assistants (ChatGPT,
+  Claude, Perplexity), productivity (Notion, Canva, Adobe Reader/Lightroom/Scan),
+  streaming (Paramount+, Pluto TV, Deezer), dating (Tinder, Bumble, Badoo),
+  secure messaging (Signal), fitness (Nike, MyFitnessPal, Peloton), privacy
+  (ProtonMail, ProtonVPN, ProtonPass), crypto (Binance, Coinbase, Cash App),
+  Samsung system (My Files, Clock, Calendar, Device Care, Routines, Reminder),
+  OEM launchers (Pixel, LG, OnePlus, Xiaomi, Oppo, Vivo), Google extras
+  (Gboard, Google One, Cloud Console), Motorola system, Shopping (Shopify).
+- F-Droid submission guide (`docs/fdroid-submission.md`) with fdroiddata MR
+  checklist and IzzyOnDroid submission instructions.
+- Research delta scan iter-5 (`docs/research/iter-5-sources.md`).
+
+### Changed
+- F-Droid metadata description updated (670+ component entries).
+
 ## [v1.1.8] — 2026-04-25
 
 ### Added

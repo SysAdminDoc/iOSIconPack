@@ -1,4 +1,4 @@
-# ROADMAP — v1.1.9 — updated 2026-04-25
+# ROADMAP — v1.1.9 — updated 2026-04-25 (cycle 6)
 
 Forward-looking scope for the Android iOS-style icon pack (Blueprint dashboard, 6 eras, Kotlin/AMOLED).
 
