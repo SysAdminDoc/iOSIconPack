@@ -1,0 +1,1172 @@
+        <!DOCTYPE html>
+        <html lang="en">
+        <head>
+          <meta charset="utf-8">
+          <meta name="viewport" content="width=device-width, initial-scale=1">
+          <meta name="description" content="iOS Icon Pack — 135 icons across 6 iOS design generations for Android launchers">
+          <meta name="theme-color" content="#0d1117">
+          <title>iOS Icon Pack — Icon Browser</title>
+          <style>
+        *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+
+:root {
+    --bg:       #0d1117;
+    --surface:  #161b22;
+    --border:   #30363d;
+    --text:     #e6edf3;
+    --muted:    #8b949e;
+    --accent:   #58A6FF;
+}
+
+html { scroll-behavior: smooth; }
+
+body {
+    background: var(--bg);
+    color: var(--text);
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    min-height: 100vh;
+}
+
+/* Header */
+header {
+    background: var(--surface);
+    border-bottom: 1px solid var(--border);
+    padding: 1.25rem 1.5rem;
+    position: sticky;
+    top: 0;
+    z-index: 10;
+    display: flex;
+    flex-direction: column;
+    gap: 0.75rem;
+}
+
+.header-top {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    flex-wrap: wrap;
+    gap: 0.5rem;
+}
+
+h1 {
+    font-size: 1.15rem;
+    font-weight: 600;
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+}
+
+.icon-count {
+    font-size: 0.75rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 12px;
+    padding: 0.1rem 0.55rem;
+}
+
+a.gh-link {
+    color: var(--muted);
+    text-decoration: none;
+    font-size: 0.8rem;
+    display: flex;
+    align-items: center;
+    gap: 0.3rem;
+}
+a.gh-link:hover { color: var(--accent); }
+
+/* Search */
+.search-wrap {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+}
+
+#search {
+    flex: 1;
+    max-width: 360px;
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--text);
+    font-size: 0.85rem;
+    padding: 0.4rem 0.75rem;
+    outline: none;
+}
+#search:focus { border-color: var(--accent); }
+#search::placeholder { color: var(--muted); }
+
+/* Era filter */
+.filter-bar {
+    display: flex;
+    gap: 0.4rem;
+    flex-wrap: wrap;
+}
+
+.filter-btn {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    color: var(--muted);
+    cursor: pointer;
+    font-size: 0.75rem;
+    padding: 0.25rem 0.65rem;
+    transition: all 0.15s;
+}
+.filter-btn:hover { border-color: var(--accent); color: var(--text); }
+.filter-btn.active {
+    border-color: var(--accent);
+    color: var(--accent);
+    background: rgba(88,166,255,0.1);
+}
+
+/* Main */
+main {
+    padding: 1.5rem;
+    max-width: 1400px;
+    margin: 0 auto;
+}
+
+/* Era section */
+.era-section { margin-bottom: 2.5rem; }
+.era-section[hidden] { display: none; }
+
+.era-heading {
+    display: flex;
+    align-items: center;
+    gap: 0.6rem;
+    margin-bottom: 1rem;
+    font-size: 0.9rem;
+    font-weight: 600;
+    color: var(--muted);
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+}
+
+.era-dot {
+    width: 8px;
+    height: 8px;
+    border-radius: 50%;
+}
+
+/* Icon grid */
+.icon-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
+    gap: 0.75rem;
+}
+
+/* Icon card */
+.icon-card {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
+    cursor: default;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    padding: 0.75rem 0.4rem 0.6rem;
+    transition: border-color 0.15s, transform 0.15s;
+    position: relative;
+}
+.icon-card:hover {
+    border-color: var(--accent);
+    transform: translateY(-2px);
+}
+.icon-card[hidden] { display: none !important; }
+
+.icon-img {
+    width: 56px;
+    height: 56px;
+    object-fit: contain;
+    border-radius: 12.5%;
+    background: var(--bg);
+    margin-bottom: 0.5rem;
+}
+
+.icon-name {
+    font-size: 0.65rem;
+    color: var(--muted);
+    text-align: center;
+    word-break: break-all;
+    line-height: 1.3;
+}
+
+.era-badge {
+    position: absolute;
+    top: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.55rem;
+    font-weight: 700;
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+    opacity: 0.85;
+}
+
+.comp-badge {
+    position: absolute;
+    bottom: 0.35rem;
+    right: 0.35rem;
+    font-size: 0.55rem;
+    color: var(--muted);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 4px;
+    padding: 0.1rem 0.3rem;
+}
+
+/* Empty state */
+#empty-msg {
+    display: none;
+    color: var(--muted);
+    text-align: center;
+    padding: 3rem 0;
+    font-size: 0.9rem;
+}
+
+/* Footer */
+footer {
+    border-top: 1px solid var(--border);
+    color: var(--muted);
+    font-size: 0.75rem;
+    padding: 1rem 1.5rem;
+    text-align: center;
+}
+footer a { color: var(--accent); text-decoration: none; }
+          </style>
+        </head>
+        <body>
+
+        <header>
+          <div class="header-top">
+            <h1>
+              iOS Icon Pack — Icon Browser
+              <span class="icon-count">135 icons</span>
+            </h1>
+            <a class="gh-link" href="https://github.com/SysAdminDoc/iOSIconPack" target="_blank" rel="noopener">
+              ↗ GitHub
+            </a>
+          </div>
+          <div class="search-wrap">
+            <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false">
+          </div>
+          <div class="filter-bar">
+            <button class="filter-btn active" data-era="all">All eras</button>
+        <button class="filter-btn" data-era="ios-18" style="--dot:#58A6FF">iOS 18</button>
+        <button class="filter-btn" data-era="ios-17" style="--dot:#A78BFA">iOS 17</button>
+        <button class="filter-btn" data-era="ios-16" style="--dot:#34D399">iOS 16</button>
+        <button class="filter-btn" data-era="ios-15" style="--dot:#FBBF24">iOS 15</button>
+        <button class="filter-btn" data-era="ios-14" style="--dot:#F87171">iOS 14</button>
+        <button class="filter-btn" data-era="ios-26--liquid-glass" style="--dot:#67E8F9">iOS 26 - Liquid Glass</button>
+        <button class="filter-btn" data-era="third-party" style="--dot:#9CA3AF">Third Party</button>
+          </div>
+        </header>
+
+        <main>
+          <section class="era-section" data-era="ios-18">
+  <h2 class="era-heading"><span class="era-dot" style="background:#58A6FF"></span>iOS 18<span class="icon-count">20</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios18_safari" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_safari.png" alt="ios18_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+  <span class="comp-badge">×32</span>
+</div>
+<div class="icon-card" data-name="ios18_messages" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_messages.png" alt="ios18_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+  <span class="comp-badge">×9</span>
+</div>
+<div class="icon-card" data-name="ios18_photos" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_photos.png" alt="ios18_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+  <span class="comp-badge">×10</span>
+</div>
+<div class="icon-card" data-name="ios18_camera" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_camera.png" alt="ios18_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+  <span class="comp-badge">×10</span>
+</div>
+<div class="icon-card" data-name="ios18_settings" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_settings.png" alt="ios18_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+  <span class="comp-badge">×19</span>
+</div>
+<div class="icon-card" data-name="ios18_music" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_music.png" alt="ios18_music" loading="lazy">
+  <span class="icon-name">music</span>
+  <span class="comp-badge">×23</span>
+</div>
+<div class="icon-card" data-name="ios18_mail" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_mail.png" alt="ios18_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+  <span class="comp-badge">×15</span>
+</div>
+<div class="icon-card" data-name="ios18_maps" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_maps.png" alt="ios18_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+  <span class="comp-badge">×10</span>
+</div>
+<div class="icon-card" data-name="ios18_clock" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_clock.png" alt="ios18_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+  <span class="comp-badge">×8</span>
+</div>
+<div class="icon-card" data-name="ios18_weather" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_weather.png" alt="ios18_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+  <span class="comp-badge">×10</span>
+</div>
+<div class="icon-card" data-name="ios18_notes" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_notes.png" alt="ios18_notes" loading="lazy">
+  <span class="icon-name">notes</span>
+  <span class="comp-badge">×27</span>
+</div>
+<div class="icon-card" data-name="ios18_phone" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_phone.png" alt="ios18_phone" loading="lazy">
+  <span class="icon-name">phone</span>
+  <span class="comp-badge">×15</span>
+</div>
+<div class="icon-card" data-name="ios18_calendar" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_calendar.png" alt="ios18_calendar" loading="lazy">
+  <span class="icon-name">calendar</span>
+  <span class="comp-badge">×5</span>
+</div>
+<div class="icon-card" data-name="ios18_appstore" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_appstore.png" alt="ios18_appstore" loading="lazy">
+  <span class="icon-name">appstore</span>
+  <span class="comp-badge">×15</span>
+</div>
+<div class="icon-card" data-name="ios18_facetime" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_facetime.png" alt="ios18_facetime" loading="lazy">
+  <span class="icon-name">facetime</span>
+  <span class="comp-badge">×15</span>
+</div>
+<div class="icon-card" data-name="ios18_wallet" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_wallet.png" alt="ios18_wallet" loading="lazy">
+  <span class="icon-name">wallet</span>
+  <span class="comp-badge">×12</span>
+</div>
+<div class="icon-card" data-name="ios18_health" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_health.png" alt="ios18_health" loading="lazy">
+  <span class="icon-name">health</span>
+  <span class="comp-badge">×8</span>
+</div>
+<div class="icon-card" data-name="ios18_files" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_files.png" alt="ios18_files" loading="lazy">
+  <span class="icon-name">files</span>
+  <span class="comp-badge">×18</span>
+</div>
+<div class="icon-card" data-name="ios18_calculator" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_calculator.png" alt="ios18_calculator" loading="lazy">
+  <span class="icon-name">calculator</span>
+  <span class="comp-badge">×7</span>
+</div>
+<div class="icon-card" data-name="ios18_compass" data-era="ios-18">
+  <span class="era-badge" style="background:#58A6FF22;color:#58A6FF">18</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios18_compass.png" alt="ios18_compass" loading="lazy">
+  <span class="icon-name">compass</span>
+  <span class="comp-badge">×4</span>
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="ios-17">
+  <h2 class="era-heading"><span class="era-dot" style="background:#A78BFA"></span>iOS 17<span class="icon-count">20</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios17_safari" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_safari.png" alt="ios17_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+
+</div>
+<div class="icon-card" data-name="ios17_messages" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_messages.png" alt="ios17_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+
+</div>
+<div class="icon-card" data-name="ios17_photos" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_photos.png" alt="ios17_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+
+</div>
+<div class="icon-card" data-name="ios17_camera" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_camera.png" alt="ios17_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+
+</div>
+<div class="icon-card" data-name="ios17_settings" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_settings.png" alt="ios17_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+
+</div>
+<div class="icon-card" data-name="ios17_music" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_music.png" alt="ios17_music" loading="lazy">
+  <span class="icon-name">music</span>
+
+</div>
+<div class="icon-card" data-name="ios17_mail" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_mail.png" alt="ios17_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+
+</div>
+<div class="icon-card" data-name="ios17_maps" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_maps.png" alt="ios17_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+
+</div>
+<div class="icon-card" data-name="ios17_clock" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_clock.png" alt="ios17_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+
+</div>
+<div class="icon-card" data-name="ios17_weather" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_weather.png" alt="ios17_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+
+</div>
+<div class="icon-card" data-name="ios17_notes" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_notes.png" alt="ios17_notes" loading="lazy">
+  <span class="icon-name">notes</span>
+
+</div>
+<div class="icon-card" data-name="ios17_phone" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_phone.png" alt="ios17_phone" loading="lazy">
+  <span class="icon-name">phone</span>
+
+</div>
+<div class="icon-card" data-name="ios17_calendar" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_calendar.png" alt="ios17_calendar" loading="lazy">
+  <span class="icon-name">calendar</span>
+
+</div>
+<div class="icon-card" data-name="ios17_appstore" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_appstore.png" alt="ios17_appstore" loading="lazy">
+  <span class="icon-name">appstore</span>
+
+</div>
+<div class="icon-card" data-name="ios17_facetime" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_facetime.png" alt="ios17_facetime" loading="lazy">
+  <span class="icon-name">facetime</span>
+
+</div>
+<div class="icon-card" data-name="ios17_wallet" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_wallet.png" alt="ios17_wallet" loading="lazy">
+  <span class="icon-name">wallet</span>
+
+</div>
+<div class="icon-card" data-name="ios17_health" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_health.png" alt="ios17_health" loading="lazy">
+  <span class="icon-name">health</span>
+
+</div>
+<div class="icon-card" data-name="ios17_files" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_files.png" alt="ios17_files" loading="lazy">
+  <span class="icon-name">files</span>
+
+</div>
+<div class="icon-card" data-name="ios17_calculator" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_calculator.png" alt="ios17_calculator" loading="lazy">
+  <span class="icon-name">calculator</span>
+
+</div>
+<div class="icon-card" data-name="ios17_compass" data-era="ios-17">
+  <span class="era-badge" style="background:#A78BFA22;color:#A78BFA">17</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios17_compass.png" alt="ios17_compass" loading="lazy">
+  <span class="icon-name">compass</span>
+
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="ios-16">
+  <h2 class="era-heading"><span class="era-dot" style="background:#34D399"></span>iOS 16<span class="icon-count">20</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios16_safari" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_safari.png" alt="ios16_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+
+</div>
+<div class="icon-card" data-name="ios16_messages" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_messages.png" alt="ios16_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+
+</div>
+<div class="icon-card" data-name="ios16_photos" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_photos.png" alt="ios16_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+
+</div>
+<div class="icon-card" data-name="ios16_camera" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_camera.png" alt="ios16_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+
+</div>
+<div class="icon-card" data-name="ios16_settings" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_settings.png" alt="ios16_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+
+</div>
+<div class="icon-card" data-name="ios16_music" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_music.png" alt="ios16_music" loading="lazy">
+  <span class="icon-name">music</span>
+
+</div>
+<div class="icon-card" data-name="ios16_mail" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_mail.png" alt="ios16_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+
+</div>
+<div class="icon-card" data-name="ios16_maps" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_maps.png" alt="ios16_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+
+</div>
+<div class="icon-card" data-name="ios16_clock" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_clock.png" alt="ios16_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+
+</div>
+<div class="icon-card" data-name="ios16_weather" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_weather.png" alt="ios16_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+
+</div>
+<div class="icon-card" data-name="ios16_notes" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_notes.png" alt="ios16_notes" loading="lazy">
+  <span class="icon-name">notes</span>
+
+</div>
+<div class="icon-card" data-name="ios16_phone" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_phone.png" alt="ios16_phone" loading="lazy">
+  <span class="icon-name">phone</span>
+
+</div>
+<div class="icon-card" data-name="ios16_calendar" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_calendar.png" alt="ios16_calendar" loading="lazy">
+  <span class="icon-name">calendar</span>
+
+</div>
+<div class="icon-card" data-name="ios16_appstore" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_appstore.png" alt="ios16_appstore" loading="lazy">
+  <span class="icon-name">appstore</span>
+
+</div>
+<div class="icon-card" data-name="ios16_facetime" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_facetime.png" alt="ios16_facetime" loading="lazy">
+  <span class="icon-name">facetime</span>
+
+</div>
+<div class="icon-card" data-name="ios16_wallet" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_wallet.png" alt="ios16_wallet" loading="lazy">
+  <span class="icon-name">wallet</span>
+
+</div>
+<div class="icon-card" data-name="ios16_health" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_health.png" alt="ios16_health" loading="lazy">
+  <span class="icon-name">health</span>
+
+</div>
+<div class="icon-card" data-name="ios16_files" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_files.png" alt="ios16_files" loading="lazy">
+  <span class="icon-name">files</span>
+
+</div>
+<div class="icon-card" data-name="ios16_calculator" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_calculator.png" alt="ios16_calculator" loading="lazy">
+  <span class="icon-name">calculator</span>
+
+</div>
+<div class="icon-card" data-name="ios16_compass" data-era="ios-16">
+  <span class="era-badge" style="background:#34D39922;color:#34D399">16</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios16_compass.png" alt="ios16_compass" loading="lazy">
+  <span class="icon-name">compass</span>
+
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="ios-15">
+  <h2 class="era-heading"><span class="era-dot" style="background:#FBBF24"></span>iOS 15<span class="icon-count">20</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios15_safari" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_safari.png" alt="ios15_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+
+</div>
+<div class="icon-card" data-name="ios15_messages" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_messages.png" alt="ios15_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+
+</div>
+<div class="icon-card" data-name="ios15_photos" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_photos.png" alt="ios15_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+
+</div>
+<div class="icon-card" data-name="ios15_camera" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_camera.png" alt="ios15_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+
+</div>
+<div class="icon-card" data-name="ios15_settings" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_settings.png" alt="ios15_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+
+</div>
+<div class="icon-card" data-name="ios15_music" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_music.png" alt="ios15_music" loading="lazy">
+  <span class="icon-name">music</span>
+
+</div>
+<div class="icon-card" data-name="ios15_mail" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_mail.png" alt="ios15_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+
+</div>
+<div class="icon-card" data-name="ios15_maps" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_maps.png" alt="ios15_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+
+</div>
+<div class="icon-card" data-name="ios15_clock" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_clock.png" alt="ios15_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+
+</div>
+<div class="icon-card" data-name="ios15_weather" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_weather.png" alt="ios15_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+
+</div>
+<div class="icon-card" data-name="ios15_notes" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_notes.png" alt="ios15_notes" loading="lazy">
+  <span class="icon-name">notes</span>
+
+</div>
+<div class="icon-card" data-name="ios15_phone" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_phone.png" alt="ios15_phone" loading="lazy">
+  <span class="icon-name">phone</span>
+
+</div>
+<div class="icon-card" data-name="ios15_calendar" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_calendar.png" alt="ios15_calendar" loading="lazy">
+  <span class="icon-name">calendar</span>
+
+</div>
+<div class="icon-card" data-name="ios15_appstore" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_appstore.png" alt="ios15_appstore" loading="lazy">
+  <span class="icon-name">appstore</span>
+
+</div>
+<div class="icon-card" data-name="ios15_facetime" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_facetime.png" alt="ios15_facetime" loading="lazy">
+  <span class="icon-name">facetime</span>
+
+</div>
+<div class="icon-card" data-name="ios15_wallet" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_wallet.png" alt="ios15_wallet" loading="lazy">
+  <span class="icon-name">wallet</span>
+
+</div>
+<div class="icon-card" data-name="ios15_health" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_health.png" alt="ios15_health" loading="lazy">
+  <span class="icon-name">health</span>
+
+</div>
+<div class="icon-card" data-name="ios15_files" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_files.png" alt="ios15_files" loading="lazy">
+  <span class="icon-name">files</span>
+
+</div>
+<div class="icon-card" data-name="ios15_calculator" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_calculator.png" alt="ios15_calculator" loading="lazy">
+  <span class="icon-name">calculator</span>
+
+</div>
+<div class="icon-card" data-name="ios15_compass" data-era="ios-15">
+  <span class="era-badge" style="background:#FBBF2422;color:#FBBF24">15</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios15_compass.png" alt="ios15_compass" loading="lazy">
+  <span class="icon-name">compass</span>
+
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="ios-14">
+  <h2 class="era-heading"><span class="era-dot" style="background:#F87171"></span>iOS 14<span class="icon-count">20</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios14_safari" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_safari.png" alt="ios14_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+
+</div>
+<div class="icon-card" data-name="ios14_messages" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_messages.png" alt="ios14_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+
+</div>
+<div class="icon-card" data-name="ios14_photos" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_photos.png" alt="ios14_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+
+</div>
+<div class="icon-card" data-name="ios14_camera" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_camera.png" alt="ios14_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+
+</div>
+<div class="icon-card" data-name="ios14_settings" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_settings.png" alt="ios14_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+
+</div>
+<div class="icon-card" data-name="ios14_music" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_music.png" alt="ios14_music" loading="lazy">
+  <span class="icon-name">music</span>
+
+</div>
+<div class="icon-card" data-name="ios14_mail" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_mail.png" alt="ios14_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+
+</div>
+<div class="icon-card" data-name="ios14_maps" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_maps.png" alt="ios14_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+
+</div>
+<div class="icon-card" data-name="ios14_clock" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_clock.png" alt="ios14_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+
+</div>
+<div class="icon-card" data-name="ios14_weather" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_weather.png" alt="ios14_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+
+</div>
+<div class="icon-card" data-name="ios14_notes" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_notes.png" alt="ios14_notes" loading="lazy">
+  <span class="icon-name">notes</span>
+
+</div>
+<div class="icon-card" data-name="ios14_phone" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_phone.png" alt="ios14_phone" loading="lazy">
+  <span class="icon-name">phone</span>
+
+</div>
+<div class="icon-card" data-name="ios14_calendar" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_calendar.png" alt="ios14_calendar" loading="lazy">
+  <span class="icon-name">calendar</span>
+
+</div>
+<div class="icon-card" data-name="ios14_appstore" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_appstore.png" alt="ios14_appstore" loading="lazy">
+  <span class="icon-name">appstore</span>
+
+</div>
+<div class="icon-card" data-name="ios14_facetime" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_facetime.png" alt="ios14_facetime" loading="lazy">
+  <span class="icon-name">facetime</span>
+
+</div>
+<div class="icon-card" data-name="ios14_wallet" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_wallet.png" alt="ios14_wallet" loading="lazy">
+  <span class="icon-name">wallet</span>
+
+</div>
+<div class="icon-card" data-name="ios14_health" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_health.png" alt="ios14_health" loading="lazy">
+  <span class="icon-name">health</span>
+
+</div>
+<div class="icon-card" data-name="ios14_files" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_files.png" alt="ios14_files" loading="lazy">
+  <span class="icon-name">files</span>
+
+</div>
+<div class="icon-card" data-name="ios14_calculator" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_calculator.png" alt="ios14_calculator" loading="lazy">
+  <span class="icon-name">calculator</span>
+
+</div>
+<div class="icon-card" data-name="ios14_compass" data-era="ios-14">
+  <span class="era-badge" style="background:#F8717122;color:#F87171">14</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios14_compass.png" alt="ios14_compass" loading="lazy">
+  <span class="icon-name">compass</span>
+
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="ios-26--liquid-glass">
+  <h2 class="era-heading"><span class="era-dot" style="background:#67E8F9"></span>iOS 26 - Liquid Glass<span class="icon-count">10</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="ios26_lg_safari" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_safari.png" alt="ios26_lg_safari" loading="lazy">
+  <span class="icon-name">safari</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_messages" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_messages.png" alt="ios26_lg_messages" loading="lazy">
+  <span class="icon-name">messages</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_photos" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_photos.png" alt="ios26_lg_photos" loading="lazy">
+  <span class="icon-name">photos</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_camera" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_camera.png" alt="ios26_lg_camera" loading="lazy">
+  <span class="icon-name">camera</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_settings" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_settings.png" alt="ios26_lg_settings" loading="lazy">
+  <span class="icon-name">settings</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_music" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_music.png" alt="ios26_lg_music" loading="lazy">
+  <span class="icon-name">music</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_mail" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_mail.png" alt="ios26_lg_mail" loading="lazy">
+  <span class="icon-name">mail</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_maps" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_maps.png" alt="ios26_lg_maps" loading="lazy">
+  <span class="icon-name">maps</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_clock" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_clock.png" alt="ios26_lg_clock" loading="lazy">
+  <span class="icon-name">clock</span>
+
+</div>
+<div class="icon-card" data-name="ios26_lg_weather" data-era="ios-26--liquid-glass">
+  <span class="era-badge" style="background:#67E8F922;color:#67E8F9">26</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/ios26_lg_weather.png" alt="ios26_lg_weather" loading="lazy">
+  <span class="icon-name">weather</span>
+
+</div>
+</div>
+</section>
+
+<section class="era-section" data-era="third-party">
+  <h2 class="era-heading"><span class="era-dot" style="background:#9CA3AF"></span>Third Party<span class="icon-count">25</span></h2>
+  <div class="icon-grid">
+<div class="icon-card" data-name="tp_amazon" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_amazon.png" alt="tp_amazon" loading="lazy">
+  <span class="icon-name">amazon</span>
+  <span class="comp-badge">×4</span>
+</div>
+<div class="icon-card" data-name="tp_chrome" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_chrome.png" alt="tp_chrome" loading="lazy">
+  <span class="icon-name">chrome</span>
+  <span class="comp-badge">×4</span>
+</div>
+<div class="icon-card" data-name="tp_discord" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_discord.png" alt="tp_discord" loading="lazy">
+  <span class="icon-name">discord</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_facebook" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_facebook.png" alt="tp_facebook" loading="lazy">
+  <span class="icon-name">facebook</span>
+  <span class="comp-badge">×3</span>
+</div>
+<div class="icon-card" data-name="tp_gmail" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_gmail.png" alt="tp_gmail" loading="lazy">
+  <span class="icon-name">gmail</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_google_maps" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_google_maps.png" alt="tp_google_maps" loading="lazy">
+  <span class="icon-name">google_maps</span>
+  <span class="comp-badge">×1</span>
+</div>
+<div class="icon-card" data-name="tp_instagram" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_instagram.png" alt="tp_instagram" loading="lazy">
+  <span class="icon-name">instagram</span>
+  <span class="comp-badge">×3</span>
+</div>
+<div class="icon-card" data-name="tp_netflix" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_netflix.png" alt="tp_netflix" loading="lazy">
+  <span class="icon-name">netflix</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_paypal" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_paypal.png" alt="tp_paypal" loading="lazy">
+  <span class="icon-name">paypal</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_pinterest" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_pinterest.png" alt="tp_pinterest" loading="lazy">
+  <span class="icon-name">pinterest</span>
+  <span class="comp-badge">×1</span>
+</div>
+<div class="icon-card" data-name="tp_reddit" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_reddit.png" alt="tp_reddit" loading="lazy">
+  <span class="icon-name">reddit</span>
+  <span class="comp-badge">×3</span>
+</div>
+<div class="icon-card" data-name="tp_robinhood" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_robinhood.png" alt="tp_robinhood" loading="lazy">
+  <span class="icon-name">robinhood</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_shazam" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_shazam.png" alt="tp_shazam" loading="lazy">
+  <span class="icon-name">shazam</span>
+  <span class="comp-badge">×1</span>
+</div>
+<div class="icon-card" data-name="tp_slack" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_slack.png" alt="tp_slack" loading="lazy">
+  <span class="icon-name">slack</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_snapchat" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_snapchat.png" alt="tp_snapchat" loading="lazy">
+  <span class="icon-name">snapchat</span>
+  <span class="comp-badge">×3</span>
+</div>
+<div class="icon-card" data-name="tp_spotify" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_spotify.png" alt="tp_spotify" loading="lazy">
+  <span class="icon-name">spotify</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_strava" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_strava.png" alt="tp_strava" loading="lazy">
+  <span class="icon-name">strava</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_telegram" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_telegram.png" alt="tp_telegram" loading="lazy">
+  <span class="icon-name">telegram</span>
+  <span class="comp-badge">×3</span>
+</div>
+<div class="icon-card" data-name="tp_tiktok" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_tiktok.png" alt="tp_tiktok" loading="lazy">
+  <span class="icon-name">tiktok</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_twitter" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_twitter.png" alt="tp_twitter" loading="lazy">
+  <span class="icon-name">twitter</span>
+  <span class="comp-badge">×5</span>
+</div>
+<div class="icon-card" data-name="tp_uber" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_uber.png" alt="tp_uber" loading="lazy">
+  <span class="icon-name">uber</span>
+  <span class="comp-badge">×5</span>
+</div>
+<div class="icon-card" data-name="tp_venmo" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_venmo.png" alt="tp_venmo" loading="lazy">
+  <span class="icon-name">venmo</span>
+  <span class="comp-badge">×2</span>
+</div>
+<div class="icon-card" data-name="tp_whatsapp" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_whatsapp.png" alt="tp_whatsapp" loading="lazy">
+  <span class="icon-name">whatsapp</span>
+  <span class="comp-badge">×4</span>
+</div>
+<div class="icon-card" data-name="tp_youtube" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_youtube.png" alt="tp_youtube" loading="lazy">
+  <span class="icon-name">youtube</span>
+  <span class="comp-badge">×5</span>
+</div>
+<div class="icon-card" data-name="tp_zoom" data-era="third-party">
+  <span class="era-badge" style="background:#9CA3AF22;color:#9CA3AF">TP</span>
+  <img class="icon-img" src="https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/res/drawable-xxxhdpi/tp_zoom.png" alt="tp_zoom" loading="lazy">
+  <span class="icon-name">zoom</span>
+  <span class="comp-badge">×2</span>
+</div>
+</div>
+</section>
+          <p id="empty-msg">No icons match your search.</p>
+        </main>
+
+        <footer>
+          Generated from <a href="https://github.com/SysAdminDoc/iOSIconPack/blob/master/app/src/main/res/xml/drawable.xml">drawable.xml</a>
+          &amp; <a href="https://github.com/SysAdminDoc/iOSIconPack/blob/master/app/src/main/res/xml/appfilter.xml">appfilter.xml</a> ·
+          <a href="https://github.com/SysAdminDoc/iOSIconPack/releases/latest">Download APK</a>
+        </footer>
+
+        <script>
+        (function () {
+    const search = document.getElementById('search');
+    const filterBtns = document.querySelectorAll('.filter-btn');
+    const cards = document.querySelectorAll('.icon-card');
+    const sections = document.querySelectorAll('.era-section');
+    const emptyMsg = document.getElementById('empty-msg');
+
+    let activeEra = 'all';
+
+    function update() {
+        const q = search.value.toLowerCase().trim();
+        let visible = 0;
+
+        cards.forEach(card => {
+            const nameMatch = card.dataset.name.includes(q);
+            const eraMatch  = activeEra === 'all' || card.dataset.era === activeEra;
+            const show = nameMatch && eraMatch;
+            card.hidden = !show;
+            if (show) visible++;
+        });
+
+        // Hide empty sections
+        sections.forEach(sec => {
+            const anyVisible = [...sec.querySelectorAll('.icon-card')]
+                .some(c => !c.hidden);
+            sec.hidden = !anyVisible;
+        });
+
+        emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+    }
+
+    search.addEventListener('input', update);
+
+    filterBtns.forEach(btn => {
+        btn.addEventListener('click', () => {
+            filterBtns.forEach(b => b.classList.remove('active'));
+            btn.classList.add('active');
+            activeEra = btn.dataset.era;
+            update();
+        });
+    });
+})();
+        </script>
+
+        </body>
+        </html>

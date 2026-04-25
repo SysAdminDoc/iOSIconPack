@@ -10,6 +10,9 @@
 </p>
 
 <p align="center">
+  <a href="https://sysadmindoc.github.io/iOSIconPack/">
+    <img alt="Icon Gallery" src="https://img.shields.io/badge/Gallery-Browse_Icons-4ade80?style=for-the-badge">
+  </a>
   <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22:%22com.sysadmindoc.iosicons%22,%22url%22:%22https://github.com/SysAdminDoc/iOSIconPack%22,%22author%22:%22SysAdminDoc%22,%22name%22:%22iOS%20Icon%20Pack%22,%22additionalSettings%22:%22%7B%5C%22apkFilterRegEx%5C%22:%5C%22release%5C%22%7D%22%7D">
     <img alt="Get it on Obtainium" src="https://img.shields.io/badge/Obtainium-Install-3B7DD8?style=for-the-badge">
   </a>
