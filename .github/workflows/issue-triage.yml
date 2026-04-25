@@ -1,0 +1,104 @@
+name: Issue Triage
+
+on:
+  issues:
+    types: [opened]
+
+permissions:
+  issues: write
+  contents: read
+
+jobs:
+  triage-icon-request:
+    if: contains(github.event.issue.labels.*.name, 'icon-request')
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+
+      - name: Check coverage and comment
+        uses: actions/github-script@v7
+        with:
+          script: |
+            const fs = require('fs');
+            const body = context.payload.issue.body || '';
+
+            // Parse package name from the issue form field
+            // The form renders as "**Package name**\n\npkg.name.here"
+            const pkgMatch = body.match(/\*\*Package name\*\*\s*\n+([^\s\n]+)/m)
+                          || body.match(/Package name[^:\n]*:?\s*\n+([^\s\n]+)/m);
+            const pkg = pkgMatch?.[1]?.trim().replace(/[`*]/g, '');
+
+            // Parse component from the optional ComponentInfo field
+            const compMatch = body.match(/ComponentInfo\s*\{([^}]+)\}/);
+            const component = compMatch ? `ComponentInfo{${compMatch[1]}}` : null;
+
+            let coverageLines = [];
+            let alreadyCovered = false;
+
+            try {
+              const appfilter = fs.readFileSync(
+                'app/src/main/res/xml/appfilter.xml', 'utf8'
+              );
+
+              if (pkg) {
+                const pkgCovered = appfilter.includes(`component="ComponentInfo{${pkg}/`);
+                if (pkgCovered) {
+                  alreadyCovered = true;
+                  // Find all drawable names for this package
+                  const re = new RegExp(
+                    `drawable="([^"]+)"[^/]*component="ComponentInfo\\{${pkg.replace(/\./g, '\\.')}/`, 'g'
+                  );
+                  const drawables = [...appfilter.matchAll(re)].map(m => `\`${m[1]}\``);
+                  coverageLines.push(
+                    `✅ **Already covered!** \`${pkg}\` is mapped in \`appfilter.xml\``,
+                    `   → drawables: ${drawables.slice(0, 5).join(', ')}${drawables.length > 5 ? ` (+${drawables.length - 5} more)` : ''}`
+                  );
+                } else {
+                  coverageLines.push(
+                    `📋 **Not yet covered.** \`${pkg}\` has been queued for a future release.`
+                  );
+                }
+              } else {
+                coverageLines.push(
+                  `📋 **Request received.** Package name could not be parsed — please double-check the form field.`
+                );
+              }
+            } catch (e) {
+              coverageLines.push(`📋 **Request received.**`);
+            }
+
+            const componentHint = component
+              ? ''
+              : `\n> **Tip:** Running \`adb shell pm dump ${pkg || '<package>'} | grep -A1 MAIN\` and pasting the \`ComponentInfo{…}\` here helps us map the exact launch activity — useful for apps that use a non-default activity name.`;
+
+            const eraSection = (() => {
+              const eraMatch = body.match(/Which iOS eras[^\n]*\n+([\s\S]*?)(?=\n###|\n\*\*|$)/m);
+              return eraMatch ? `\n**Requested eras:** ${eraMatch[1].trim().replace(/\n/g, ', ')}` : '';
+            })();
+
+            const comment = [
+              `Thanks for the icon request! 🎨`,
+              '',
+              coverageLines.join('\n'),
+              eraSection,
+              componentHint,
+              '',
+              `You can track all open requests (sorted by votes) on the **[request dashboard](https://sysadmindoc.github.io/iOSIconPack/requests.html)**. Upvoting with 👍 on this issue helps prioritise the queue.`,
+            ].join('\n');
+
+            await github.rest.issues.createComment({
+              ...context.repo,
+              issue_number: context.issue.number,
+              body: comment,
+            });
+
+            // If already covered, add a label so maintainers can close it quickly
+            if (alreadyCovered) {
+              try {
+                await github.rest.issues.addLabels({
+                  ...context.repo,
+                  issue_number: context.issue.number,
+                  labels: ['already-covered'],
+                });
+              } catch (_) { /* label may not exist yet */ }
+            }

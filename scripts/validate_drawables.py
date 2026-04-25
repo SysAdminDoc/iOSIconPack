@@ -109,6 +109,9 @@ def main() -> int:
         1 for f in VEC_DIR.glob("*.xml")
         if not any(f.stem.startswith(p) for p in _VEC_SKIP_PREFIXES)
     )
+    mono_count = sum(1 for _ in VEC_DIR.glob("*_mono.xml"))
+    themed_count = sum(1 for _ in VEC_DIR.glob("*_themed.xml"))
+    pure_vec_count = vec_count - mono_count - themed_count
 
     all_errors.extend(png_errors)
     all_errors.extend(vec_errors)
@@ -123,7 +126,9 @@ def main() -> int:
     print(
         f"validate_drawables.py: OK "
         f"({png_count} PNGs at {EXPECTED_SIZE}x{EXPECTED_SIZE}px, "
-        f"{vec_count} vector drawable(s))"
+        f"{pure_vec_count} vector(s), "
+        f"{mono_count} mono stub(s), "
+        f"{themed_count} themed wrapper(s))"
     )
     return 0
 

@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!--
+    Monochrome stub for tp_reddit.
+    Replace with a hand-crafted vector <path> for better themed-icon results.
+    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
+-->
+<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
+    android:src="@drawable/tp_reddit" />

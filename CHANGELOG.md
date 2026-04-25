@@ -2,7 +2,36 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
-## [v1.1.6] — 2026-04-25
+## [v1.1.7] — 2026-04-25
+
+### Added
+- `scripts/gen_monochrome.py` — scaffolds Android 13+ themed-icon stubs.
+  Generates `drawable/<name>_mono.xml` (bitmap placeholder referencing the
+  existing PNG) and `drawable/<name>_themed.xml` (adaptive-icon wrapper with
+  `<monochrome>` layer) for every `ios18_*` and `tp_*` icon. 90 XML files
+  created total (45 mono + 45 themed). Replace `_mono.xml` `<bitmap>` stubs
+  with hand-crafted vectors for higher quality. Run with `--force` to regenerate
+  after adding new icons.
+- `.github/workflows/issue-triage.yml` — auto-comments on every new icon
+  request issue. Parses the package name from the structured form, checks
+  `appfilter.xml` for coverage, and replies with either "Already covered" +
+  matched drawable list, or "Queued" + adb ComponentInfo tip. Adds the
+  `already-covered` label when the app is mapped.
+- `already-covered` GitHub label (blue) for quick maintainer triage.
+
+### Changed
+- `fetch_icons.py`:
+  - Per-era color grading via `PIL.ImageEnhance` — each era now gets a
+    distinct Saturation/Contrast/Brightness pass (`ios14`: richest; `ios17`:
+    flat/desaturated; `ios26_lg`: frosted/cool; `tp`: identity/no grade).
+  - SHA-256 hash cache (`icons_raw/.hash_cache.json`) skips re-downloading
+    raw files that haven't changed since the last run.
+  - `--list` flag prints all known icon names and exits.
+- `scripts/icontool.py` — `check` subcommand now runs both
+  `validate_appfilter.py` and `validate_drawables.py` in sequence.
+- `scripts/validate_drawables.py` — output now distinguishes pure vectors,
+  monochrome stubs, and themed wrappers in the summary line.
+
 
 ### Added
 - `scripts/validate_drawables.py` — CI asset validator. Checks every PNG in

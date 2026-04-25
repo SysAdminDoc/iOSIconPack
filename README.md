@@ -3,7 +3,7 @@
 <h1 align="center">iOS Icon Pack</h1>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v1.1.6-58A6FF?style=for-the-badge">
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.1.7-58A6FF?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
   <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
   <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26_(Android_8.0)-58A6FF?style=for-the-badge">

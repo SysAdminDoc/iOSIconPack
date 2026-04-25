@@ -2,8 +2,12 @@
 """Fetch real iOS app icons from Apple's iTunes Search API and store as PNGs.
 
 Downloads 1024x1024 originals into `icons_raw/`, resizes to 192x192 for the
-xxxhdpi bucket, and writes them under `app/src/main/res/drawable-xxxhdpi/`
-using the canonical `ios{ver}_{name}` / `tp_{name}` naming convention.
+xxxhdpi bucket, applies a per-era color grade, and writes them under
+`app/src/main/res/drawable-xxxhdpi/` using the canonical
+`ios{ver}_{name}` / `tp_{name}` naming convention.
+
+A SHA-256 hash cache (`icons_raw/.hash_cache.json`) skips redundant re-downloads
+when the raw source file has not changed since the last run.
 
 Usage:
 
@@ -15,6 +19,7 @@ Usage:
                                                   # mapping (dead weight)
     python3 fetch_icons.py --tp-only              # just third-party apps
     python3 fetch_icons.py --era ios18            # one era (repeatable)
+    python3 fetch_icons.py --list                 # list all known icon names
 
 Dependencies: Pillow. Install via `pip install -r requirements.txt` before
 running — the script will NOT bootstrap pip on its own, per project policy.
@@ -22,11 +27,13 @@ running — the script will NOT bootstrap pip on its own, per project policy.
 from __future__ import annotations
 
 import argparse
+import hashlib
 import json
 import os
 import re
 import shutil
 import sys
+import tempfile
 import time
 from pathlib import Path
 from urllib.error import URLError
@@ -34,7 +41,7 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
 try:
-    from PIL import Image
+    from PIL import Image, ImageEnhance
 except ImportError:
     sys.stderr.write(
         "fetch_icons.py: Pillow is required. Install with:\n"
@@ -114,6 +121,49 @@ LIQUID_GLASS_SUBSET = {
     "music", "mail", "maps", "clock", "weather",
 }
 
+# Per-era color grade parameters applied to every resized icon.
+# Keys match ERAS + "ios26_lg" + "tp" (third-party, no grade).
+# Tuple: (saturation_factor, contrast_factor, brightness_factor)
+# 1.0 = identity for each channel.
+ERA_GRADES: dict[str, tuple[float, float, float]] = {
+    "ios18":    (1.05, 1.08, 1.00),   # slightly punchy, high contrast
+    "ios17":    (0.92, 0.98, 1.02),   # desaturated, flat, airy
+    "ios16":    (0.95, 1.00, 1.00),   # clean, slightly muted
+    "ios15":    (1.08, 1.05, 0.98),   # warm, vibrant
+    "ios14":    (1.12, 1.05, 0.97),   # richest saturation, warm shadows
+    "ios26_lg": (0.88, 0.95, 1.05),   # frosted / cool, reduced saturation
+    "tp":       (1.00, 1.00, 1.00),   # no grade — preserve brand colors
+}
+
+# --- Hash cache ---------------------------------------------------------
+
+HASH_CACHE_PATH = RAW_DIR / ".hash_cache.json"
+
+
+def _load_cache() -> dict[str, str]:
+    if HASH_CACHE_PATH.exists():
+        try:
+            return json.loads(HASH_CACHE_PATH.read_text("utf-8"))
+        except (json.JSONDecodeError, OSError):
+            pass
+    return {}
+
+
+def _save_cache(cache: dict[str, str]) -> None:
+    try:
+        HASH_CACHE_PATH.write_text(json.dumps(cache, indent=2, sort_keys=True), "utf-8")
+    except OSError:
+        pass
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with open(path, "rb") as f:
+        for chunk in iter(lambda: f.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
 # --- HTTP helpers -------------------------------------------------------
 
 def _fetch_json(url: str) -> dict | None:
@@ -132,15 +182,29 @@ def _fetch_json(url: str) -> dict | None:
     return None
 
 
-def _download(url: str, dst: Path) -> bool:
+def _download(url: str, dst: Path, cache: dict[str, str] | None = None) -> bool:
+    """Download *url* to *dst*. Skips if cached SHA-256 matches remote file."""
     headers = {"User-Agent": "Mozilla/5.0 (iOSIconPack fetch_icons)"}
     try:
         req = Request(url, headers=headers)
-        with urlopen(req, timeout=30) as resp, open(dst, "wb") as f:
-            shutil.copyfileobj(resp, f)
+        # Stream into a temp file first so we can compare hashes before committing.
+        with tempfile.NamedTemporaryFile(dir=dst.parent, delete=False, suffix=".tmp") as tmp:
+            tmp_path = Path(tmp.name)
+            with urlopen(req, timeout=30) as resp:
+                shutil.copyfileobj(resp, tmp)
+        new_hash = _sha256_file(tmp_path)
+        if cache is not None and cache.get(str(dst)) == new_hash and dst.exists():
+            tmp_path.unlink(missing_ok=True)
+            print("    cached (unchanged)")
+            return True
+        tmp_path.replace(dst)
+        if cache is not None:
+            cache[str(dst)] = new_hash
         return True
     except URLError as exc:
         print(f"    download failed: {exc}", file=sys.stderr)
+        if "tmp_path" in dir() and tmp_path.exists():
+            tmp_path.unlink(missing_ok=True)
         return False
 
 
@@ -175,10 +239,23 @@ def _icon_by_search(term: str) -> str | None:
 
 # --- Pipeline -----------------------------------------------------------
 
-def _resize(src: Path, dst: Path, size: int = 192) -> bool:
+def _apply_era_grade(img: Image.Image, era: str) -> Image.Image:
+    """Apply per-era Saturation / Contrast / Brightness adjustments."""
+    sat, con, bri = ERA_GRADES.get(era, ERA_GRADES["tp"])
+    if sat != 1.0:
+        img = ImageEnhance.Color(img).enhance(sat)
+    if con != 1.0:
+        img = ImageEnhance.Contrast(img).enhance(con)
+    if bri != 1.0:
+        img = ImageEnhance.Brightness(img).enhance(bri)
+    return img
+
+
+def _resize(src: Path, dst: Path, size: int = 192, era: str = "tp") -> bool:
     try:
         img = Image.open(src).convert("RGBA")
         img = img.resize((size, size), Image.Resampling.LANCZOS)
+        img = _apply_era_grade(img, era)
         img.save(dst, "PNG", optimize=True)
         return True
     except (OSError, ValueError) as exc:
@@ -186,15 +263,17 @@ def _resize(src: Path, dst: Path, size: int = 192) -> bool:
         return False
 
 
-def _process(name: str, icon_url: str, prefix: str, dry_run: bool) -> bool:
+def _process(name: str, icon_url: str, prefix: str, dry_run: bool,
+             cache: dict[str, str] | None = None) -> bool:
     raw = RAW_DIR / f"{name}_1024.png"
     pack = PACK_DIR / f"{prefix}_{name}.png"
     if dry_run:
         print(f"    [dry-run] would write {pack.relative_to(SCRIPT_DIR)}")
         return True
-    if not raw.exists() and not _download(icon_url, raw):
+    if not raw.exists() and not _download(icon_url, raw, cache):
         return False
-    return _resize(raw, pack)
+    era_key = prefix if prefix in ERA_GRADES else "tp"
+    return _resize(raw, pack, era=era_key)
 
 
 def _appfilter_components(path: Path) -> dict[str, str]:
@@ -243,6 +322,8 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
     parser.add_argument("--dry-run", action="store_true", help="Print the plan; don't write files")
     parser.add_argument("--validate", action="store_true",
                         help="Report icons without appfilter entries and exit")
+    parser.add_argument("--list", action="store_true",
+                        help="List all known icon names and exit")
     return parser.parse_args(argv)
 
 
@@ -256,9 +337,19 @@ def main(argv: list[str] | None = None) -> int:
     if args.validate:
         return _validate(only_names)
 
+    if args.list:
+        print("Apple stock apps:")
+        for name in sorted(APPLE_APP_IDS):
+            print(f"  {name}")
+        print("\nThird-party apps:")
+        for name in sorted(THIRD_PARTY):
+            print(f"  tp_{name}")
+        return 0
+
     eras = tuple(args.era) if args.era else ERAS
     include_lg = args.era is None or "ios26_lg" in args.era
 
+    cache = _load_cache() if not args.dry_run else None
     success = 0
     failed: list[str] = []
 
@@ -276,10 +367,10 @@ def main(argv: list[str] | None = None) -> int:
                 print(f"    SKIPPED")
                 continue
             for prefix in eras:
-                if _process(name, icon_url, prefix, args.dry_run):
+                if _process(name, icon_url, prefix, args.dry_run, cache):
                     success += 1
             if include_lg and name in LIQUID_GLASS_SUBSET:
-                if _process(name, icon_url, "ios26_lg", args.dry_run):
+                if _process(name, icon_url, "ios26_lg", args.dry_run, cache):
                     success += 1
             time.sleep(0.3)
 
@@ -300,12 +391,15 @@ def main(argv: list[str] | None = None) -> int:
             success += 1
         else:
             if not raw.exists():
-                _download(icon_url, raw)
-            if raw.exists() and _resize(raw, pack):
+                _download(icon_url, raw, cache)
+            if raw.exists() and _resize(raw, pack, era="tp"):
                 success += 1
             else:
                 failed.append(f"tp_{name}")
         time.sleep(0.3)
+
+    if cache is not None:
+        _save_cache(cache)
 
     print("\n" + "=" * 60)
     print(f"{'DRY-RUN: ' if args.dry_run else ''}DONE: {success} icons processed")
