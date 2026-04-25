@@ -2,6 +2,21 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.3] — 2026-07-12
+
+### Added
+- `scripts/icontool.py` — contributor CLI that collapses the four-file manual
+  XML wiring workflow into a single command. Supports `add`, `link`, `remove`,
+  `sync`, and `check` subcommands. Atomic writes via temp-file + `os.replace`
+  to prevent partial-write drift between `res/xml/` and `assets/` copies.
+  Third-party (`tp_*`) icons are excluded from `drawable.xml` automatically.
+  New categories are inserted at the correct era position in `drawable.xml`
+  without manual ordering.
+
+### Changed
+- `CONTRIBUTING.md` — replaced the four-step manual XML edit section with
+  `icontool` examples; kept the manual fallback path for reference.
+
 ## [v1.1.2] — 2026-04-24
 
 ### Changed

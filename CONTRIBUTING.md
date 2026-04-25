@@ -17,17 +17,55 @@ changes, open a Feature request issue first so we can agree on scope.
 
 ## Appfilter + drawable wiring
 
-Every new icon must be wired into four places:
+Every new icon must be wired into four XML files. The `icontool` script does
+this in one command instead of four manual edits.
+
+### Using icontool (recommended)
+
+```bash
+# Add a new stock iOS icon (PNG must exist in drawable-xxxhdpi first):
+python3 scripts/icontool.py add ios18_safari \
+    -c "com.android.browser/com.android.browser.BrowserActivity"
+
+# Add a third-party icon with multiple package aliases:
+python3 scripts/icontool.py add tp_spotify \
+    -c "com.spotify.music/com.spotify.music.MainActivity" \
+    -c "com.spotify.music/com.spotify.music.SpotifyActivity"
+
+# Alias an existing drawable to a new launcher variant (appfilter only):
+python3 scripts/icontool.py link ios18_phone \
+    -c "com.nothing.dialer/com.nothing.dialer.DialtactsActivity"
+
+# Remove a component mapping:
+python3 scripts/icontool.py remove \
+    -c "com.android.browser/com.android.browser.BrowserActivity"
+
+# Validate everything after manual XML edits:
+python3 scripts/icontool.py check
+```
+
+> **Note on `tp_` icons:** Third-party drawables (`tp_*`) are intentionally
+> excluded from `drawable.xml` — they live only in `appfilter.xml` and on disk.
+> `icontool add` handles this automatically.
+
+### Manual wiring (if icontool is unavailable)
+
+Four files must stay in sync — edit all four or the validator will fail:
 
 1. `app/src/main/res/xml/appfilter.xml`
 2. `app/src/main/assets/appfilter.xml` (byte-identical — Blueprint reads both)
 3. `app/src/main/res/xml/drawable.xml`
 4. `app/src/main/assets/drawable.xml` (byte-identical)
 
-The validator enforces this:
+After manual edits, run `python3 scripts/icontool.py sync` to copy the
+`res/xml/` files to `assets/` in one step.
+
+### Validation
 
 ```bash
 python3 scripts/validate_appfilter.py
+# or via icontool:
+python3 scripts/icontool.py check
 ```
 
 CI runs the same script on every PR; PRs with missing or drifted entries fail.
@@ -65,7 +103,6 @@ Release artifact.
 The PR template enumerates the full list; the short version:
 
 - [ ] Icon art follows the naming convention above
-- [ ] All four XML files updated
-- [ ] `python3 scripts/validate_appfilter.py` passes locally
+- [ ] `python3 scripts/icontool.py check` passes locally (or `validate_appfilter.py` directly)
 - [ ] `./gradlew assembleDebug` passes locally
 - [ ] Screenshots attached if you changed the dashboard / launcher integration

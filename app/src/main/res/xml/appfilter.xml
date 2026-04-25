@@ -362,5 +362,4 @@
     <item component="ComponentInfo{com.duolingo/com.duolingo.splash.LaunchActivity}" drawable="ios18_appstore" />
     <!-- Khan Academy -->
     <item component="ComponentInfo{org.khanacademy.android/org.khanacademy.android.activity.MainActivity}" drawable="ios18_appstore" />
-
 </resources>
