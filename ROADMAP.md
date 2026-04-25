@@ -39,14 +39,14 @@ Similar to F-Droid metadata. Active community that tracks GitHub-native releases
 - **Impact**: 3 | **Effort**: 1 | **Risk**: Low
 - Sources: [IzzyOnDroid](https://apt.izzysoft.de/fdroid/)
 
+### P0: Hand-crafted monochrome vectors for top 25 icons
+Replace bitmap monochrome stubs with proper single-color vector paths. **Android 16 QPR2 mandatory themed icon support (Oct 15, 2026 deadline)** means quality monochrome layers are now a competitive requirement. System auto-generates themed icons but hand-crafted quality is noticeably better. Priority: 25 third-party icons first (most visibility), then 19 stock Apple icons.
+- **Impact**: 5 | **Effort**: 3 | **Risk**: Low — deadline is Oct 2026
+- Sources: [Android 16 themed icons](https://developer.android.com/about/versions/16), [adaptive icon spec](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive), [Android Authority — mandatory theming](https://www.androidauthority.com/android-16-best-new-trick-icon-shape-themes-3622140/)
+
 ## Next
 
 Scheduled for near-term releases.
-
-### P0: Hand-crafted monochrome vectors for top 25 icons
-Replace bitmap monochrome stubs with proper single-color vector paths. Android 16 QPR2 auto-theming reduces urgency (system generates themed icons automatically) but hand-crafted quality is noticeably better. Priority: 25 third-party icons first (most visibility), then 19 stock Apple icons.
-- **Impact**: 3 | **Effort**: 3 | **Risk**: Low
-- Sources: [Android 16 themed icons](https://developer.android.com/about/versions/16), [adaptive icon spec](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
 
 ### P1: Material You dynamic-color per era
 Render era-appropriate tints from the system wallpaper palette. Arcticons ships this as a Material You adaptive variant. Implementation: runtime tint transform on the foreground layer, not separate drawable sets.
