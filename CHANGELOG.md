@@ -2,7 +2,33 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
-## [v1.1.4] — 2026-04-24
+## [v1.1.5] — 2026-04-25
+
+### Added
+- `scripts/icontool.py rebuild` — batch-sync subcommand. Scans `drawable-xxxhdpi/`
+  for PNG files and `drawable/` for vector drawables, then adds any missing entries
+  to `drawable.xml` under the correct era category section. Supports `--prune` to
+  remove stale entries for files deleted from disk, and `--dry-run` to preview
+  changes without writing. Excludes `tp_*` icons (appfilter-only by design).
+- `docs/requests.html` — live icon request dashboard on GitHub Pages.
+  Reads open GitHub Issues via the REST API, sorted by 👍 votes by default.
+  Features: search, label filter, sort (votes / newest / oldest / most-discussed),
+  paginated load-more, skeleton loader, 5-minute localStorage cache with stale
+  fallback on rate limit, and a direct "Request Icon" button linking to the
+  `icon-request.yml` issue template.
+- `docs/index.html` — added "Requests" link in header nav pointing to the new
+  requests dashboard.
+- `.github/workflows/build.yml` — per-era APK loop. Loops `set_era.py` through
+  all 6 eras (ios14–ios18, ios26), builds a signed APK per era, and publishes
+  each as `iOSIconPack-v{VERSION}-{ERA}.apk` to the GitHub Release alongside the
+  ios18 AAB.
+- `app/src/main/res/xml/appfilter.xml` — 92 additional component mappings:
+  browser alternatives (Firefox, Brave, Opera, Kiwi, Vivaldi, Tor), music
+  streaming (Amazon Music, TIDAL, Deezer, Apple Music, Pandora, iHeart), gallery
+  apps (Samsung, OnePlus), and popular social/utility third-party icons
+  (YouTube, Gmail, Chrome variants, Discord, Facebook, Netflix, Snapchat,
+  TikTok, Zoom, PayPal, Robinhood, Strava, Spotify Free).
+
 
 ### Added
 - `scripts/set_era.py` — era-switching CLI. Remaps every drawable reference in
