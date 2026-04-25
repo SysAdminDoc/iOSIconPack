@@ -17,3 +17,8 @@ CLAUDE.md
 CODEX_CHANGELOG.md
 .claude/
 *.bak
+
+# Python cache
+__pycache__/
+*.pyc
+*.pyo
