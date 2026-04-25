@@ -12,6 +12,17 @@ All notable changes to iOSIconPack will be documented in this file.
   10 icons that have a Liquid Glass variant are remapped; the rest stay on
   iOS 18. Includes `--dry-run` and `--list` flags. Both `res/xml/` and
   `assets/` copies are updated atomically.
+- `scripts/gen_gallery.py` + `docs/index.html` — GitHub Pages icon browser.
+  Dark-theme single-page gallery with era filter tabs, search, and per-icon
+  component count badges. Images load from GitHub raw URLs (no asset copying).
+  CI validates `docs/index.html` is up-to-date on every master push via
+  `gen_gallery.py --check`. Live at https://sysadmindoc.github.io/iOSIconPack/
+
+### Changed
+- `README.md` — added Gallery badge, Obtainium install badge and instructions,
+  era-switching quick-start, updated Contributing section to reference icontool
+  instead of the old manual four-file workflow.
+- `.github/workflows/ci.yml` — added gallery staleness check step.
 
 ## [v1.1.3] — 2026-04-24
 
