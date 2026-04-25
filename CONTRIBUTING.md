@@ -70,6 +70,12 @@ python3 scripts/icontool.py add tp_spotify \
 python3 scripts/icontool.py link ios18_phone \
     -c "com.nothing.dialer/com.nothing.dialer.DialtactsActivity"
 
+# Batch-import: drop PNGs in drawable-xxxhdpi/, then sync drawable.xml:
+python3 scripts/icontool.py rebuild
+
+# Preview what rebuild would change without writing:
+python3 scripts/icontool.py rebuild --dry-run
+
 # Remove a component mapping:
 python3 scripts/icontool.py remove \
     -c "com.android.browser/com.android.browser.BrowserActivity"

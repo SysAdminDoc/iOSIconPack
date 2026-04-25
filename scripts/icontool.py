@@ -6,11 +6,12 @@ don't have to edit four files by hand for every new icon.
 
 Commands
 --------
-  add     Add a new icon and its component mapping(s)
-  link    Alias an existing drawable to additional components
-  remove  Remove component mappings (optionally prune drawable.xml)
-  sync    Sync assets/ copies to match res/xml/ (fixes drift)
-  check   Run the full XML validator (validate_appfilter.py)
+  add      Add a new icon and its component mapping(s)
+  link     Alias an existing drawable to additional components
+  remove   Remove component mappings (optionally prune drawable.xml)
+  rebuild  Sync drawable.xml with files on disk (batch-add missing entries)
+  sync     Sync assets/ copies to match res/xml/ (fixes drift)
+  check    Run the full XML validator (validate_appfilter.py)
 
 Examples
 --------
@@ -529,6 +530,76 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     return result.returncode
 
 
+def cmd_rebuild(args: argparse.Namespace) -> int:
+    """Sync drawable.xml with files on disk.
+
+    Scans drawable-xxxhdpi/ for PNG files and drawable/ for vector XMLs,
+    then adds any that are missing from drawable.xml to the correct era
+    category section.  tp_* icons are always excluded (they live only in
+    appfilter.xml by design).
+
+    With --prune, also removes drawable.xml entries whose file no longer
+    exists on disk.
+    """
+    prune: bool = args.prune
+    dry_run: bool = getattr(args, "dry_run", False)
+
+    dw = _read(DRAWABLE_XML_RES)
+
+    # Drawables currently listed in drawable.xml
+    in_xml: set[str] = set(re.findall(r'<item\s+drawable="([^"]+)"', dw))
+
+    # Drawables that exist on disk (PNGs + vector drawables, non-tp_, non-launcher)
+    on_disk: set[str] = set()
+    for f in DRAWABLE_HDPI.glob("*.png"):
+        name = f.stem
+        if not name.startswith(TP_PREFIX) and _era_prefix(name):
+            on_disk.add(name)
+    for f in DRAWABLE_VEC.glob("*.xml"):
+        name = f.stem
+        skip_prefixes = ("ic_launcher", "ic_", "tp_", "background", "foreground")
+        if not any(name.startswith(p) for p in skip_prefixes) and _era_prefix(name):
+            on_disk.add(name)
+
+    missing: list[str] = sorted(on_disk - in_xml)
+    stale: list[str] = sorted(in_xml - on_disk) if prune else []
+
+    if not missing and not stale:
+        print("drawable.xml is already in sync with disk — nothing to do.")
+        return 0
+
+    if missing:
+        print(f"Adding {len(missing)} missing drawable(s):")
+    for drawable in missing:
+        cat = _category_title(drawable) or "unknown era"
+        if dry_run:
+            print(f"  + [{cat}] {drawable}")
+        else:
+            if not _dw_has(dw, drawable):
+                dw = _dw_insert(dw, drawable)
+                print(f"  + [{cat}] {drawable}")
+
+    if stale:
+        print(f"\nRemoving {len(stale)} stale entry(ies):")
+    for drawable in stale:
+        if dry_run:
+            print(f"  - [stale] {drawable}")
+        else:
+            dw, _ = _dw_remove(dw, drawable)
+            print(f"  - [removed] {drawable}")
+
+    if dry_run:
+        counts = f"{len(missing)} to add"
+        if prune:
+            counts += f", {len(stale)} to remove"
+        print(f"\nDry-run complete: {counts}. No files written.")
+        return 0
+
+    _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
+    print(f"\nDone — {len(missing)} added, {len(stale)} removed.")
+    return 0
+
+
 # ---------------------------------------------------------------------------
 # CLI wiring
 # ---------------------------------------------------------------------------
@@ -598,6 +669,23 @@ def _build_parser() -> argparse.ArgumentParser:
              "skipped if other components still reference it).",
     )
     rm_p.set_defaults(func=cmd_remove)
+
+    # --- rebuild ---
+    rb_p = sub.add_parser(
+        "rebuild",
+        help="Sync drawable.xml with files on disk (add missing entries, optionally prune stale ones)",
+    )
+    rb_p.add_argument(
+        "--prune",
+        action="store_true",
+        help="Also remove drawable.xml entries whose PNG/vector no longer exists on disk.",
+    )
+    rb_p.add_argument(
+        "--dry-run", "-n",
+        action="store_true",
+        help="Preview changes without writing any files.",
+    )
+    rb_p.set_defaults(func=cmd_rebuild)
 
     # --- sync ---
     sync_p = sub.add_parser(
