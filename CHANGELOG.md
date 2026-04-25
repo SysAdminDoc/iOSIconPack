@@ -2,7 +2,7 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
-## [v1.1.3] — 2026-07-12
+## [v1.1.3] — 2026-04-24
 
 ### Added
 - `scripts/icontool.py` — contributor CLI that collapses the four-file manual
@@ -12,10 +12,20 @@ All notable changes to iOSIconPack will be documented in this file.
   Third-party (`tp_*`) icons are excluded from `drawable.xml` automatically.
   New categories are inserted at the correct era position in `drawable.xml`
   without manual ordering.
+- `.github/workflows/ci.yml` — CI workflow that runs `validate_appfilter.py`
+  then `assembleDebug` on every pull request and push to master. Uploads the
+  debug APK as a build artifact (7-day retention) for quick reviewer testing.
+- `fdroid/metadata/com.sysadmindoc.iosicons.yml` — F-Droid build metadata
+  ready for submission to the fdroiddata repository.
+- `fastlane/metadata/android/en-US/` — store listing copy (title,
+  short description, full description) consumed by F-Droid and compatible
+  with Google Play publishing via fastlane.
 
 ### Changed
 - `CONTRIBUTING.md` — replaced the four-step manual XML edit section with
   `icontool` examples; kept the manual fallback path for reference.
+- `.github/PULL_REQUEST_TEMPLATE.md` — PR checklist updated to reference
+  `icontool check` instead of the old per-file manual steps.
 
 ## [v1.1.2] — 2026-04-24
 
