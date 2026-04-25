@@ -2,6 +2,17 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.1.4] — 2026-04-24
+
+### Added
+- `scripts/set_era.py` — era-switching CLI. Remaps every drawable reference in
+  `appfilter.xml` from one iOS design generation to another with a single
+  command. Supports all six eras: ios14, ios15, ios16, ios17, ios18 (default),
+  and ios26 (Liquid Glass). The iOS 26 switch is partial by design — only the
+  10 icons that have a Liquid Glass variant are remapped; the rest stay on
+  iOS 18. Includes `--dry-run` and `--list` flags. Both `res/xml/` and
+  `assets/` copies are updated atomically.
+
 ## [v1.1.3] — 2026-04-24
 
 ### Added

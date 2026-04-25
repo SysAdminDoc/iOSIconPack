@@ -15,6 +15,40 @@ changes, open a Feature request issue first so we can agree on scope.
   108x108dp canvas. Edge-to-edge art gets clipped on OEM masks (teardrop,
   circle).
 
+## Switching eras
+
+The pack ships six icon generations (iOS 14–18 and iOS 26 Liquid Glass). By
+default the pack applies iOS 18 icons to your launcher. To switch the active
+era for a build or for personal preference:
+
+```bash
+# List available eras and show which one is currently active
+python3 scripts/set_era.py --list
+
+# Switch to iOS 17
+python3 scripts/set_era.py ios17
+
+# Switch to iOS 26 Liquid Glass
+# (10 icons have LG variants; the rest stay on iOS 18 automatically)
+python3 scripts/set_era.py ios26
+
+# Preview changes without writing anything
+python3 scripts/set_era.py ios16 --dry-run
+
+# Reset to the default
+python3 scripts/set_era.py ios18
+```
+
+After switching, rebuild the APK:
+
+```bash
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
+```
+
+> **Note:** iOS 14–17 and iOS 26 LG icons are also visible in the Blueprint
+> dashboard (browse-only) regardless of the active era. The active era only
+> controls what gets applied automatically by your launcher.
+
 ## Appfilter + drawable wiring
 
 Every new icon must be wired into four XML files. The `icontool` script does
