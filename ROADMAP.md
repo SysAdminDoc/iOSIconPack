@@ -24,9 +24,9 @@ Items completed since v1.0.0 (moved here from prior ROADMAP versions):
 
 Items actively in progress or ready to start this cycle.
 
-### P0: Expand icon coverage to 50+ per era
-Biggest gap vs competitors (Arcticons: 14,000+; Cuscon: 5,000+). Currently ~22 icons per era average. Target: 50+ unique assets per era for the top Play Store apps. `fetch_icons.py --only` supports incremental additions; batch by era.
-- **Impact**: 5 | **Effort**: 4 | **Risk**: Low
+### P0: Expand icon coverage to 50+ per era (authenticity-first)
+Biggest gap vs competitors (Arcticons: 14,000+; Cuscon: 5,000+). Currently ~22 icons per era average. Target: 50+ unique assets per era for the top Play Store apps. Each new icon must be sourced from the correct iOS generation — no cross-era reuse. This preserves the charter's "era authenticity over icon count" by growing breadth without diluting per-era fidelity. `fetch_icons.py --only` supports incremental additions; batch by era.
+- **Impact**: 5 | **Effort**: 4 | **Risk**: Low — authenticity gate is the per-era color grading in fetch_icons.py
 - Sources: [Arcticons](https://github.com/Donnnno/Arcticons), [materialos appfilter](https://github.com/materialos/android-icon-pack)
 
 ### P1: Submit to F-Droid fdroiddata repo
