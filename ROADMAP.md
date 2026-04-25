@@ -68,6 +68,93 @@ Forward-looking scope for the Android iOS-style icon pack (Blueprint dashboard, 
 - Dashboard-as-library (Blueprint, CandyBar) — drop-in dashboard engines mean your value is the icon art + metadata, not the scaffolding; budget development effort on art and appfilter coverage accordingly
 - CI-generated previews per era — render each drawable at the 5 stock masks, diff against last release, flag shape-clipping regressions before publish
 
+## Open-Source Research (Round 4)
+
+Fresh research pass — April 2026. Items that don't duplicate earlier rounds.
+
+### New Competitive Landscape Findings
+
+| Project | Stars | Strategy | What iOSIconPack beats them on |
+|---------|-------|----------|-------------------------------|
+| Arcticons | 1,435 | 14,000+ handcrafted monotone line icons; GPL-3.0 | Era specificity — Arcticons has one style; iOSIconPack has 6 distinct iOS eras |
+| Lawnicons | Active on Play Store | Themed-icon addon for Lawnchair; community-contributed SVGs; Figma guidelines | Standalone app; works on any launcher; has era concept |
+| Cuscon | Active on F-Droid | 5,000+ backgroundless icons (glyph only, black stroke, full color) | Squircle shape; era authenticity; dedicated iOS aesthetic |
+| Delta (iOS ports) | Paid Play Store | Single iOS generation at a time | 6 eras in one free pack |
+
+### Lawnicons Architecture — What to Borrow
+
+**`icontool.py`** — Lawnicons ships a CLI tool that manages the whole contributor workflow in one script:
+- `icontool add <svg> <ComponentInfo{pkg/activity}> <name>` — copies SVG into the `svgs/` folder, injects a new alphabetically-sorted `<item>` into `appfilter.xml`
+- `icontool link <svg> <ComponentInfo{}>` — aliases an existing drawable to a second component (avoids duplicate assets for app variants like YouTube/YouTube Music)
+- `icontool remove <ComponentInfo{}>` — removes the component mapping; optional `--delete-svg` flag cleans up the asset too
+- Auto-sorts `appfilter.xml` alphabetically by `name=""` attribute on every write
+
+**Action item**: Port this pattern to iOSIconPack as `scripts/icontool.py` with an extra `--era` flag so contributors can specify which era's prefix (`ios14_`, `ios15_`, etc.) to target. The current workflow requires four manual XML edits per icon — the tool should collapse that to one command.
+
+**`svg-processor/`** — Lawnicons has a separate Kotlin Gradle module that processes raw SVGs into Android-compatible vector drawables at build time (strips unsupported SVG features, normalizes viewport). Reference: https://github.com/LawnchairLauncher/lawnicons/tree/develop/svg-processor. This is worth adapting once iOSIconPack's icon count exceeds ~500 and manual vector drawable conversion becomes a bottleneck.
+
+**Figma community file** — Lawnicons published a Figma file at https://www.figma.com/community/file/1544976260626797886 covering canvas (192×192 px), stroke weight (12px center = 148×148 content area), and common mistakes. iOSIconPack should create its own Figma community file per era documenting: squircle corner-radius spec, era-specific color palette, gradient style, and safe-zone overlay. This makes community contributions dramatically easier.
+
+**Icon request web dashboard** — Lawnicons hosts a Vercel dashboard at `lawnicons-requests.vercel.app` (backed by GitHub Issues API) showing every open request with vote count and install count. Build a similar page for iOSIconPack — even a static GitHub Pages site that reads Issues via the GitHub REST API would serve as a triage view and shows users their requests are tracked.
+
+**Crowdin localization** — Lawnicons uses `crowdin.yml` for dashboard string translation. Once the Blueprint dashboard has more string resources, wire Crowdin to automatically open translation PRs for new strings. Low effort, high visibility for international users.
+
+### Android Platform Updates — Action Items
+
+**Android 16 QPR2 auto-theming (new, April 2026)**: Starting with Android 16 QPR2, the system automatically generates a themed icon for apps that do *not* ship a `monochrome` layer — the platform derives one from the adaptive icon foreground. This was previously only possible if the app provided its own monochrome layer. Implications:
+- The urgency of adding manual monochrome drawables is reduced; the auto-generated one is acceptable for most users
+- For quality, hand-crafted `ios_{name}_mono` layers are still preferred (the auto-generated version often has artifacts around gradient paths)
+- Priority order: ship hand-crafted monochrome for the 25 third-party icons first (these have the most visibility), then the 19 stock Apple icons, then era duplicates
+
+**`<monochrome>` in adaptive-icon XML** (existing roadmap item, now with clear priority):
+```xml
+<!-- ic_launcher.xml -->
+<adaptive-icon>
+  <background android:drawable="@color/ic_launcher_background"/>
+  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
+  <monochrome android:drawable="@drawable/ic_launcher_monochrome"/>
+</adaptive-icon>
+```
+The `<monochrome>` tag is separate from the appfilter icons — it controls the app's own launcher icon theming, not the replacement icons. Both need to exist independently.
+
+### Backgroundless / Glyph-Only Variant
+
+Cuscon proves there is demand for icon packs that present the glyph without a background tile. For iOSIconPack, a "glyph mode" could be implemented as an alternate set of drawables that:
+- Use a fully transparent background layer
+- Keep only the foreground glyph (the iOS app symbol)
+- Add a thin (4dp) border stroke matching the era's accent color so the icon reads on both light and dark wallpapers
+- Ship in a separate `flavor` build variant (`glyph` vs `squircle`) or as a toggle in the dashboard settings
+
+This is lower effort than it sounds: the foreground layer already exists for every icon; a new background layer that is `@android:color/transparent` plus a stroke drawable is all that's needed. Cuscon's popularity on F-Droid (~5000 icons, actively updated) confirms the audience is real.
+
+### `fetch_icons.py` Improvements
+
+The current script fetches icons from the iTunes Search API, which returns the App Store artwork (the real iOS icon). New ideas:
+- **IPA extraction mode** — Apple publishes `.ipa` files for open-source apps (TestFlight public betas for some apps). For first-party Apple apps available through Apple Configurator 2, the IPA contains `AppIcon*.png` assets in the `.app` bundle. An IPA-extract mode would pull the actual shipped icon rather than the App Store CDN thumbnail, guaranteeing pixel-for-pixel accuracy. Reference tooling: `Bagbag/ipatool`, `majd/ipatool-py`.
+- **Per-era color grading** — after downloading the raw 1024×1024 PNG, apply a post-processing pass that adjusts saturation/contrast to match each era's aesthetic (iOS 14: +15% saturation; iOS 17: desaturated flat; iOS 18: dark-mode-ready). Pillow + NumPy can do this in ~5 lines.
+- **Hash-based cache invalidation** — currently raw PNGs are cached forever; add SHA-256 check against the server `ETag` so icons refresh when Apple updates them.
+
+### Distribution Channels to Add
+
+| Channel | Effort | Audience |
+|---------|--------|----------|
+| F-Droid | Low — submit `fdroiddata` metadata YAML | Privacy-first Android users who avoid Play Store |
+| Obtainium | Zero — just document the GitHub Releases URL | Power users; already common for icon packs |
+| IzzyOnDroid | Low — similar to F-Droid metadata | Active community that tracks GitHub-native releases |
+| GitHub Pages showcase | Medium — CI-generated gallery | Contributors and casual browsers |
+
+F-Droid is the highest-priority new channel: Arcticons and Lawnicons and Cuscon are all on F-Droid with high download counts. The iOSIconPack build is already reproducible (no Play Store dependencies) so the metadata YAML is the only barrier.
+
+### Design System / Figma Deliverables
+
+One-time effort, high long-term contributor value:
+
+- **Era style guides** — one Figma frame per era showing: exact squircle path, corner-radius formula, color palette swatches, gradient angle, shadow style, and a reference grid of 8 existing icons at correct size
+- **Contribution template** — 192×192 px Artboard with safe-zone guides, the iOS squircle clip mask, and a "your icon here" placeholder layer
+- **Era comparison grid** — side-by-side of the same 10 apps across all 6 eras to make the design language differences obvious to new contributors
+
+Publish as a Figma Community file and link from CONTRIBUTING.md. Arcticons' Figma file is credited with making their contributor onboarding dramatically faster.
+
 ## Implementation Deep Dive (Round 3)
 
 ### Reference Implementations to Study
