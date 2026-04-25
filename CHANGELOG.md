@@ -2,7 +2,52 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
-## [v1.1.5] — 2026-04-25
+## [v1.1.6] — 2026-04-25
+
+### Added
+- `scripts/validate_drawables.py` — CI asset validator. Checks every PNG in
+  `drawable-xxxhdpi/` is exactly 192x192 px, a valid PNG, and under 200 KB.
+  Also validates every vector drawable in `drawable/` parses as valid XML, and
+  every `drawable.xml` entry has a corresponding file on disk. Integrated into
+  `.github/workflows/ci.yml` and `icontool check`.
+- `icontool check` now runs both `validate_appfilter.py` and
+  `validate_drawables.py` in a single command.
+
+### Changed
+- `app/src/main/res/xml/appfilter.xml` — 112 additional component mappings
+  across all 20 iOS 18 icon drawables:
+  - **ios18_mail**: Outlook, ProtonMail, Tutanota, Yahoo Mail, AquaMail, K-9,
+    Thunderbird, Samsung Mail, Fastmail, Gmail conversation view
+  - **ios18_messages**: Signal, Viber, Skype, Google Messages, Samsung Messages,
+    Line, Telegram web/plus, WhatsApp Business, Huawei Messages
+  - **ios18_calendar**: Google Calendar, Samsung, MIUI, OnePlus, Huawei, HTC,
+    Business Calendar, Outlook Calendar
+  - **ios18_maps**: Google Maps, Waze, HERE Maps, Maps.me, OsmAnd, Organic
+    Maps, Yandex Maps
+  - **ios18_phone**: Google Dialer, Samsung, Huawei, Motorola, LG, HTC
+  - **ios18_clock**: Google Clock, Samsung, OnePlus, MIUI, Huawei, LG
+  - **ios18_camera**: Google Camera (Pixel+Ego), Samsung, MIUI, OnePlus,
+    Huawei, Motorola, LG, AOSP Snap
+  - **ios18_notes**: Google Keep, Evernote, Notion, Samsung Notes, OneNote,
+    SimpleNote, Joplin, MIUI Notes, Huawei Notepad
+  - **ios18_calculator**: Google, Samsung, OnePlus, MIUI, Huawei, LG
+  - **ios18_settings**: Stock AOSP, Samsung, MIUI, Huawei, OnePlus
+  - **ios18_weather**: AccuWeather, Weather Channel, Yahoo Weather, Breezy
+    Weather, Samsung Weather, MIUI Weather, Huawei Weather
+  - **ios18_health**: Google Fit, Samsung Health, MyFitnessPal, Fitbit,
+    Garmin Connect, Runkeeper, Nike Run Club, Zepp, Polar Flow
+  - **ios18_wallet**: Google Wallet, Samsung Pay, Cash App, Coinbase, Luno,
+    Blockchain
+  - **ios18_files**: Google Files, Solid Explorer, Total Commander, Amaze,
+    FX Explorer, Samsung My Files, MIUI Explorer, Huawei Files
+  - **ios18_appstore**: Samsung Galaxy Store, Amazon Appstore, Huawei
+    AppGallery, Aptoide, F-Droid, Google Play, MIUI
+  - **ios18_facetime**: Google Meet, Google Duo/Meet, Teams, Webex,
+    GoToMeeting, BlueJeans, Wire
+  - **ios18_compass**: generic, Axie Pro, Samsung, Huawei
+  - **tp_google_maps**, **tp_pinterest**, **tp_shazam**, **tp_slack**,
+    **tp_reddit**, **tp_amazon**, **tp_uber**: additional package variants
+
 
 ### Added
 - `scripts/icontool.py rebuild` — batch-sync subcommand. Scans `drawable-xxxhdpi/`

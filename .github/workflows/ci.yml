@@ -23,6 +23,9 @@ jobs:
       - name: Validate appfilter / drawable consistency
         run: python3 scripts/validate_appfilter.py
 
+      - name: Validate PNG dimensions and vector drawables
+        run: python3 scripts/validate_drawables.py
+
       - name: Check gallery is up-to-date
         run: python3 scripts/gen_gallery.py --check
 

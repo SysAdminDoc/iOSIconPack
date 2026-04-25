@@ -45,14 +45,14 @@ Builds:
     gradle:
       - release
 
-  - versionName: '1.1.5'
-    versionCode: 7
-    commit: v1.1.5
+  - versionName: '1.1.6'
+    versionCode: 8
+    commit: v1.1.6
     subdir: app
     gradle:
       - release
 
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '1.1.5'
-CurrentversionCode: 7
+CurrentVersion: '1.1.6'
+CurrentversionCode: 8

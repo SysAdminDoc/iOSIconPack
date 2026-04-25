@@ -522,12 +522,16 @@ def cmd_sync(args: argparse.Namespace) -> int:  # noqa: ARG001
 
 
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
-    validator = REPO_ROOT / "scripts" / "validate_appfilter.py"
-    if not validator.exists():
-        print(f"error: validator not found at {validator}", file=sys.stderr)
-        return 1
-    result = subprocess.run([sys.executable, str(validator)])
-    return result.returncode
+    rc = 0
+    for script in ("validate_appfilter.py", "validate_drawables.py"):
+        validator = REPO_ROOT / "scripts" / script
+        if not validator.exists():
+            print(f"warning: validator not found: {script}", file=sys.stderr)
+            continue
+        result = subprocess.run([sys.executable, str(validator)])
+        if result.returncode != 0:
+            rc = result.returncode
+    return rc
 
 
 def cmd_rebuild(args: argparse.Namespace) -> int:
