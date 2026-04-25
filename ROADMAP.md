@@ -1,4 +1,4 @@
-# ROADMAP — v1.1.8 — updated 2026-04-25
+# ROADMAP — v1.1.9 — updated 2026-04-25
 
 Forward-looking scope for the Android iOS-style icon pack (Blueprint dashboard, 6 eras, Kotlin/AMOLED).
 
@@ -30,9 +30,9 @@ Biggest gap vs competitors (Arcticons: 14,000+; Cuscon: 5,000+). Currently ~22 i
 - Sources: [Arcticons](https://github.com/Donnnno/Arcticons), [materialos appfilter](https://github.com/materialos/android-icon-pack)
 
 ### P1: Submit to F-Droid fdroiddata repo
-Metadata YAML and fastlane listing are ready. Need to open a merge request against [fdroiddata](https://gitlab.com/fdroiddata/fdroiddata). Arcticons, Lawnicons, and Cuscon are all on F-Droid with high download counts. Reproducible build, no Play Store dependencies.
-- **Impact**: 5 | **Effort**: 1 | **Risk**: Low
-- Sources: [F-Droid submission docs](https://f-droid.org/docs/Submitting_to_F-Droid/)
+Metadata YAML and fastlane listing are ready. Need to open a merge request against [fdroiddata](https://gitlab.com/fdroiddata/fdroiddata). Arcticons, Lawnicons, and Cuscon are all on F-Droid with high download counts. Reproducible build, no Play Store dependencies. **Risk update (April 2026):** Google's sideloading verification rules (September 2026 first markets, global 2027+) threaten F-Droid's build-and-sign model. Submit now while the window is open; monitor F-Droid governance reforms. Obtainium (direct GitHub Releases) is unaffected and serves as distribution hedge.
+- **Impact**: 5 | **Effort**: 1 | **Risk**: Low → Medium (regulatory)
+- Sources: [F-Droid submission docs](https://f-droid.org/docs/Submitting_to_F-Droid/), [Google sideloading rules](https://android.gadgethacks.com/news/googles-new-android-sideloading-rules-start-august-2026/)
 
 ### P1: IzzyOnDroid listing
 Similar to F-Droid metadata. Active community that tracks GitHub-native releases. Minimal additional effort once F-Droid metadata exists.
