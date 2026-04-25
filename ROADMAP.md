@@ -1,188 +1,155 @@
-# iOS Icon Pack Roadmap
+# ROADMAP — v1.1.8 — updated 2026-04-25
 
 Forward-looking scope for the Android iOS-style icon pack (Blueprint dashboard, 6 eras, Kotlin/AMOLED).
 
-## Planned Features
+## Recently Shipped
 
-### Icon Coverage
-- Expand each iOS era from 20 to 100+ app icons (Blueprint appfilter updates for top-1000 Play Store apps per-era).
-- Auto-generated placeholder icons (colored letter tile matching the app's brand color) for uncovered packages.
-- Themed icons for each era matching the Android 13+ dynamic theming API.
-- First-party Google apps parity across all 6 eras (one of the bigger coverage gaps).
+Items completed since v1.0.0 (moved here from prior ROADMAP versions):
+- icontool.py CLI (v1.1.3) — single-command contributor workflow
+- F-Droid metadata YAML + fastlane store listing (v1.1.3)
+- GitHub Pages gallery with Browse + Compare Eras + Requests tabs (v1.1.4–v1.1.8)
+- Era-switching CLI set_era.py (v1.1.4)
+- Per-era APK builds in CI (v1.1.5)
+- validate_drawables.py CI check (v1.1.6)
+- Issue triage action with auto-comment (v1.1.7)
+- Monochrome bitmap stubs for 45 icons (v1.1.7)
+- fetch_icons per-era color grading + SHA-256 hash cache (v1.1.7)
+- Squircle corner compliance check (v1.1.8)
+- icontool stats subcommand (v1.1.8)
+- Obtainium install documentation (v1.1.4)
+- Niagara Launcher intent filter (v1.1.0)
+- 451 appfilter component mappings (up from 214 at v1.0.0)
 
-### Mix & Match Engine
-- Per-app era picker surfaced in the Blueprint request UI (currently the app assumes one era applied globally).
-- Preview pane that renders the home screen with the selected era before applying.
-- Random-era mode for novelty.
-- A/B compare overlay that shows original icon next to the iOS replacement.
+## Now
 
-### Build & Asset Pipeline
-- `fetch_icons.py` improvements: extract icons directly from IPA files (open source, no scraping) instead of web sources.
-- Vector drawable validator that fails the build when a `<path>` is malformed.
-- Automated squircle-compliance check: every icon must match the iOS `continuous` corner-radius curve within tolerance.
-- Asset optimization pass: strip metadata, deduplicate paths, verify file sizes under a budget.
+Items actively in progress or ready to start this cycle.
 
-### Launcher Integration
-- First-class Niagara Launcher support (currently missing from the supported list).
-- Dynamic-color integration with Material You: render era-appropriate tints from the system wallpaper.
-- Adaptive-icon mode with per-era background colors.
-- iOS-style dock emulation guide for each supported launcher.
+### P0: Expand icon coverage to 50+ per era
+Biggest gap vs competitors (Arcticons: 14,000+; Cuscon: 5,000+). Currently ~22 icons per era average. Target: 50+ unique assets per era for the top Play Store apps. `fetch_icons.py --only` supports incremental additions; batch by era.
+- **Impact**: 5 | **Effort**: 4 | **Risk**: Low
+- Sources: [Arcticons](https://github.com/Donnnno/Arcticons), [materialos appfilter](https://github.com/materialos/android-icon-pack)
 
-## Competitive Research
-- **CandyCons Unwrapped / Pixel Icon Pack / Whicons** — Blueprint dashboard reference; iOSIconPack already uses Blueprint v2.5.1, stay on the upstream train.
-- **Delta Icon Pack (iOS 16/17 ports)** — Play Store competitor; iOSIconPack wins on era breadth (14 through 26 Liquid Glass).
-- **Lawnicons** — F-Droid / open-source icon pack for Lawnchair; worth collaborating via shared appfilter format.
-- **Icon-request bot (Telegram)** — several packs use a bot to accept community requests; consider a GitHub Issues template instead for traceability.
+### P1: Submit to F-Droid fdroiddata repo
+Metadata YAML and fastlane listing are ready. Need to open a merge request against [fdroiddata](https://gitlab.com/fdroiddata/fdroiddata). Arcticons, Lawnicons, and Cuscon are all on F-Droid with high download counts. Reproducible build, no Play Store dependencies.
+- **Impact**: 5 | **Effort**: 1 | **Risk**: Low
+- Sources: [F-Droid submission docs](https://f-droid.org/docs/Submitting_to_F-Droid/)
 
-## Nice-to-Haves
-- Export as KWGT/Rainmeter icon sets for cross-platform homescreen customizers.
-- Publish an iOS-era "widget skin" for the top Android widget frameworks (KWGT, KLWP).
-- Community-submitted Liquid Glass era icons with a review workflow.
-- Wallpaper pack per era matching the stock iOS 14-26 default backgrounds (licensing permitting; use AI-generated "inspired-by" alternatives otherwise).
-- Companion Play Store listing localizations (10+ languages).
-- Automated test that renders every icon at 48dp/72dp/96dp/144dp/192dp and asserts no aliasing.
+### P1: IzzyOnDroid listing
+Similar to F-Droid metadata. Active community that tracks GitHub-native releases. Minimal additional effort once F-Droid metadata exists.
+- **Impact**: 3 | **Effort**: 1 | **Risk**: Low
+- Sources: [IzzyOnDroid](https://apt.izzysoft.de/fdroid/)
 
-## Open-Source Research (Round 2)
+## Next
 
-### Related OSS Projects
-- https://github.com/Donnnno/Arcticons — Arcticons, top OSS line-based icon pack; Material You adaptive variant; canonical reference for dashboard + appfilter management at scale
-- https://github.com/osmanonurkoc/papirusadaptive — Papirus Adaptive (Linux Papirus port), clean example of adaptive mask handling across OEM launcher shapes
-- https://github.com/japalekhin/adaptive-icons-guide — PSD template + docs on adaptive-icon masks (square, rounded square, squircle, teardrop, circle) — CC BY-ND 4.0
-- https://github.com/amirzaidi/Launcher3 — Rootless Pixel Launcher (Launcher3 fork) — reference icon-shape options (squircle/square/rounded/circle/teardrop/cylinder) plus adaptive-icon-pack loader
-- https://github.com/designrifts/Ultimate_Theme_UI_Template — Open-source icon pack + theme template with multi-launcher cards (Nova, Action, Apex, ADWEX, Smart, Go)
-- https://github.com/topics/android-icon-pack — topic hub — good for browsing appfilter strategies across dozens of packs
-- https://osmanonurkoc.github.io/AdaptiveIconsShowcase/ — Showcase site pattern (screenshots, install instructions per launcher) — good template for the project's own landing page
+Scheduled for near-term releases.
 
-### Features to Borrow
-- Material You dynamic-color variant per era (Arcticons) — lets users tint iOS 18/26 icons to their wallpaper while keeping shape
-- Icon request funnel that actually closes the loop (Arcticons' issue-template + tracker) — replace our placeholder "request icons" with a GitHub-issue form and auto-labeling bot
-- Per-launcher install cards with pre-baked intents (Ultimate_Theme_UI_Template) — one-tap apply for Nova/Action/Smart/OnePlus/Samsung instead of generic docs
-- Shape-mask preview in the dashboard (Launcher3 shape options) — let users see each era rendered in square/rounded/squircle/teardrop before applying
-- IconPackManager library parity (launcher-icon topic) — make sure our appfilter.xml is readable by the standard IconPackManager so any third-party launcher that ships it works out of the box
-- Showcase-site auto-generator from appfilter (AdaptiveIconsShowcase pattern) — CI step that regenerates GitHub Pages gallery on every release
-- AMOLED-aware "True Black" dashboard variant (carries forward our AMOLED theme, matches Arcticons' dark mode polish)
+### P0: Hand-crafted monochrome vectors for top 25 icons
+Replace bitmap monochrome stubs with proper single-color vector paths. Android 16 QPR2 auto-theming reduces urgency (system generates themed icons automatically) but hand-crafted quality is noticeably better. Priority: 25 third-party icons first (most visibility), then 19 stock Apple icons.
+- **Impact**: 3 | **Effort**: 3 | **Risk**: Low
+- Sources: [Android 16 themed icons](https://developer.android.com/about/versions/16), [adaptive icon spec](https://developer.android.com/develop/ui/views/launch/icon_design_adaptive)
 
-### Patterns & Architectures Worth Studying
-- `appfilter.xml` + `drawable.xml` + `theme_config.xml` triad — canonical Android icon-pack manifest stack; OSS packs like Arcticons and Papirus Adaptive show how to keep them in sync via CI (e.g., lint that every `<item>` in appfilter has a corresponding drawable)
-- Adaptive icon mask layering — foreground vector + background layer per Android 8.0 spec, with OEM masks (squircle on Samsung, circle on Pixel) applied at runtime — critical to test render on multiple masks before shipping
-- Dashboard-as-library (Blueprint, CandyBar) — drop-in dashboard engines mean your value is the icon art + metadata, not the scaffolding; budget development effort on art and appfilter coverage accordingly
-- CI-generated previews per era — render each drawable at the 5 stock masks, diff against last release, flag shape-clipping regressions before publish
+### P1: Material You dynamic-color per era
+Render era-appropriate tints from the system wallpaper palette. Arcticons ships this as a Material You adaptive variant. Implementation: runtime tint transform on the foreground layer, not separate drawable sets.
+- **Impact**: 4 | **Effort**: 3 | **Risk**: Low
+- Sources: [Arcticons Material You](https://github.com/Donnnno/Arcticons)
 
-## Open-Source Research (Round 4)
+### P1: Figma community file for contributors
+Per-era style guide: squircle path spec, corner-radius formula, color palette, gradient angle, safe-zone overlay, contribution template (192x192 artboard). Lawnicons credits their Figma file with dramatically faster contributor onboarding.
+- **Impact**: 3 | **Effort**: 2 | **Risk**: Low
+- Sources: [Lawnicons Figma](https://www.figma.com/community/file/1544976260626797886)
 
-Fresh research pass — April 2026. Items that don't duplicate earlier rounds.
+### P1: First-party Google apps parity across all 6 eras
+One of the bigger coverage gaps. Google Suite (Gmail, Maps, Calendar, Drive, Docs, Sheets, Photos, Meet, etc.) should have era-specific icons for all 6 eras, not just iOS 18.
+- **Impact**: 4 | **Effort**: 3 | **Risk**: Low
 
-### New Competitive Landscape Findings
+## Later
 
-| Project | Stars | Strategy | What iOSIconPack beats them on |
-|---------|-------|----------|-------------------------------|
-| Arcticons | 1,435 | 14,000+ handcrafted monotone line icons; GPL-3.0 | Era specificity — Arcticons has one style; iOSIconPack has 6 distinct iOS eras |
-| Lawnicons | Active on Play Store | Themed-icon addon for Lawnchair; community-contributed SVGs; Figma guidelines | Standalone app; works on any launcher; has era concept |
-| Cuscon | Active on F-Droid | 5,000+ backgroundless icons (glyph only, black stroke, full color) | Squircle shape; era authenticity; dedicated iOS aesthetic |
-| Delta (iOS ports) | Paid Play Store | Single iOS generation at a time | 6 eras in one free pack |
+Acknowledged, deferred. Depends on Now/Next items or higher effort.
 
-### Lawnicons Architecture — What to Borrow
+### P0: Per-app era picker (blocked)
+Blueprint UI for choosing which iOS era to apply per individual app. Currently assumes one era globally. Requires Blueprint fork or upstream PR. `set_era.py` is a CLI workaround but not user-facing.
+- Blocked on: Blueprint fork
+- Sources: [Blueprint](https://github.com/jahirfiquitiva/Blueprint)
 
-**`icontool.py`** — Lawnicons ships a CLI tool that manages the whole contributor workflow in one script:
-- `icontool add <svg> <ComponentInfo{pkg/activity}> <name>` — copies SVG into the `svgs/` folder, injects a new alphabetically-sorted `<item>` into `appfilter.xml`
-- `icontool link <svg> <ComponentInfo{}>` — aliases an existing drawable to a second component (avoids duplicate assets for app variants like YouTube/YouTube Music)
-- `icontool remove <ComponentInfo{}>` — removes the component mapping; optional `--delete-svg` flag cleans up the asset too
-- Auto-sorts `appfilter.xml` alphabetically by `name=""` attribute on every write
+### P1: Shape-mask preview in dashboard
+Preview icons rendered in different launcher mask shapes (square, rounded, squircle, teardrop, circle, cylinder) before applying. Reference: Launcher3 IconShape.java.
+- Blocked on: Blueprint fork
+- Sources: [Launcher3](https://github.com/amirzaidi/Launcher3)
 
-**Action item**: Port this pattern to iOSIconPack as `scripts/icontool.py` with an extra `--era` flag so contributors can specify which era's prefix (`ios14_`, `ios15_`, etc.) to target. The current workflow requires four manual XML edits per icon — the tool should collapse that to one command.
+### P2: Glyph-only (backgroundless) variant
+Transparent-background icon set with 4dp border stroke for wallpaper readability. Ship as separate build flavor (`glyph` vs `squircle`) or dashboard toggle. Cuscon's F-Droid popularity (~5000 icons) confirms the audience.
+- Sources: [Cuscon](https://github.com/nicholasgasior/cuscon)
 
-**`svg-processor/`** — Lawnicons has a separate Kotlin Gradle module that processes raw SVGs into Android-compatible vector drawables at build time (strips unsupported SVG features, normalizes viewport). Reference: https://github.com/LawnchairLauncher/lawnicons/tree/develop/svg-processor. This is worth adapting once iOSIconPack's icon count exceeds ~500 and manual vector drawable conversion becomes a bottleneck.
+### P2: SVG processor Gradle module
+Kotlin module that processes raw SVGs into Android-compatible vector drawables at build time. Worth adapting from Lawnicons once icon count exceeds ~500.
+- Sources: [Lawnicons svg-processor](https://github.com/LawnchairLauncher/lawnicons/tree/develop/svg-processor)
 
-**Figma community file** — Lawnicons published a Figma file at https://www.figma.com/community/file/1544976260626797886 covering canvas (192×192 px), stroke weight (12px center = 148×148 content area), and common mistakes. iOSIconPack should create its own Figma community file per era documenting: squircle corner-radius spec, era-specific color palette, gradient style, and safe-zone overlay. This makes community contributions dramatically easier.
+### P2: Crowdin localization
+Wire Crowdin to Blueprint dashboard string resources for automatic translation PRs. Low effort, high international visibility.
+- Sources: [Lawnicons Crowdin](https://github.com/LawnchairLauncher/lawnicons)
 
-**Icon request web dashboard** — Lawnicons hosts a Vercel dashboard at `lawnicons-requests.vercel.app` (backed by GitHub Issues API) showing every open request with vote count and install count. Build a similar page for iOSIconPack — even a static GitHub Pages site that reads Issues via the GitHub REST API would serve as a triage view and shows users their requests are tracked.
+### P2: Per-launcher install cards
+One-tap apply intents for Nova/Action/Smart/OnePlus/Samsung instead of generic docs. Pattern from Ultimate_Theme_UI_Template.
+- Sources: [Ultimate Theme UI Template](https://github.com/designrifts/Ultimate_Theme_UI_Template)
 
-**Crowdin localization** — Lawnicons uses `crowdin.yml` for dashboard string translation. Once the Blueprint dashboard has more string resources, wire Crowdin to automatically open translation PRs for new strings. Low effort, high visibility for international users.
+### P2: Auto-generated placeholder icons
+Colored letter tile matching the app's brand color for uncovered packages. Fills gaps until real icons are added.
 
-### Android Platform Updates — Action Items
+### P2: KWGT/Rainmeter export
+Cross-platform homescreen widget icon sets. Niche but requested.
 
-**Android 16 QPR2 auto-theming (new, April 2026)**: Starting with Android 16 QPR2, the system automatically generates a themed icon for apps that do *not* ship a `monochrome` layer — the platform derives one from the adaptive icon foreground. This was previously only possible if the app provided its own monochrome layer. Implications:
-- The urgency of adding manual monochrome drawables is reduced; the auto-generated one is acceptable for most users
-- For quality, hand-crafted `ios_{name}_mono` layers are still preferred (the auto-generated version often has artifacts around gradient paths)
-- Priority order: ship hand-crafted monochrome for the 25 third-party icons first (these have the most visibility), then the 19 stock Apple icons, then era duplicates
+### P2: Wallpaper pack per era
+Stock iOS 14-26 inspired backgrounds (AI-generated alternatives for licensing safety).
 
-**`<monochrome>` in adaptive-icon XML** (existing roadmap item, now with clear priority):
-```xml
-<!-- ic_launcher.xml -->
-<adaptive-icon>
-  <background android:drawable="@color/ic_launcher_background"/>
-  <foreground android:drawable="@drawable/ic_launcher_foreground"/>
-  <monochrome android:drawable="@drawable/ic_launcher_monochrome"/>
-</adaptive-icon>
-```
-The `<monochrome>` tag is separate from the appfilter icons — it controls the app's own launcher icon theming, not the replacement icons. Both need to exist independently.
+## Under Consideration
 
-### Backgroundless / Glyph-Only Variant
+Not committed, not rejected. Needs more research or validation.
 
-Cuscon proves there is demand for icon packs that present the glyph without a background tile. For iOSIconPack, a "glyph mode" could be implemented as an alternate set of drawables that:
-- Use a fully transparent background layer
-- Keep only the foreground glyph (the iOS app symbol)
-- Add a thin (4dp) border stroke matching the era's accent color so the icon reads on both light and dark wallpapers
-- Ship in a separate `flavor` build variant (`glyph` vs `squircle`) or as a toggle in the dashboard settings
+### Themed icon style variants (sharp/line/filled)
+6 eras x 3 styles = 18 variants per app = untenable manually. Only viable as a runtime transform (tint + opacity). Needs: proof-of-concept runtime transform that doesn't degrade icon quality.
 
-This is lower effort than it sounds: the foreground layer already exists for every icon; a new background layer that is `@android:color/transparent` plus a stroke drawable is all that's needed. Cuscon's popularity on F-Droid (~5000 icons, actively updated) confirms the audience is real.
+### A/B compare overlay
+Show original Android icon next to the iOS replacement in the dashboard. Needs: Blueprint fork for custom UI.
 
-### `fetch_icons.py` Improvements
+### CI-rendered previews per era
+Render each drawable at 5 stock masks, diff against last release, flag shape-clipping regressions. Needs: headless Android rendering in CI.
 
-The current script fetches icons from the iTunes Search API, which returns the App Store artwork (the real iOS icon). New ideas:
-- **IPA extraction mode** — Apple publishes `.ipa` files for open-source apps (TestFlight public betas for some apps). For first-party Apple apps available through Apple Configurator 2, the IPA contains `AppIcon*.png` assets in the `.app` bundle. An IPA-extract mode would pull the actual shipped icon rather than the App Store CDN thumbnail, guaranteeing pixel-for-pixel accuracy. Reference tooling: `Bagbag/ipatool`, `majd/ipatool-py`.
-- **Per-era color grading** — after downloading the raw 1024×1024 PNG, apply a post-processing pass that adjusts saturation/contrast to match each era's aesthetic (iOS 14: +15% saturation; iOS 17: desaturated flat; iOS 18: dark-mode-ready). Pillow + NumPy can do this in ~5 lines.
-- **Hash-based cache invalidation** — currently raw PNGs are cached forever; add SHA-256 check against the server `ETag` so icons refresh when Apple updates them.
+### Play Store listing
+Requires rotating away from committed dev keystore. Needs: dedicated signing key + Play Console account.
 
-### Distribution Channels to Add
+## Rejected (for future reference)
 
-| Channel | Effort | Audience |
-|---------|--------|----------|
-| F-Droid | Low — submit `fdroiddata` metadata YAML | Privacy-first Android users who avoid Play Store |
-| Obtainium | Zero — just document the GitHub Releases URL | Power users; already common for icon packs |
-| IzzyOnDroid | Low — similar to F-Droid metadata | Active community that tracks GitHub-native releases |
-| GitHub Pages showcase | Medium — CI-generated gallery | Contributors and casual browsers |
+### IPA extraction mode for fetch_icons.py
+Legal complexity of extracting from Apple IPAs. iTunes Search API already provides the real artwork at sufficient quality. The tooling exists (ipatool) but the legal risk isn't worth the marginal quality gain.
 
-F-Droid is the highest-priority new channel: Arcticons and Lawnicons and Cuscon are all on F-Droid with high download counts. The iOSIconPack build is already reproducible (no Play Store dependencies) so the metadata YAML is the only barrier.
+## Appendix — Sources
 
-### Design System / Figma Deliverables
+### Direct OSS Competitors
+- https://github.com/Donnnno/Arcticons — Top OSS line-based icon pack, 14,000+ icons, GPL-3.0, Material You variant
+- https://github.com/LawnchairLauncher/lawnicons — Themed-icon addon for Lawnchair, community-contributed SVGs, Figma guidelines
+- https://github.com/nicholasgasior/cuscon — Backgroundless glyph-only icon pack on F-Droid, 5,000+ icons
 
-One-time effort, high long-term contributor value:
+### Commercial Competitors
+- Delta Icon Pack — Paid Play Store, single iOS generation at a time
 
-- **Era style guides** — one Figma frame per era showing: exact squircle path, corner-radius formula, color palette swatches, gradient angle, shadow style, and a reference grid of 8 existing icons at correct size
-- **Contribution template** — 192×192 px Artboard with safe-zone guides, the iOS squircle clip mask, and a "your icon here" placeholder layer
-- **Era comparison grid** — side-by-side of the same 10 apps across all 6 eras to make the design language differences obvious to new contributors
+### Platform / Standards
+- https://developer.android.com/about/versions/16 — Android 16 QPR2 auto-theming for themed icons
+- https://developer.android.com/develop/ui/views/launch/icon_design_adaptive — Adaptive icon spec, monochrome layer docs
 
-Publish as a Figma Community file and link from CONTRIBUTING.md. Arcticons' Figma file is credited with making their contributor onboarding dramatically faster.
+### Reference Implementations
+- https://github.com/jahirfiquitiva/Blueprint — Blueprint dashboard v2.5.1 (CC BY-SA 4.0)
+- https://github.com/materialos/android-icon-pack — Real-world large appfilter reference
+- https://github.com/amirzaidi/Launcher3 — Rootless Pixel Launcher, 6 stock icon shapes
+- https://github.com/designrifts/Ultimate_Theme_UI_Template — Multi-launcher install cards pattern
+- https://github.com/rektdeckard/iconpacktools — drawable.xml + icon-pack.xml generator
+- https://github.com/Snoy-Kuo/android_adaptive_icon_example — Adaptive icon mask-verified pipeline
 
-## Implementation Deep Dive (Round 3)
+### Distribution
+- https://f-droid.org/docs/Submitting_to_F-Droid/ — F-Droid submission docs
+- https://apt.izzysoft.de/fdroid/ — IzzyOnDroid alternative F-Droid repo
+- https://github.com/ImranR98/Obtainium — Direct GitHub Releases install
 
-### Reference Implementations to Study
-- **jahirfiquitiva/Blueprint/sample/src/main/res/xml/appfilter.xml** — https://github.com/jahirfiquitiva/Blueprint/blob/sample/src/main/res/xml/appfilter.xml — reference dual-location appfilter (res/xml + assets/ required). iOSIconPack already follows this; verify on every release.
-- **jahirfiquitiva/Blueprint/wiki/How-to-create-and-setup-an-icon-pack** — https://github.com/jahirfiquitiva/Blueprint/wiki/How-to-create-and-setup-an-icon-pack — canonical setup; note the "download sample branch, not releases zip" gotcha that trips most new icon-pack devs.
-- **materialos/android-icon-pack/app/src/main/assets/appfilter.xml** — https://github.com/materialos/android-icon-pack/blob/master/app/src/main/assets/appfilter.xml — real-world large appfilter as reference for iOSIconPack's "500+ apps" target. Also shows Polar dashboard coexistence pattern.
-- **rektdeckard/iconpacktools** — https://github.com/rektdeckard/iconpacktools — generates `drawable.xml` and `icon-pack.xml` from a directory. Replaces iOSIconPack's manual maintenance of both XML files.
-- **rektdeckard/gist bash scripts** — https://gist.github.com/rektdeckard/2c20220b866a3b7efb2465e5172b6c24 — bash variant for CI integration; maps appfilter.xml → other formats (appmap.xml, theme_resources.xml). Directly addresses iOSIconPack's build pipeline item "appfilter validator".
-- **Donnnno/Arcticons/app/src/main/java/com/donnnno/arcticons/apps/IconsFragment.kt** — https://github.com/Donnnno/Arcticons — issue-template for icon requests + auto-labeling. Blueprint for iOSIconPack's "Icon-request funnel that actually closes the loop" roadmap item.
-- **Donnnno/Arcticons/.github/workflows/generate-icons.yml** — https://github.com/Donnnno/Arcticons — CI that regenerates drawables/appfilter. Template for iOSIconPack's "CI step that regenerates GitHub Pages gallery on every release".
-- **Snoy-Kuo/android_adaptive_icon_example** — https://github.com/Snoy-Kuo/android_adaptive_icon_example — adaptive icon mask-line-verified SVG → vector drawable pipeline. Critical reference before expanding to 100+ icons per era.
-- **amirzaidi/Launcher3/src/com/android/launcher3/graphics/IconShape.java** — https://github.com/amirzaidi/Launcher3 — 6 stock icon shapes (square, rounded square, squircle, teardrop, circle, cylinder) in Launcher3. Reference for iOSIconPack's "shape-mask preview in dashboard".
-
-### Known Pitfalls from Similar Projects
-- **Blueprint releases zip is NOT the correct download** — Blueprint wiki — users keep downloading the release zip instead of the sample branch. Common 404/build failure. Document clearly in iOSIconPack's contributing guide.
-- **Blueprint is CC BY-SA 4.0 — fork-only, no commercial restrictions** — iOSIconPack already complies (open-source), but any downstream app bundling Blueprint code must also be CC BY-SA.
-- **Adaptive icon foreground must fit in inner 66×66dp of 108×108dp canvas** — outer 18dp reserved for parallax + mask. Icons that fill edge-to-edge get clipped on OEM masks (teardrop cuts corners hard). Verify iOSIconPack's 192×192 viewport scales correctly: 66/108 = 61% safe area.
-- **Monochrome themed-icon layer needed for Android 13+ theming** — iOSIconPack roadmap mentions this; every adaptive-icon XML must add `<monochrome android:drawable="@drawable/ios_{name}_mono"/>`. Currently 0/110 icons have this.
-- **`appfilter.xml` must exist in BOTH `res/xml/` AND `assets/`** — Blueprint reads both; iOSIconPack already follows but drift between the two is a frequent regression source. Add a CI check.
-- **Vector drawable `<gradient>` tag unsupported on API < 24** — iOSIconPack `minSdk=23` includes API 23. Either bump `minSdk` to 24 or avoid gradient tags in drawables.
-- **Gradle `AGP 8.12.0` requires Gradle 8.13+, not 8.12** — iOSIconPack CLAUDE.md already notes this. Lock in via wrapper properties.
-- **Blueprint + Frames combined APK hits Play Store 150MB limit with 500+ icons at 2 eras** — iOSIconPack has 6 eras + 500 target = 3000 icons. Must use AAB (Android App Bundle) from the start; APK alone will be rejected.
-- **Themed icon style variants (sharp/line/filled) compound with era count** — 6 eras × 3 styles = 18 variants per app = untenable manual maintenance. Use style as a runtime transform (tint + opacity), not a separate drawable.
-- **Blueprint 2.5.1 BottomNavigationBlueprintActivity class was renamed in 2.6+** — don't upgrade Blueprint without testing MainActivity bindings.
-
-### Library Integration Checklist
-- **Blueprint Dashboard (Jahir Fiquitiva)** — no Maven; vendor `Blueprint/sample/` branch code into `app/src/main/kotlin/`. Entry: `class MainActivity : BottomNavigationBlueprintActivity()` + `res/values/blueprint_setup.xml` for config. Gotcha: styles parent must be `Frames.SplashScreen`, NOT `Blueprint.SplashScreen` (Blueprint style inherits from Frames). iOSIconPack's CLAUDE.md already documents this — lock it in.
-- **iconpacktools (rektdeckard CLI)** — `pip install iconpacktools` — entry: `iconpacktools generate-drawable --input app/src/main/res/drawable/ --output app/src/main/res/xml/drawable.xml`. Gotcha: the tool groups by filename prefix; iOSIconPack's `ios{ver}_{name}` convention means groups split by era — desired behavior.
-- **Android Gradle Plugin adaptive-icon lint** — `com.android.tools.build:gradle:8.12.0` — entry: `android { lint { warningsAsErrors true; disable("MissingTranslation"); fatal("IconLauncherShape") } }`. Gotcha: `IconLauncherShape` lint will flag all 110 non-adaptive icons as warnings; gate the fatal on only new drawables via baseline XML (`./gradlew updateLintBaseline`).
-
-
+### Community / Research
+- https://github.com/topics/android-icon-pack — Topic hub for appfilter strategies
+- https://osmanonurkoc.github.io/AdaptiveIconsShowcase/ — Showcase site pattern
+- https://www.figma.com/community/file/1544976260626797886 — Lawnicons Figma community file
