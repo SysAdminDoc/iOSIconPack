@@ -4,7 +4,7 @@ Works with any launcher that supports icon packs (Nova, Lawnchair, Niagara, Acti
 
 Features:
 • Six distinct iOS design eras: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
-• 135+ icons covering the most common apps; 247+ appfilter component entries
+• 135+ icons covering the most common apps; 450+ appfilter component entries
 • Blueprint dashboard with per-era browsing, icon search, and apply-to-launcher shortcuts
 • Third-party icon set for popular apps without a direct iOS analogue (Spotify, Instagram, Reddit, and more)
 • AMOLED dark theme throughout
