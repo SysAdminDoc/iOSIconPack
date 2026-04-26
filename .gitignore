@@ -22,3 +22,4 @@ CODEX_CHANGELOG.md
 __pycache__/
 *.pyc
 *.pyo
+.factory/
