@@ -23,3 +23,7 @@ __pycache__/
 *.pyc
 *.pyo
 .factory/
+
+# Markdown files local-only (except README)
+*.md
+!README.md
