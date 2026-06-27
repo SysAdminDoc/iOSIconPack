@@ -12,6 +12,7 @@ Exit 0 on success, 1 on any failure.
 """
 from __future__ import annotations
 
+import os
 import struct
 import sys
 import xml.etree.ElementTree as ET
@@ -28,6 +29,7 @@ MAX_FILE_KB   = 200          # KB
 # Corner region checked for squircle transparency (pixels from each corner)
 SQUIRCLE_CORNER_REGION = 15   # px
 SQUIRCLE_MAX_OPAQUE    = 5    # max opaque pixels allowed in each corner before warning
+SQUIRCLE_CHECK_MAX_FILES = int(os.getenv("IOSICONS_SQUIRCLE_CHECK_MAX", "120"))
 
 PNG_MAGIC     = b"\x89PNG\r\n\x1a\n"
 
@@ -80,6 +82,16 @@ def check_vectors() -> list[str]:
     return errors
 
 
+def _collect_drawables() -> set[str]:
+    drawables: set[str] = set()
+    for path in VEC_DIR.glob("*.xml"):
+        drawables.add(path.stem)
+    for path in (REPO_ROOT / "app/src/main/res").glob("drawable-*/*"):
+        if path.is_file() and path.suffix.lower() in {".png", ".webp", ".jpg", ".jpeg"}:
+            drawables.add(path.stem)
+    return drawables
+
+
 def check_drawable_files() -> list[str]:
     """Ensure every item in drawable.xml has a PNG or vector on disk."""
     errors: list[str] = []
@@ -88,34 +100,36 @@ def check_drawable_files() -> list[str]:
     except ET.ParseError as exc:
         return [f"  MALFORMED drawable.xml: {exc}"]
 
+    drawables = _collect_drawables()
     for item in tree.iter("item"):
         name = item.get("drawable", "")
         if not name:
             continue
-        has_png = (HDPI_DIR / f"{name}.png").exists()
-        has_vec = (VEC_DIR / f"{name}.xml").exists()
-        # Also check other density buckets
-        other = list((REPO_ROOT / "app/src/main/res").glob(f"drawable-*/{name}.png"))
-        if not has_png and not has_vec and not other:
+        if name not in drawables:
             errors.append(f"  MISSING FILE  drawable.xml references '{name}' but no PNG/vector found")
     return errors
 
 
-def check_squircle_corners() -> list[str]:
-    """Warn if any PNG has too many opaque pixels in its four corner regions.
-
-    A proper squircle icon should be fully transparent in the 4 corners.
-    This check is a WARN-only heuristic — it exits 0 regardless.
-    Requires Pillow; skips gracefully if not installed.
-    """
+def check_squircle_corners() -> tuple[list[str], str | None]:
+    """Warn if any PNG has too many opaque pixels in its four corner regions."""
     try:
         from PIL import Image  # type: ignore
     except ImportError:
-        return []
+        return [], None
+
+    pngs = sorted(HDPI_DIR.glob("*.png"))
+    if (
+        len(pngs) > SQUIRCLE_CHECK_MAX_FILES
+        and os.getenv("IOSICONS_FULL_SQUIRCLE_CHECK") != "1"
+    ):
+        return [], (
+            f"squircle check skipped for {len(pngs)} PNGs "
+            f"(set IOSICONS_FULL_SQUIRCLE_CHECK=1 for full warning scan)"
+        )
 
     warnings: list[str] = []
     r = SQUIRCLE_CORNER_REGION
-    for path in sorted(HDPI_DIR.glob("*.png")):
+    for path in pngs:
         try:
             img = Image.open(path).convert("RGBA")
         except Exception:
@@ -123,21 +137,19 @@ def check_squircle_corners() -> list[str]:
 
         w, h = img.size
         corners = [
-            img.crop((0, 0, r, r)),            # top-left
-            img.crop((w - r, 0, w, r)),        # top-right
-            img.crop((0, h - r, r, h)),        # bottom-left
-            img.crop((w - r, h - r, w, h)),    # bottom-right
+            img.crop((0, 0, r, r)),
+            img.crop((w - r, 0, w, r)),
+            img.crop((0, h - r, r, h)),
+            img.crop((w - r, h - r, w, h)),
         ]
         labels = ["top-left", "top-right", "bottom-left", "bottom-right"]
         for region, label in zip(corners, labels):
-            pixels = list(region.getdata())
-            opaque = sum(1 for px in pixels if px[3] > 10)
+            opaque = sum(1 for px in region.getdata() if px[3] > 10)
             if opaque > SQUIRCLE_MAX_OPAQUE:
                 warnings.append(
                     f"  WARN squircle  {path.name}: {opaque} opaque px in {label} corner"
                 )
-    return warnings
-
+    return warnings, None
 
 def main() -> int:
     all_errors: list[str] = []
@@ -145,7 +157,7 @@ def main() -> int:
     png_errors = check_pngs()
     vec_errors = check_vectors()
     file_errors = check_drawable_files()
-    squircle_warnings = check_squircle_corners()
+    squircle_warnings, squircle_note = check_squircle_corners()
 
     png_count = len(list(HDPI_DIR.glob("*.png")))
     vec_count = sum(
@@ -178,8 +190,10 @@ def main() -> int:
         total_pngs = len(list(HDPI_DIR.glob("*.png")))
         print(
             f"  squircle check: {affected}/{total_pngs} icons have opaque corners "
-            f"(expected for Apple-sourced icons — launcher applies squircle mask at runtime)"
+            "(expected for Apple-sourced icons; launcher applies squircle mask at runtime)"
         )
+    elif squircle_note:
+        print(f"  {squircle_note}")
     return 0
 
 

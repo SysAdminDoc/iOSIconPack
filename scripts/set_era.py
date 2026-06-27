@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""set_era — switch the active icon era in appfilter.xml.
+"""set_era - switch the active icon era in appfilter.xml.
 
 Remaps every drawable reference in appfilter.xml from the current era to a
 target era.  Useful for building per-era APKs and for testing how a new icon
@@ -19,7 +19,8 @@ Notes
 -----
 - Only drawables whose target PNG exists on disk are remapped; icons with no
   equivalent in the target era keep their current drawable.
-- tp_* (third-party) entries are always left unchanged.
+- tp_* entries are remapped when a matching per-era variant exists. For
+  example, tp_instagram can switch to ios17_instagram when that file ships.
 - After switching, run `python3 scripts/icontool.py check` to validate.
 - The switch is reversible: run `set_era.py ios18` to restore the default.
 """
@@ -84,12 +85,35 @@ def _strip_era(drawable: str, prefix: str) -> str:
     return drawable[len(prefix):]
 
 
+def _target_candidate(drawable: str, target_prefix: str) -> str | None:
+    """Return the target-era drawable name for *drawable*, if it is switchable."""
+    current_prefix = _era_prefix_of(drawable)
+    if current_prefix is not None:
+        if current_prefix == target_prefix:
+            return None
+        return f"{target_prefix}{_strip_era(drawable, current_prefix)}"
+    if drawable.startswith("tp_"):
+        return f"{target_prefix}{drawable.removeprefix('tp_')}"
+    return None
+
+
 def _drawable_exists(drawable: str) -> bool:
     """Return True if *drawable* has a PNG or vector resource on disk."""
     png = DRAWABLE_HDPI / f"{drawable}.png"
     vd = DRAWABLE_VEC / f"{drawable}.xml"
     other = list((DRAWABLE_HDPI.parent).glob(f"drawable-*/{drawable}.png"))
     return png.exists() or vd.exists() or bool(other)
+
+
+def _collect_drawables() -> set[str]:
+    """Return drawable resource names available on disk."""
+    drawables: set[str] = set()
+    for child in DRAWABLE_VEC.glob("*.xml"):
+        drawables.add(child.stem)
+    for child in DRAWABLE_HDPI.parent.glob("drawable-*/*"):
+        if child.is_file() and child.suffix.lower() in {".png", ".webp", ".jpg", ".jpeg"}:
+            drawables.add(child.stem)
+    return drawables
 
 
 def _remap(
@@ -110,27 +134,19 @@ def _remap(
     skipped = 0
     result_parts: list[str] = []
     last_end = 0
+    available_drawables = _collect_drawables()
 
     for m in item_pat.finditer(content):
         drawable = m.group(2)
-        current_prefix = _era_prefix_of(drawable)
+        candidate = _target_candidate(drawable, target_prefix)
 
-        if current_prefix is None:
-            # tp_* or unknown — leave untouched
+        if candidate is None:
             continue
 
-        if current_prefix == target_prefix:
-            # Already in target era
-            continue
-
-        bare = _strip_era(drawable, current_prefix)
-        candidate = f"{target_prefix}{bare}"
-
-        if not _drawable_exists(candidate):
+        if candidate not in available_drawables:
             skipped += 1
             continue
 
-        # Perform the replacement
         result_parts.append(content[last_end : m.start(2)])
         result_parts.append(candidate)
         last_end = m.end(2)
@@ -168,7 +184,7 @@ def cmd_list(_args: argparse.Namespace) -> int:
     current = _detect_current_era(content)
     print("Available eras:\n")
     for key, display in ERA_DISPLAY.items():
-        marker = " ← active" if key == current else ""
+        marker = " <- active" if key == current else ""
         print(f"  {key:8}  {display}{marker}")
     print(
         "\nUsage: python3 scripts/set_era.py <era>   "
@@ -194,7 +210,7 @@ def cmd_set(args: argparse.Namespace) -> int:
     current_era = _detect_current_era(content)
 
     if current_era == era:
-        print(f"Already on era '{era}' — nothing to do.")
+        print(f"Already on era '{era}' - nothing to do.")
         return 0
 
     new_content, remapped, skipped = _remap(
@@ -204,13 +220,13 @@ def cmd_set(args: argparse.Namespace) -> int:
     current_display = ERA_DISPLAY.get(current_era, current_era)
     target_display = ERA_DISPLAY[era]
     print(
-        f"Switching: {current_display}  →  {target_display}\n"
+        f"Switching: {current_display}  ->  {target_display}\n"
         f"  remapped : {remapped} icon(s)\n"
         f"  kept as-is: {skipped} (no {era} variant exists)\n"
     )
 
     if dry_run:
-        print("Dry-run — no files written.")
+        print("Dry-run - no files written.")
         # Show a sample diff
         sample_lines = [
             ln for ln in new_content.splitlines()
@@ -223,7 +239,7 @@ def cmd_set(args: argparse.Namespace) -> int:
         return 0
 
     if remapped == 0:
-        print("Nothing changed — no files written.")
+        print("Nothing changed - no files written.")
         return 0
 
     _write_pair(APPFILTER_RES, APPFILTER_ASSET, new_content)

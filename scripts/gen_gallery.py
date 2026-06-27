@@ -578,8 +578,7 @@ def _comparison_html() -> str:
     rows_html = "\n".join(rows)
     return f"""\
 <section id="compare-view" hidden>
-  <p class="compare-note">Every stock iOS app icon shown across all 6 design eras.
-    Liquid Glass column only exists for the first 10 icons.</p>
+  <p class="compare-note">Icons with era variants shown across all 6 design eras.</p>
   <div class="cmp-scroll">
     <table class="cmp-table">
       <thead>

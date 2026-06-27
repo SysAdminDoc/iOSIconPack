@@ -1,7 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="ExtraTranslation">
 
-    <!-- Preview icons shown on the home screen hero area (min 8) -->
     <string-array name="icons_preview">
         <item>ios18_safari</item>
         <item>ios18_messages</item>
@@ -17,10 +16,6 @@
         <item>ios18_phone</item>
     </string-array>
 
-    <!--
-        Categories by iOS generation.
-        Users browse by era, then pick icons per-app.
-    -->
     <string-array name="icon_filters">
         <item>all</item>
         <item>ios18</item>
@@ -37,18 +32,7 @@
         <item>games</item>
     </string-array>
 
-    <!--
-        =============================================
-        STARTER ICONS - 20 per iOS generation
-        These are placeholder entries. Replace drawable
-        names with your actual icon drawable filenames
-        (without .png/.xml extension).
-        =============================================
-    -->
-
-    <!-- All icons combined -->
     <string-array name="all">
-        <!-- iOS 18 -->
         <item>ios18_safari</item>
         <item>ios18_messages</item>
         <item>ios18_photos</item>
@@ -69,7 +53,43 @@
         <item>ios18_files</item>
         <item>ios18_calculator</item>
         <item>ios18_compass</item>
-        <!-- iOS 17 -->
+        <item>ios18_amazon</item>
+        <item>ios18_chrome</item>
+        <item>ios18_discord</item>
+        <item>ios18_facebook</item>
+        <item>ios18_gmail</item>
+        <item>ios18_google_calendar</item>
+        <item>ios18_google_classroom</item>
+        <item>ios18_google_docs</item>
+        <item>ios18_google_drive</item>
+        <item>ios18_google_keep</item>
+        <item>ios18_google_maps</item>
+        <item>ios18_google_meet</item>
+        <item>ios18_google_one</item>
+        <item>ios18_google_photos</item>
+        <item>ios18_google_search</item>
+        <item>ios18_google_sheets</item>
+        <item>ios18_google_slides</item>
+        <item>ios18_google_translate</item>
+        <item>ios18_instagram</item>
+        <item>ios18_netflix</item>
+        <item>ios18_paypal</item>
+        <item>ios18_pinterest</item>
+        <item>ios18_reddit</item>
+        <item>ios18_robinhood</item>
+        <item>ios18_shazam</item>
+        <item>ios18_slack</item>
+        <item>ios18_snapchat</item>
+        <item>ios18_spotify</item>
+        <item>ios18_strava</item>
+        <item>ios18_telegram</item>
+        <item>ios18_tiktok</item>
+        <item>ios18_twitter</item>
+        <item>ios18_uber</item>
+        <item>ios18_venmo</item>
+        <item>ios18_whatsapp</item>
+        <item>ios18_youtube</item>
+        <item>ios18_zoom</item>
         <item>ios17_safari</item>
         <item>ios17_messages</item>
         <item>ios17_photos</item>
@@ -90,7 +110,43 @@
         <item>ios17_files</item>
         <item>ios17_calculator</item>
         <item>ios17_compass</item>
-        <!-- iOS 16 -->
+        <item>ios17_amazon</item>
+        <item>ios17_chrome</item>
+        <item>ios17_discord</item>
+        <item>ios17_facebook</item>
+        <item>ios17_gmail</item>
+        <item>ios17_google_calendar</item>
+        <item>ios17_google_classroom</item>
+        <item>ios17_google_docs</item>
+        <item>ios17_google_drive</item>
+        <item>ios17_google_keep</item>
+        <item>ios17_google_maps</item>
+        <item>ios17_google_meet</item>
+        <item>ios17_google_one</item>
+        <item>ios17_google_photos</item>
+        <item>ios17_google_search</item>
+        <item>ios17_google_sheets</item>
+        <item>ios17_google_slides</item>
+        <item>ios17_google_translate</item>
+        <item>ios17_instagram</item>
+        <item>ios17_netflix</item>
+        <item>ios17_paypal</item>
+        <item>ios17_pinterest</item>
+        <item>ios17_reddit</item>
+        <item>ios17_robinhood</item>
+        <item>ios17_shazam</item>
+        <item>ios17_slack</item>
+        <item>ios17_snapchat</item>
+        <item>ios17_spotify</item>
+        <item>ios17_strava</item>
+        <item>ios17_telegram</item>
+        <item>ios17_tiktok</item>
+        <item>ios17_twitter</item>
+        <item>ios17_uber</item>
+        <item>ios17_venmo</item>
+        <item>ios17_whatsapp</item>
+        <item>ios17_youtube</item>
+        <item>ios17_zoom</item>
         <item>ios16_safari</item>
         <item>ios16_messages</item>
         <item>ios16_photos</item>
@@ -111,7 +167,43 @@
         <item>ios16_files</item>
         <item>ios16_calculator</item>
         <item>ios16_compass</item>
-        <!-- iOS 15 -->
+        <item>ios16_amazon</item>
+        <item>ios16_chrome</item>
+        <item>ios16_discord</item>
+        <item>ios16_facebook</item>
+        <item>ios16_gmail</item>
+        <item>ios16_google_calendar</item>
+        <item>ios16_google_classroom</item>
+        <item>ios16_google_docs</item>
+        <item>ios16_google_drive</item>
+        <item>ios16_google_keep</item>
+        <item>ios16_google_maps</item>
+        <item>ios16_google_meet</item>
+        <item>ios16_google_one</item>
+        <item>ios16_google_photos</item>
+        <item>ios16_google_search</item>
+        <item>ios16_google_sheets</item>
+        <item>ios16_google_slides</item>
+        <item>ios16_google_translate</item>
+        <item>ios16_instagram</item>
+        <item>ios16_netflix</item>
+        <item>ios16_paypal</item>
+        <item>ios16_pinterest</item>
+        <item>ios16_reddit</item>
+        <item>ios16_robinhood</item>
+        <item>ios16_shazam</item>
+        <item>ios16_slack</item>
+        <item>ios16_snapchat</item>
+        <item>ios16_spotify</item>
+        <item>ios16_strava</item>
+        <item>ios16_telegram</item>
+        <item>ios16_tiktok</item>
+        <item>ios16_twitter</item>
+        <item>ios16_uber</item>
+        <item>ios16_venmo</item>
+        <item>ios16_whatsapp</item>
+        <item>ios16_youtube</item>
+        <item>ios16_zoom</item>
         <item>ios15_safari</item>
         <item>ios15_messages</item>
         <item>ios15_photos</item>
@@ -132,7 +224,43 @@
         <item>ios15_files</item>
         <item>ios15_calculator</item>
         <item>ios15_compass</item>
-        <!-- iOS 14 -->
+        <item>ios15_amazon</item>
+        <item>ios15_chrome</item>
+        <item>ios15_discord</item>
+        <item>ios15_facebook</item>
+        <item>ios15_gmail</item>
+        <item>ios15_google_calendar</item>
+        <item>ios15_google_classroom</item>
+        <item>ios15_google_docs</item>
+        <item>ios15_google_drive</item>
+        <item>ios15_google_keep</item>
+        <item>ios15_google_maps</item>
+        <item>ios15_google_meet</item>
+        <item>ios15_google_one</item>
+        <item>ios15_google_photos</item>
+        <item>ios15_google_search</item>
+        <item>ios15_google_sheets</item>
+        <item>ios15_google_slides</item>
+        <item>ios15_google_translate</item>
+        <item>ios15_instagram</item>
+        <item>ios15_netflix</item>
+        <item>ios15_paypal</item>
+        <item>ios15_pinterest</item>
+        <item>ios15_reddit</item>
+        <item>ios15_robinhood</item>
+        <item>ios15_shazam</item>
+        <item>ios15_slack</item>
+        <item>ios15_snapchat</item>
+        <item>ios15_spotify</item>
+        <item>ios15_strava</item>
+        <item>ios15_telegram</item>
+        <item>ios15_tiktok</item>
+        <item>ios15_twitter</item>
+        <item>ios15_uber</item>
+        <item>ios15_venmo</item>
+        <item>ios15_whatsapp</item>
+        <item>ios15_youtube</item>
+        <item>ios15_zoom</item>
         <item>ios14_safari</item>
         <item>ios14_messages</item>
         <item>ios14_photos</item>
@@ -153,7 +281,43 @@
         <item>ios14_files</item>
         <item>ios14_calculator</item>
         <item>ios14_compass</item>
-        <!-- iOS 26 Liquid Glass -->
+        <item>ios14_amazon</item>
+        <item>ios14_chrome</item>
+        <item>ios14_discord</item>
+        <item>ios14_facebook</item>
+        <item>ios14_gmail</item>
+        <item>ios14_google_calendar</item>
+        <item>ios14_google_classroom</item>
+        <item>ios14_google_docs</item>
+        <item>ios14_google_drive</item>
+        <item>ios14_google_keep</item>
+        <item>ios14_google_maps</item>
+        <item>ios14_google_meet</item>
+        <item>ios14_google_one</item>
+        <item>ios14_google_photos</item>
+        <item>ios14_google_search</item>
+        <item>ios14_google_sheets</item>
+        <item>ios14_google_slides</item>
+        <item>ios14_google_translate</item>
+        <item>ios14_instagram</item>
+        <item>ios14_netflix</item>
+        <item>ios14_paypal</item>
+        <item>ios14_pinterest</item>
+        <item>ios14_reddit</item>
+        <item>ios14_robinhood</item>
+        <item>ios14_shazam</item>
+        <item>ios14_slack</item>
+        <item>ios14_snapchat</item>
+        <item>ios14_spotify</item>
+        <item>ios14_strava</item>
+        <item>ios14_telegram</item>
+        <item>ios14_tiktok</item>
+        <item>ios14_twitter</item>
+        <item>ios14_uber</item>
+        <item>ios14_venmo</item>
+        <item>ios14_whatsapp</item>
+        <item>ios14_youtube</item>
+        <item>ios14_zoom</item>
         <item>ios26_lg_safari</item>
         <item>ios26_lg_messages</item>
         <item>ios26_lg_photos</item>
@@ -164,9 +328,55 @@
         <item>ios26_lg_maps</item>
         <item>ios26_lg_clock</item>
         <item>ios26_lg_weather</item>
+        <item>ios26_lg_amazon</item>
+        <item>ios26_lg_appstore</item>
+        <item>ios26_lg_calculator</item>
+        <item>ios26_lg_calendar</item>
+        <item>ios26_lg_chrome</item>
+        <item>ios26_lg_compass</item>
+        <item>ios26_lg_discord</item>
+        <item>ios26_lg_facebook</item>
+        <item>ios26_lg_facetime</item>
+        <item>ios26_lg_files</item>
+        <item>ios26_lg_gmail</item>
+        <item>ios26_lg_google_calendar</item>
+        <item>ios26_lg_google_classroom</item>
+        <item>ios26_lg_google_docs</item>
+        <item>ios26_lg_google_drive</item>
+        <item>ios26_lg_google_keep</item>
+        <item>ios26_lg_google_maps</item>
+        <item>ios26_lg_google_meet</item>
+        <item>ios26_lg_google_one</item>
+        <item>ios26_lg_google_photos</item>
+        <item>ios26_lg_google_search</item>
+        <item>ios26_lg_google_sheets</item>
+        <item>ios26_lg_google_slides</item>
+        <item>ios26_lg_google_translate</item>
+        <item>ios26_lg_health</item>
+        <item>ios26_lg_instagram</item>
+        <item>ios26_lg_netflix</item>
+        <item>ios26_lg_notes</item>
+        <item>ios26_lg_paypal</item>
+        <item>ios26_lg_phone</item>
+        <item>ios26_lg_pinterest</item>
+        <item>ios26_lg_reddit</item>
+        <item>ios26_lg_robinhood</item>
+        <item>ios26_lg_shazam</item>
+        <item>ios26_lg_slack</item>
+        <item>ios26_lg_snapchat</item>
+        <item>ios26_lg_spotify</item>
+        <item>ios26_lg_strava</item>
+        <item>ios26_lg_telegram</item>
+        <item>ios26_lg_tiktok</item>
+        <item>ios26_lg_twitter</item>
+        <item>ios26_lg_uber</item>
+        <item>ios26_lg_venmo</item>
+        <item>ios26_lg_wallet</item>
+        <item>ios26_lg_whatsapp</item>
+        <item>ios26_lg_youtube</item>
+        <item>ios26_lg_zoom</item>
     </string-array>
 
-    <!-- iOS 18 - Tinted/Dark Mode support, refined gradients -->
     <string-array name="ios18">
         <item>ios18_safari</item>
         <item>ios18_messages</item>
@@ -188,9 +398,45 @@
         <item>ios18_files</item>
         <item>ios18_calculator</item>
         <item>ios18_compass</item>
+        <item>ios18_amazon</item>
+        <item>ios18_chrome</item>
+        <item>ios18_discord</item>
+        <item>ios18_facebook</item>
+        <item>ios18_gmail</item>
+        <item>ios18_google_calendar</item>
+        <item>ios18_google_classroom</item>
+        <item>ios18_google_docs</item>
+        <item>ios18_google_drive</item>
+        <item>ios18_google_keep</item>
+        <item>ios18_google_maps</item>
+        <item>ios18_google_meet</item>
+        <item>ios18_google_one</item>
+        <item>ios18_google_photos</item>
+        <item>ios18_google_search</item>
+        <item>ios18_google_sheets</item>
+        <item>ios18_google_slides</item>
+        <item>ios18_google_translate</item>
+        <item>ios18_instagram</item>
+        <item>ios18_netflix</item>
+        <item>ios18_paypal</item>
+        <item>ios18_pinterest</item>
+        <item>ios18_reddit</item>
+        <item>ios18_robinhood</item>
+        <item>ios18_shazam</item>
+        <item>ios18_slack</item>
+        <item>ios18_snapchat</item>
+        <item>ios18_spotify</item>
+        <item>ios18_strava</item>
+        <item>ios18_telegram</item>
+        <item>ios18_tiktok</item>
+        <item>ios18_twitter</item>
+        <item>ios18_uber</item>
+        <item>ios18_venmo</item>
+        <item>ios18_whatsapp</item>
+        <item>ios18_youtube</item>
+        <item>ios18_zoom</item>
     </string-array>
 
-    <!-- iOS 17 - Refined flat style -->
     <string-array name="ios17">
         <item>ios17_safari</item>
         <item>ios17_messages</item>
@@ -212,9 +458,45 @@
         <item>ios17_files</item>
         <item>ios17_calculator</item>
         <item>ios17_compass</item>
+        <item>ios17_amazon</item>
+        <item>ios17_chrome</item>
+        <item>ios17_discord</item>
+        <item>ios17_facebook</item>
+        <item>ios17_gmail</item>
+        <item>ios17_google_calendar</item>
+        <item>ios17_google_classroom</item>
+        <item>ios17_google_docs</item>
+        <item>ios17_google_drive</item>
+        <item>ios17_google_keep</item>
+        <item>ios17_google_maps</item>
+        <item>ios17_google_meet</item>
+        <item>ios17_google_one</item>
+        <item>ios17_google_photos</item>
+        <item>ios17_google_search</item>
+        <item>ios17_google_sheets</item>
+        <item>ios17_google_slides</item>
+        <item>ios17_google_translate</item>
+        <item>ios17_instagram</item>
+        <item>ios17_netflix</item>
+        <item>ios17_paypal</item>
+        <item>ios17_pinterest</item>
+        <item>ios17_reddit</item>
+        <item>ios17_robinhood</item>
+        <item>ios17_shazam</item>
+        <item>ios17_slack</item>
+        <item>ios17_snapchat</item>
+        <item>ios17_spotify</item>
+        <item>ios17_strava</item>
+        <item>ios17_telegram</item>
+        <item>ios17_tiktok</item>
+        <item>ios17_twitter</item>
+        <item>ios17_uber</item>
+        <item>ios17_venmo</item>
+        <item>ios17_whatsapp</item>
+        <item>ios17_youtube</item>
+        <item>ios17_zoom</item>
     </string-array>
 
-    <!-- iOS 16 - Bold colors, refined squircle -->
     <string-array name="ios16">
         <item>ios16_safari</item>
         <item>ios16_messages</item>
@@ -236,9 +518,45 @@
         <item>ios16_files</item>
         <item>ios16_calculator</item>
         <item>ios16_compass</item>
+        <item>ios16_amazon</item>
+        <item>ios16_chrome</item>
+        <item>ios16_discord</item>
+        <item>ios16_facebook</item>
+        <item>ios16_gmail</item>
+        <item>ios16_google_calendar</item>
+        <item>ios16_google_classroom</item>
+        <item>ios16_google_docs</item>
+        <item>ios16_google_drive</item>
+        <item>ios16_google_keep</item>
+        <item>ios16_google_maps</item>
+        <item>ios16_google_meet</item>
+        <item>ios16_google_one</item>
+        <item>ios16_google_photos</item>
+        <item>ios16_google_search</item>
+        <item>ios16_google_sheets</item>
+        <item>ios16_google_slides</item>
+        <item>ios16_google_translate</item>
+        <item>ios16_instagram</item>
+        <item>ios16_netflix</item>
+        <item>ios16_paypal</item>
+        <item>ios16_pinterest</item>
+        <item>ios16_reddit</item>
+        <item>ios16_robinhood</item>
+        <item>ios16_shazam</item>
+        <item>ios16_slack</item>
+        <item>ios16_snapchat</item>
+        <item>ios16_spotify</item>
+        <item>ios16_strava</item>
+        <item>ios16_telegram</item>
+        <item>ios16_tiktok</item>
+        <item>ios16_twitter</item>
+        <item>ios16_uber</item>
+        <item>ios16_venmo</item>
+        <item>ios16_whatsapp</item>
+        <item>ios16_youtube</item>
+        <item>ios16_zoom</item>
     </string-array>
 
-    <!-- iOS 15 - Flat design, subtle shadows -->
     <string-array name="ios15">
         <item>ios15_safari</item>
         <item>ios15_messages</item>
@@ -260,9 +578,45 @@
         <item>ios15_files</item>
         <item>ios15_calculator</item>
         <item>ios15_compass</item>
+        <item>ios15_amazon</item>
+        <item>ios15_chrome</item>
+        <item>ios15_discord</item>
+        <item>ios15_facebook</item>
+        <item>ios15_gmail</item>
+        <item>ios15_google_calendar</item>
+        <item>ios15_google_classroom</item>
+        <item>ios15_google_docs</item>
+        <item>ios15_google_drive</item>
+        <item>ios15_google_keep</item>
+        <item>ios15_google_maps</item>
+        <item>ios15_google_meet</item>
+        <item>ios15_google_one</item>
+        <item>ios15_google_photos</item>
+        <item>ios15_google_search</item>
+        <item>ios15_google_sheets</item>
+        <item>ios15_google_slides</item>
+        <item>ios15_google_translate</item>
+        <item>ios15_instagram</item>
+        <item>ios15_netflix</item>
+        <item>ios15_paypal</item>
+        <item>ios15_pinterest</item>
+        <item>ios15_reddit</item>
+        <item>ios15_robinhood</item>
+        <item>ios15_shazam</item>
+        <item>ios15_slack</item>
+        <item>ios15_snapchat</item>
+        <item>ios15_spotify</item>
+        <item>ios15_strava</item>
+        <item>ios15_telegram</item>
+        <item>ios15_tiktok</item>
+        <item>ios15_twitter</item>
+        <item>ios15_uber</item>
+        <item>ios15_venmo</item>
+        <item>ios15_whatsapp</item>
+        <item>ios15_youtube</item>
+        <item>ios15_zoom</item>
     </string-array>
 
-    <!-- iOS 14 - Flat with gradient backgrounds -->
     <string-array name="ios14">
         <item>ios14_safari</item>
         <item>ios14_messages</item>
@@ -284,9 +638,45 @@
         <item>ios14_files</item>
         <item>ios14_calculator</item>
         <item>ios14_compass</item>
+        <item>ios14_amazon</item>
+        <item>ios14_chrome</item>
+        <item>ios14_discord</item>
+        <item>ios14_facebook</item>
+        <item>ios14_gmail</item>
+        <item>ios14_google_calendar</item>
+        <item>ios14_google_classroom</item>
+        <item>ios14_google_docs</item>
+        <item>ios14_google_drive</item>
+        <item>ios14_google_keep</item>
+        <item>ios14_google_maps</item>
+        <item>ios14_google_meet</item>
+        <item>ios14_google_one</item>
+        <item>ios14_google_photos</item>
+        <item>ios14_google_search</item>
+        <item>ios14_google_sheets</item>
+        <item>ios14_google_slides</item>
+        <item>ios14_google_translate</item>
+        <item>ios14_instagram</item>
+        <item>ios14_netflix</item>
+        <item>ios14_paypal</item>
+        <item>ios14_pinterest</item>
+        <item>ios14_reddit</item>
+        <item>ios14_robinhood</item>
+        <item>ios14_shazam</item>
+        <item>ios14_slack</item>
+        <item>ios14_snapchat</item>
+        <item>ios14_spotify</item>
+        <item>ios14_strava</item>
+        <item>ios14_telegram</item>
+        <item>ios14_tiktok</item>
+        <item>ios14_twitter</item>
+        <item>ios14_uber</item>
+        <item>ios14_venmo</item>
+        <item>ios14_whatsapp</item>
+        <item>ios14_youtube</item>
+        <item>ios14_zoom</item>
     </string-array>
 
-    <!-- iOS 26 Liquid Glass - Translucent, frosted glass aesthetic -->
     <string-array name="ios26_liquid_glass">
         <item>ios26_lg_safari</item>
         <item>ios26_lg_messages</item>
@@ -298,47 +688,137 @@
         <item>ios26_lg_maps</item>
         <item>ios26_lg_clock</item>
         <item>ios26_lg_weather</item>
+        <item>ios26_lg_amazon</item>
+        <item>ios26_lg_appstore</item>
+        <item>ios26_lg_calculator</item>
+        <item>ios26_lg_calendar</item>
+        <item>ios26_lg_chrome</item>
+        <item>ios26_lg_compass</item>
+        <item>ios26_lg_discord</item>
+        <item>ios26_lg_facebook</item>
+        <item>ios26_lg_facetime</item>
+        <item>ios26_lg_files</item>
+        <item>ios26_lg_gmail</item>
+        <item>ios26_lg_google_calendar</item>
+        <item>ios26_lg_google_classroom</item>
+        <item>ios26_lg_google_docs</item>
+        <item>ios26_lg_google_drive</item>
+        <item>ios26_lg_google_keep</item>
+        <item>ios26_lg_google_maps</item>
+        <item>ios26_lg_google_meet</item>
+        <item>ios26_lg_google_one</item>
+        <item>ios26_lg_google_photos</item>
+        <item>ios26_lg_google_search</item>
+        <item>ios26_lg_google_sheets</item>
+        <item>ios26_lg_google_slides</item>
+        <item>ios26_lg_google_translate</item>
+        <item>ios26_lg_health</item>
+        <item>ios26_lg_instagram</item>
+        <item>ios26_lg_netflix</item>
+        <item>ios26_lg_notes</item>
+        <item>ios26_lg_paypal</item>
+        <item>ios26_lg_phone</item>
+        <item>ios26_lg_pinterest</item>
+        <item>ios26_lg_reddit</item>
+        <item>ios26_lg_robinhood</item>
+        <item>ios26_lg_shazam</item>
+        <item>ios26_lg_slack</item>
+        <item>ios26_lg_snapchat</item>
+        <item>ios26_lg_spotify</item>
+        <item>ios26_lg_strava</item>
+        <item>ios26_lg_telegram</item>
+        <item>ios26_lg_tiktok</item>
+        <item>ios26_lg_twitter</item>
+        <item>ios26_lg_uber</item>
+        <item>ios26_lg_venmo</item>
+        <item>ios26_lg_wallet</item>
+        <item>ios26_lg_whatsapp</item>
+        <item>ios26_lg_youtube</item>
+        <item>ios26_lg_zoom</item>
     </string-array>
 
-    <!-- Cross-generation categories by app type -->
     <string-array name="system">
         <item>ios18_settings</item>
-        <item>ios18_phone</item>
         <item>ios18_mail</item>
+        <item>ios18_clock</item>
+        <item>ios18_weather</item>
+        <item>ios18_phone</item>
         <item>ios18_calendar</item>
+        <item>ios18_appstore</item>
+        <item>ios18_wallet</item>
+        <item>ios18_health</item>
+        <item>ios18_files</item>
         <item>ios18_calculator</item>
         <item>ios18_compass</item>
-        <item>ios18_clock</item>
-        <item>ios18_files</item>
-        <item>ios18_health</item>
-        <item>ios18_weather</item>
     </string-array>
 
     <string-array name="google">
-        <!-- Placeholder: Google app icons to be added -->
+        <item>ios18_chrome</item>
+        <item>ios18_gmail</item>
+        <item>ios18_google_calendar</item>
+        <item>ios18_google_classroom</item>
+        <item>ios18_google_docs</item>
+        <item>ios18_google_drive</item>
+        <item>ios18_google_keep</item>
+        <item>ios18_google_maps</item>
+        <item>ios18_google_meet</item>
+        <item>ios18_google_one</item>
+        <item>ios18_google_photos</item>
+        <item>ios18_google_search</item>
+        <item>ios18_google_sheets</item>
+        <item>ios18_google_slides</item>
+        <item>ios18_google_translate</item>
+        <item>ios18_youtube</item>
     </string-array>
 
     <string-array name="social">
-        <!-- Placeholder: Social media icons to be added -->
+        <item>ios18_discord</item>
+        <item>ios18_facebook</item>
+        <item>ios18_instagram</item>
+        <item>ios18_pinterest</item>
+        <item>ios18_reddit</item>
+        <item>ios18_slack</item>
+        <item>ios18_snapchat</item>
+        <item>ios18_telegram</item>
+        <item>ios18_tiktok</item>
+        <item>ios18_twitter</item>
+        <item>ios18_whatsapp</item>
     </string-array>
 
     <string-array name="media">
-        <item>ios18_music</item>
         <item>ios18_photos</item>
         <item>ios18_camera</item>
+        <item>ios18_music</item>
         <item>ios18_facetime</item>
+        <item>ios18_google_meet</item>
+        <item>ios18_google_photos</item>
+        <item>ios18_netflix</item>
+        <item>ios18_shazam</item>
+        <item>ios18_spotify</item>
+        <item>ios18_youtube</item>
     </string-array>
 
     <string-array name="productivity">
         <item>ios18_safari</item>
-        <item>ios18_notes</item>
-        <item>ios18_files</item>
         <item>ios18_mail</item>
+        <item>ios18_notes</item>
         <item>ios18_calendar</item>
+        <item>ios18_files</item>
+        <item>ios18_chrome</item>
+        <item>ios18_gmail</item>
+        <item>ios18_google_calendar</item>
+        <item>ios18_google_classroom</item>
+        <item>ios18_google_docs</item>
+        <item>ios18_google_drive</item>
+        <item>ios18_google_keep</item>
+        <item>ios18_google_sheets</item>
+        <item>ios18_google_slides</item>
+        <item>ios18_google_translate</item>
+        <item>ios18_slack</item>
+        <item>ios18_zoom</item>
     </string-array>
 
     <string-array name="games">
-        <!-- Placeholder: Game icons to be added -->
     </string-array>
 
 </resources>

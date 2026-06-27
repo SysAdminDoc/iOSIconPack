@@ -67,6 +67,7 @@ APPFILTER_ASSET = ASSETS / "appfilter.xml"
 DRAWABLE_XML_RES = RES_XML / "drawable.xml"
 DRAWABLE_XML_ASSET = ASSETS / "drawable.xml"
 APPMAP_XML = RES_XML / "appmap.xml"
+ICON_PACK_XML = REPO_ROOT / "app/src/main/res/values/icon_pack.xml"
 
 # ---------------------------------------------------------------------------
 # Era / category metadata
@@ -106,6 +107,15 @@ CATEGORY_ORDER: list[str] = [
 
 # tp_ icons live only in appfilter.xml + on disk, never in drawable.xml.
 TP_PREFIX = "tp_"
+
+ERA_ARRAY_NAMES: dict[str, str] = {
+    "iOS 18": "ios18",
+    "iOS 17": "ios17",
+    "iOS 16": "ios16",
+    "iOS 15": "ios15",
+    "iOS 14": "ios14",
+    "iOS 26 - Liquid Glass": "ios26_liquid_glass",
+}
 
 
 def _era_prefix(drawable: str) -> str:
@@ -317,6 +327,115 @@ def _dw_remove(content: str, drawable: str) -> tuple[str, bool]:
 
 
 # ---------------------------------------------------------------------------
+# icon_pack.xml operations
+# ---------------------------------------------------------------------------
+
+def _drawable_categories(content: str) -> list[tuple[str, list[str]]]:
+    categories: list[tuple[str, list[str]]] = []
+    current: str | None = None
+    items: list[str] = []
+    for line in content.splitlines():
+        cat = re.search(r'<category\s+title="([^"]+)"', line)
+        if cat:
+            if current is not None:
+                categories.append((current, items))
+            current = cat.group(1)
+            items = []
+            continue
+        item = re.search(r'<item\s+drawable="([^"]+)"', line)
+        if item and current is not None:
+            items.append(item.group(1))
+    if current is not None:
+        categories.append((current, items))
+    return categories
+
+
+def _array_xml(name: str, values: list[str], indent: str = "    ") -> str:
+    lines = [f'{indent}<string-array name="{name}">']
+    lines.extend(f"{indent}    <item>{value}</item>" for value in values)
+    lines.append(f"{indent}</string-array>")
+    return "\n".join(lines)
+
+
+def _ios18_filter(items: list[str], names: set[str]) -> list[str]:
+    return [name for name in items if name.startswith("ios18_") and name.removeprefix("ios18_") in names]
+
+
+def _sync_icon_pack_xml(drawable_content: str) -> None:
+    categories = _drawable_categories(drawable_content)
+    by_title = {title: items for title, items in categories}
+    all_items = [item for _, items in categories for item in items]
+    ios18 = by_title.get("iOS 18", [])
+
+    preview_preferred = [
+        "ios18_safari", "ios18_messages", "ios18_photos", "ios18_camera",
+        "ios18_settings", "ios18_music", "ios18_mail", "ios18_maps",
+        "ios18_clock", "ios18_weather", "ios18_notes", "ios18_phone",
+    ]
+    preview = [item for item in preview_preferred if item in ios18]
+    if len(preview) < 12:
+        preview.extend(item for item in ios18 if item not in preview)
+    preview = preview[:12]
+
+    google_names = {
+        "chrome", "gmail", "google_calendar", "google_classroom", "google_docs",
+        "google_drive", "google_keep", "google_maps", "google_meet", "google_one",
+        "google_photos", "google_search", "google_sheets", "google_slides",
+        "google_translate", "youtube",
+    }
+    social_names = {
+        "discord", "facebook", "instagram", "pinterest", "reddit", "slack",
+        "snapchat", "telegram", "tiktok", "twitter", "whatsapp",
+    }
+    media_names = {
+        "camera", "facetime", "google_meet", "google_photos", "music", "netflix",
+        "photos", "shazam", "spotify", "youtube",
+    }
+    productivity_names = {
+        "calendar", "chrome", "files", "gmail", "google_calendar",
+        "google_classroom", "google_docs", "google_drive", "google_keep",
+        "google_sheets", "google_slides", "google_translate", "mail", "notes",
+        "safari", "slack", "zoom",
+    }
+
+    arrays: list[tuple[str, list[str]]] = [
+        ("icons_preview", preview),
+        ("icon_filters", [
+            "all", "ios18", "ios17", "ios16", "ios15", "ios14",
+            "ios26_liquid_glass", "system", "google", "social", "media",
+            "productivity", "games",
+        ]),
+        ("all", all_items),
+    ]
+    for title in CATEGORY_ORDER:
+        array_name = ERA_ARRAY_NAMES.get(title)
+        if array_name:
+            arrays.append((array_name, by_title.get(title, [])))
+    arrays.extend([
+        ("system", _ios18_filter(ios18, {
+            "appstore", "calculator", "calendar", "clock", "compass", "files",
+            "health", "mail", "phone", "settings", "wallet", "weather",
+        })),
+        ("google", _ios18_filter(ios18, google_names)),
+        ("social", _ios18_filter(ios18, social_names)),
+        ("media", _ios18_filter(ios18, media_names)),
+        ("productivity", _ios18_filter(ios18, productivity_names)),
+        ("games", []),
+    ])
+
+    body = "\n\n".join(_array_xml(name, values) for name, values in arrays)
+    content = (
+        '<?xml version="1.0" encoding="utf-8"?>\n'
+        '<resources xmlns:tools="http://schemas.android.com/tools" '
+        'tools:ignore="ExtraTranslation">\n\n'
+        f"{body}\n\n"
+        "</resources>\n"
+    )
+    _write(ICON_PACK_XML, content)
+    print(f"  wrote {ICON_PACK_XML.relative_to(REPO_ROOT)}")
+
+
+# ---------------------------------------------------------------------------
 # appmap.xml operations
 # ---------------------------------------------------------------------------
 
@@ -405,6 +524,7 @@ def cmd_add(args: argparse.Namespace) -> int:
 
     _write_pair(APPFILTER_RES, APPFILTER_ASSET, af)
     _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
+    _sync_icon_pack_xml(dw)
     _write(APPMAP_XML, am)
     print(f"  wrote {APPMAP_XML.relative_to(REPO_ROOT)}")
     print(f"\nDone — {added} component(s) added for '{drawable}'.")
@@ -562,7 +682,12 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     for f in DRAWABLE_VEC.glob("*.xml"):
         name = f.stem
         skip_prefixes = ("ic_launcher", "ic_", "tp_", "background", "foreground")
-        if not any(name.startswith(p) for p in skip_prefixes) and _era_prefix(name):
+        skip_suffixes = ("_mono", "_themed")
+        if (
+            not any(name.startswith(p) for p in skip_prefixes)
+            and not name.endswith(skip_suffixes)
+            and _era_prefix(name)
+        ):
             on_disk.add(name)
 
     missing: list[str] = sorted(on_disk - in_xml)
@@ -570,6 +695,8 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
 
     if not missing and not stale:
         print("drawable.xml is already in sync with disk — nothing to do.")
+        if not dry_run:
+            _sync_icon_pack_xml(dw)
         return 0
 
     if missing:
@@ -600,6 +727,7 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
         return 0
 
     _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
+    _sync_icon_pack_xml(dw)
     print(f"\nDone — {len(missing)} added, {len(stale)} removed.")
     return 0
 

@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.0" date="2026-06-27">
+        <text>Expanded every iOS era to 57 icons</text>
+        <text>Added per-era variants for popular third-party and Google apps</text>
+        <text>Improved era switching for third-party icons</text>
+        <text>Synced dashboard filters and gallery output with the expanded catalog</text>
+    </version>
+
     <version title="1.0.0" date="2026-03-31">
         <text>Initial release</text>
         <text>20 icons per iOS generation (14, 15, 16, 17, 18)</text>

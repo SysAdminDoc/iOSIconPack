@@ -315,7 +315,6 @@
     <!-- Threema, secure messenger -->
     <item component="ComponentInfo{ch.threema.app/ch.threema.app.activities.HomeActivity}" drawable="tp_whatsapp" />
     <!-- Signal Private Messenger -->
-    <item component="ComponentInfo{org.thoughtcrime.securesms/org.thoughtcrime.securesms.RoutingActivity}" drawable="tp_whatsapp" />
     <!-- Session, onion-routed messenger -->
     <item component="ComponentInfo{network.loki.messenger/org.thoughtcrime.securesms.home.HomeActivity}" drawable="tp_telegram" />
     <!-- Microsoft Teams -->

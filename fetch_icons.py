@@ -81,8 +81,12 @@ APPLE_APP_IDS = {
     "phone": 1146562108,
     "camera": 1584216193,
 }
+APPLE_SEARCH_ONLY = {
+    # No public App Store app id is available for Settings, but the existing
+    # pack ships a Settings icon and the search path keeps rebuilds complete.
+    "settings": "Settings Apple iPhone",
+}
 SEARCH_TERMS = {k: f"{k.title()} Apple" for k in APPLE_APP_IDS}
-SEARCH_TERMS["settings"] = "Settings Apple iPhone"
 SEARCH_TERMS["music"] = "Apple Music"
 SEARCH_TERMS["maps"] = "Apple Maps"
 SEARCH_TERMS["appstore"] = "App Store Apple"
@@ -115,11 +119,27 @@ THIRD_PARTY = {
     "shazam": "Shazam",
 }
 
-ERAS = ("ios18", "ios17", "ios16", "ios15", "ios14")
-LIQUID_GLASS_SUBSET = {
-    "safari", "messages", "photos", "camera", "settings",
-    "music", "mail", "maps", "clock", "weather",
+# Apps that should exist as per-era variants (`ios18_instagram`,
+# `ios17_instagram`, `ios26_lg_instagram`, etc.) so the dashboard and per-era
+# APK builds can show more than Apple stock icons.
+ERA_APP_VARIANTS = {
+    **THIRD_PARTY,
+    "google_search": "Google Search",
+    "google_drive": "Google Drive",
+    "google_docs": "Google Docs",
+    "google_sheets": "Google Sheets",
+    "google_slides": "Google Slides",
+    "google_photos": "Google Photos",
+    "google_meet": "Google Meet",
+    "google_calendar": "Google Calendar",
+    "google_keep": "Google Keep",
+    "google_translate": "Google Translate",
+    "google_one": "Google One",
+    "google_classroom": "Google Classroom",
 }
+
+ERAS = ("ios18", "ios17", "ios16", "ios15", "ios14")
+LIQUID_GLASS_SUBSET = set(APPLE_APP_IDS) | set(APPLE_SEARCH_ONLY) | set(ERA_APP_VARIANTS)
 
 # Per-era color grade parameters applied to every resized icon.
 # Keys match ERAS + "ios26_lg" + "tp" (third-party, no grade).
@@ -276,6 +296,24 @@ def _process(name: str, icon_url: str, prefix: str, dry_run: bool,
     return _resize(raw, pack, era=era_key)
 
 
+def _process_era_variants(
+    name: str,
+    icon_url: str,
+    eras: tuple[str, ...],
+    include_lg: bool,
+    dry_run: bool,
+    cache: dict[str, str] | None,
+) -> int:
+    processed = 0
+    for prefix in eras:
+        if _process(name, icon_url, prefix, dry_run, cache):
+            processed += 1
+    if include_lg and name in LIQUID_GLASS_SUBSET:
+        if _process(name, icon_url, "ios26_lg", dry_run, cache):
+            processed += 1
+    return processed
+
+
 def _appfilter_components(path: Path) -> dict[str, str]:
     if not path.exists():
         return {}
@@ -339,7 +377,10 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.list:
         print("Apple stock apps:")
-        for name in sorted(APPLE_APP_IDS):
+        for name in sorted(set(APPLE_APP_IDS) | set(APPLE_SEARCH_ONLY)):
+            print(f"  {name}")
+        print("\nPer-era app variants:")
+        for name in sorted(ERA_APP_VARIANTS):
             print(f"  {name}")
         print("\nThird-party apps:")
         for name in sorted(THIRD_PARTY):
@@ -366,12 +407,38 @@ def main(argv: list[str] | None = None) -> int:
                 failed.append(name)
                 print(f"    SKIPPED")
                 continue
-            for prefix in eras:
-                if _process(name, icon_url, prefix, args.dry_run, cache):
-                    success += 1
-            if include_lg and name in LIQUID_GLASS_SUBSET:
-                if _process(name, icon_url, "ios26_lg", args.dry_run, cache):
-                    success += 1
+            success += _process_era_variants(
+                name, icon_url, eras, include_lg, args.dry_run, cache
+            )
+            time.sleep(0.3)
+
+        for name, term in APPLE_SEARCH_ONLY.items():
+            if only_names and name not in only_names:
+                continue
+            print(f"[{name}] search='{term}'")
+            icon_url = _icon_by_search(term)
+            if not icon_url:
+                failed.append(name)
+                print("    SKIPPED")
+                continue
+            success += _process_era_variants(
+                name, icon_url, eras, include_lg, args.dry_run, cache
+            )
+            time.sleep(0.3)
+
+        print("\n--- Per-Era App Variants ---")
+        for name, term in ERA_APP_VARIANTS.items():
+            if only_names and name not in only_names:
+                continue
+            print(f"[{name}] search='{term}'")
+            icon_url = _icon_by_search(term)
+            if not icon_url:
+                failed.append(name)
+                print("    SKIPPED")
+                continue
+            success += _process_era_variants(
+                name, icon_url, eras, include_lg, args.dry_run, cache
+            )
             time.sleep(0.3)
 
     print("\n--- Third-Party Apps ---")
