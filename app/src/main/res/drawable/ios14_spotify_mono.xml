@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_spotify. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:pathData="M96,36 C129,36 156,63 156,96 C156,129 129,156 96,156 C63,156 36,129 36,96 C36,63 63,36 96,36 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineCap="round" android:pathData="M66,80 C91,72 119,76 139,88 M70,102 C91,96 115,99 132,109 M76,123 C92,119 108,121 122,130" />
+</vector>

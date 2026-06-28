@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios15_gmail. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:strokeLineJoin="round" android:pathData="M36,58 H156 V134 H36 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M42,64 L96,106 L150,64" />
+</vector>

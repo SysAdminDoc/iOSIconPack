@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios17_netflix. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M58,36 H82 V156 H58 Z M110,36 H134 V156 H110 Z M82,36 L134,156 H110 L58,36 Z" />
+</vector>

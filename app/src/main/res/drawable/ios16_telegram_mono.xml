@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_telegram. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M160,42 L132,154 L91,122 L70,144 L76,112 L34,96 Z M80,108 L126,68 L92,118 Z" />
+</vector>

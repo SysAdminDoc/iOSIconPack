@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_facebook. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M106,158 H78 V102 H58 V78 H78 V62 C78,39 92,26 114,26 C125,26 135,28 135,28 V52 H123 C111,52 106,59 106,67 V78 H133 L129,102 H106 Z" />
+</vector>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios26_lg_messages. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M48,52 H144 C157,52 168,63 168,76 V116 C168,129 157,140 144,140 H92 L56,164 V140 H48 C35,140 24,129 24,116 V76 C24,63 35,52 48,52 Z" />
+</vector>

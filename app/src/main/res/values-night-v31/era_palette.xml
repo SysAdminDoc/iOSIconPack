@@ -1,0 +1,15 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="era_tint_ios14">@android:color/system_accent3_200</color>
+    <color name="era_tint_ios15">@android:color/system_accent2_200</color>
+    <color name="era_tint_ios16">@android:color/system_accent1_200</color>
+    <color name="era_tint_ios17">@android:color/system_accent1_300</color>
+    <color name="era_tint_ios18">@android:color/system_accent1_200</color>
+    <color name="era_tint_ios26_liquid_glass">@android:color/system_accent2_100</color>
+    <color name="era_tint_third_party">@android:color/system_accent3_200</color>
+
+    <color name="era_container_ios14">@android:color/system_accent3_700</color>
+    <color name="era_container_ios17">@android:color/system_accent1_700</color>
+    <color name="era_container_ios18">@android:color/system_accent1_700</color>
+    <color name="era_container_ios26_liquid_glass">@android:color/system_accent2_800</color>
+</resources>

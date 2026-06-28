@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios15_google_docs. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M56,34 H118 L146,62 V158 H56 Z M118,34 V62 H146" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M74,82 H128 V94 H74 Z M74,106 H128 V118 H74 Z M74,130 H114 V142 H74 Z" />
+</vector>

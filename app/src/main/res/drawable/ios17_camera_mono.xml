@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios17_camera. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:strokeLineJoin="round" android:pathData="M42,66 H70 L80,52 H112 L122,66 H150 C158,66 164,72 164,80 V134 C164,142 158,148 150,148 H42 C34,148 28,142 28,134 V80 C28,72 34,66 42,66 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:pathData="M96,84 C112,84 124,96 124,112 C124,128 112,140 96,140 C80,140 68,128 68,112 C68,96 80,84 96,84 Z" />
+</vector>

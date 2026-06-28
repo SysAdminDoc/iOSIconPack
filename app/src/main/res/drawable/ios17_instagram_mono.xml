@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios17_instagram. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="12" android:strokeLineJoin="round" android:pathData="M58,42 H134 C143,42 150,49 150,58 V134 C150,143 143,150 134,150 H58 C49,150 42,143 42,134 V58 C42,49 49,42 58,42 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="12" android:pathData="M96,72 C109,72 120,83 120,96 C120,109 109,120 96,120 C83,120 72,109 72,96 C72,83 83,72 96,72 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M128,58 C132,58 135,61 135,65 C135,69 132,72 128,72 C124,72 121,69 121,65 C121,61 124,58 128,58 Z" />
+</vector>

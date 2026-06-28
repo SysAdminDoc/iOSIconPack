@@ -4,6 +4,7 @@
         <text>Expanded every iOS era to 57 icons</text>
         <text>Added per-era variants for popular third-party and Google apps</text>
         <text>Replaced bitmap monochrome stubs with vector themed-icon layers</text>
+        <text>Added era-specific Material You tint resources for themed icons</text>
         <text>Improved era switching for third-party icons</text>
         <text>Synced dashboard filters and gallery output with the expanded catalog</text>
     </version>

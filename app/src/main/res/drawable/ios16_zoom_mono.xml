@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_zoom. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M42,62 H112 C123,62 132,71 132,82 V126 C132,137 123,146 112,146 H42 C31,146 22,137 22,126 V82 C22,71 31,62 42,62 Z M132,90 L166,70 V138 L132,118 Z" />
+</vector>

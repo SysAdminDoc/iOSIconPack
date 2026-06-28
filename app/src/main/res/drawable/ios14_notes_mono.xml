@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_notes. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M48,40 H144 V152 H48 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M48,40 H144 V70 H48 Z M64,88 H128 V98 H64 Z M64,112 H128 V122 H64 Z M64,136 H108 V146 H64 Z" />
+</vector>

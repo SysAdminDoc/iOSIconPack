@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_google_photos. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M96,28 L113,70 L96,88 L79,70 Z M96,104 L113,122 L96,164 L79,122 Z M28,96 L70,79 L88,96 L70,113 Z M104,96 L122,79 L164,96 L122,113 Z M48,48 L88,65 L88,90 L64,90 Z M144,48 L128,90 L104,90 L104,65 Z M48,144 L64,102 L88,102 L88,127 Z M144,144 L104,127 L104,102 L128,102 Z" />
+</vector>

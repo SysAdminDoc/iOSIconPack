@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios26_lg_google_drive. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M82,36 H110 L158,120 L144,144 H48 L34,120 Z M90,60 L58,116 H86 L116,60 Z M106,72 L134,120 H104 L76,120 Z" />
+</vector>

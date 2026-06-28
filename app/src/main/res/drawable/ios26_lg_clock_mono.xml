@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios26_lg_clock. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:pathData="M96,36 C129,36 156,63 156,96 C156,129 129,156 96,156 C63,156 36,129 36,96 C36,63 63,36 96,36 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:strokeLineCap="round" android:pathData="M96,58 V98 L124,116" />
+</vector>

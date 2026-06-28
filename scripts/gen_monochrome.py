@@ -1,12 +1,12 @@
 #!/usr/bin/env python3
-"""Scaffold Android 13+ monochrome layers for every ios18_* and tp_* icon.
+"""Scaffold Android 13+ monochrome layers for every icon-pack PNG.
 
 Android 13 introduced the `<monochrome>` layer inside `<adaptive-icon>` XML.
 Launchers that support themed icons (Pixel Launcher, Lawnchair 14+) tint this
 layer using the user's wallpaper-derived Material You color.
 
-This script generates `drawable/<name>_mono.xml` files. High-visibility icons
-use hand-crafted single-color vectors; any icon without a vector template falls
+This script generates `drawable/<name>_mono.xml` files. Covered icons use
+hand-crafted single-color vectors; any icon without a vector template falls
 back to a `<bitmap>` pointing at the existing raster PNG.
 
 Also generates `drawable/<name>_themed.xml` adaptive-icon wrappers that
@@ -58,11 +58,30 @@ THEMED_TEMPLATE = """\
     themed-icon support. Launchers read this when the user enables "Themed icons".
 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background" />
+    <background android:drawable="@color/{background}" />
     <foreground android:drawable="@drawable/{name}" />
     <monochrome android:drawable="@drawable/{name}_mono" />
 </adaptive-icon>
 """
+
+ERA_PREFIXES = (
+    "ios26_lg_",
+    "ios18_",
+    "ios17_",
+    "ios16_",
+    "ios15_",
+    "ios14_",
+)
+
+THEMED_BACKGROUND_BY_PREFIX: dict[str, str] = {
+    "ios14_": "ios14_themed_icon_background",
+    "ios15_": "ios15_themed_icon_background",
+    "ios16_": "ios16_themed_icon_background",
+    "ios17_": "ios17_themed_icon_background",
+    "ios18_": "ios18_themed_icon_background",
+    "ios26_lg_": "ios26_liquid_glass_themed_icon_background",
+    "tp_": "third_party_themed_icon_background",
+}
 
 MONO_VECTOR_PATHS: dict[str, tuple[str, ...]] = {
     "ios18_appstore": (
@@ -302,7 +321,24 @@ def _vector_paths_for(name: str) -> tuple[str, ...] | None:
         alias = MONO_VECTOR_ALIASES.get(name)
         if alias is not None:
             paths = MONO_VECTOR_PATHS[alias]
+    if paths is None:
+        for prefix in ERA_PREFIXES:
+            if name.startswith(prefix):
+                bare_name = name.removeprefix(prefix)
+                if prefix == "ios18_":
+                    return _vector_paths_for(f"tp_{bare_name}")
+                paths = _vector_paths_for(f"ios18_{bare_name}")
+                if paths is not None:
+                    return paths
+                return _vector_paths_for(f"tp_{bare_name}")
     return paths
+
+
+def _themed_background_for(name: str) -> str:
+    for prefix, color_name in THEMED_BACKGROUND_BY_PREFIX.items():
+        if name.startswith(prefix):
+            return color_name
+    return "third_party_themed_icon_background"
 
 
 def _mono_content(name: str) -> str:
@@ -314,13 +350,13 @@ def _mono_content(name: str) -> str:
 
 
 def _target_icons() -> list[str]:
-    """Return sorted list of drawable names to generate mono stubs for."""
-    names: list[str] = []
+    """Return sorted list of drawable names to generate mono layers for."""
+    names: set[str] = set()
     for p in sorted(PACK_DIR.glob("*.png")):
         stem = p.stem
-        if stem.startswith("ios18_") or stem.startswith("tp_"):
-            names.append(stem)
-    return names
+        if any(stem.startswith(prefix) for prefix in (*ERA_PREFIXES, "tp_")):
+            names.add(stem)
+    return sorted(names)
 
 
 def _write(path: Path, content: str, dry_run: bool, force: bool) -> bool:
@@ -367,7 +403,12 @@ def main(argv: list[str] | None = None) -> int:
             args.dry_run,
             args.force or args.force_mono,
         )
-        w_themed = _write(themed_path, THEMED_TEMPLATE.format(name=name), args.dry_run, args.force)
+        w_themed = _write(
+            themed_path,
+            THEMED_TEMPLATE.format(name=name, background=_themed_background_for(name)),
+            args.dry_run,
+            args.force,
+        )
 
         if w_mono:
             created_mono += 1

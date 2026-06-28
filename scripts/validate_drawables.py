@@ -35,6 +35,16 @@ PNG_MAGIC     = b"\x89PNG\r\n\x1a\n"
 
 # Launcher/system drawables in drawable/ that aren't icon-pack artwork
 _VEC_SKIP_PREFIXES = ("ic_launcher", "ic_", "background", "foreground", "ic_muzei")
+_ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
+_THEMED_BACKGROUND_BY_PREFIX = {
+    "ios14_": "@color/ios14_themed_icon_background",
+    "ios15_": "@color/ios15_themed_icon_background",
+    "ios16_": "@color/ios16_themed_icon_background",
+    "ios17_": "@color/ios17_themed_icon_background",
+    "ios18_": "@color/ios18_themed_icon_background",
+    "ios26_lg_": "@color/ios26_liquid_glass_themed_icon_background",
+    "tp_": "@color/third_party_themed_icon_background",
+}
 
 
 def _png_dimensions(data: bytes) -> tuple[int, int]:
@@ -129,6 +139,36 @@ def _mono_root_counts() -> tuple[int, int, int]:
     return vector_count, bitmap_count, other_count
 
 
+def _expected_themed_background(name: str) -> str | None:
+    for prefix, background in _THEMED_BACKGROUND_BY_PREFIX.items():
+        if name.startswith(prefix):
+            return background
+    return None
+
+
+def check_themed_backgrounds() -> tuple[list[str], int]:
+    errors: list[str] = []
+    themed_background_count = 0
+    for path in sorted(VEC_DIR.glob("*_themed.xml")):
+        name = path.stem.removesuffix("_themed")
+        expected = _expected_themed_background(name)
+        if expected is None:
+            continue
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError:
+            continue
+        background = root.find("background")
+        actual = background.get(f"{_ANDROID_NS}drawable", "") if background is not None else ""
+        if actual == expected:
+            themed_background_count += 1
+            continue
+        errors.append(
+            f"  WRONG THEMED BG  {path.name}: {actual or '<missing>'} (expected {expected})"
+        )
+    return errors, themed_background_count
+
+
 def check_squircle_corners() -> tuple[list[str], str | None]:
     """Warn if any PNG has too many opaque pixels in its four corner regions."""
     try:
@@ -176,6 +216,7 @@ def main() -> int:
     png_errors = check_pngs()
     vec_errors = check_vectors()
     file_errors = check_drawable_files()
+    themed_errors, themed_background_count = check_themed_backgrounds()
     squircle_warnings, squircle_note = check_squircle_corners()
 
     png_count = len(list(HDPI_DIR.glob("*.png")))
@@ -191,6 +232,7 @@ def main() -> int:
     all_errors.extend(png_errors)
     all_errors.extend(vec_errors)
     all_errors.extend(file_errors)
+    all_errors.extend(themed_errors)
 
     if all_errors:
         print(f"validate_drawables.py: FAILED ({len(all_errors)} error(s))", file=sys.stderr)
@@ -205,7 +247,8 @@ def main() -> int:
         f"{mono_vector_count} monochrome vector(s), "
         f"{mono_bitmap_count} bitmap mono fallback(s), "
         f"{mono_other_count} other mono XML(s), "
-        f"{themed_count} themed wrapper(s))"
+        f"{themed_count} themed wrapper(s), "
+        f"{themed_background_count} era background(s))"
     )
     if squircle_warnings:
         affected = len({w.split()[2] for w in squircle_warnings})

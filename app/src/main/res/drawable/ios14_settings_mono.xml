@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_settings. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:pathData="M96,72 C109,72 120,83 120,96 C120,109 109,120 96,120 C83,120 72,109 72,96 C72,83 83,72 96,72 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineCap="round" android:pathData="M96,38 V58 M96,134 V154 M38,96 H58 M134,96 H154 M55,55 L70,70 M122,122 L137,137 M137,55 L122,70 M70,122 L55,137" />
+</vector>

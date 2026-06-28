@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_maps. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="9" android:strokeLineJoin="round" android:pathData="M38,52 L76,38 L116,52 L154,38 V140 L116,154 L76,140 L38,154 Z" />
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M106,58 C123,58 136,71 136,88 C136,111 106,138 106,138 C106,138 76,111 76,88 C76,71 89,58 106,58 Z M106,76 C99,76 94,81 94,88 C94,95 99,100 106,100 C113,100 118,95 118,88 C118,81 113,76 106,76 Z" />
+</vector>

@@ -1,0 +1,34 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <color name="era_tint_ios14">#FF9F0A</color>
+    <color name="era_tint_ios15">#30D158</color>
+    <color name="era_tint_ios16">#BF5AF2</color>
+    <color name="era_tint_ios17">#64D2FF</color>
+    <color name="era_tint_ios18">#0A84FF</color>
+    <color name="era_tint_ios26_liquid_glass">#B5E8FF</color>
+    <color name="era_tint_third_party">#8E8E93</color>
+
+    <color name="era_container_ios14">#29FF9F0A</color>
+    <color name="era_container_ios17">#2964D2FF</color>
+    <color name="era_container_ios18">#290A84FF</color>
+    <color name="era_container_ios26_liquid_glass">#33B5E8FF</color>
+
+    <color name="ios14_themed_icon_background">@color/era_tint_ios14</color>
+    <color name="ios15_themed_icon_background">@color/era_tint_ios15</color>
+    <color name="ios16_themed_icon_background">@color/era_tint_ios16</color>
+    <color name="ios17_themed_icon_background">@color/era_tint_ios17</color>
+    <color name="ios18_themed_icon_background">@color/era_tint_ios18</color>
+    <color name="ios26_liquid_glass_themed_icon_background">@color/era_tint_ios26_liquid_glass</color>
+    <color name="third_party_themed_icon_background">@color/era_tint_third_party</color>
+
+    <color name="m3_accent">@color/era_tint_ios18</color>
+    <color name="m3_darkThemeAccent">@color/era_tint_ios18</color>
+    <color name="m3_amoledThemeAccent">@color/era_tint_ios18</color>
+    <color name="m3_secondaryContainer">@color/era_tint_ios17</color>
+    <color name="m3_darkThemeSecondaryContainer">@color/era_tint_ios17</color>
+    <color name="m3_tertiaryContainer">@color/era_tint_ios26_liquid_glass</color>
+    <color name="m3_darkThemeTertiaryContainer">@color/era_tint_ios26_liquid_glass</color>
+    <color name="m3_bottomNavActiveIndicator">@color/era_container_ios18</color>
+    <color name="m3_darkThemeBottomNavActiveIndicator">@color/era_container_ios18</color>
+    <color name="m3_amoledThemeBottomNavActiveIndicator">@color/era_container_ios18</color>
+</resources>

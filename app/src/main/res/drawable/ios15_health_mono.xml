@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios15_health. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M96,148 C75,130 52,112 43,94 C31,71 45,48 68,48 C81,48 90,55 96,66 C102,55 111,48 124,48 C147,48 161,71 149,94 C140,112 117,130 96,148 Z" />
+</vector>

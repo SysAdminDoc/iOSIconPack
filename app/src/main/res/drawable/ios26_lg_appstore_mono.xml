@@ -1,0 +1,11 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios26_lg_appstore. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M72,132 L96,58 L120,132" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:strokeLineCap="round" android:pathData="M58,112 H134" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:strokeLineCap="round" android:pathData="M79,58 L63,82 M113,58 L129,82" />
+</vector>

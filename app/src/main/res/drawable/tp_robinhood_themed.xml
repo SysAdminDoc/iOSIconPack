@@ -4,7 +4,7 @@
     themed-icon support. Launchers read this when the user enables "Themed icons".
 -->
 <adaptive-icon xmlns:android="http://schemas.android.com/apk/res/android">
-    <background android:drawable="@color/ic_launcher_background" />
+    <background android:drawable="@color/third_party_themed_icon_background" />
     <foreground android:drawable="@drawable/tp_robinhood" />
     <monochrome android:drawable="@drawable/tp_robinhood_mono" />
 </adaptive-icon>

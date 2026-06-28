@@ -6,6 +6,24 @@
 
     <style name="MyApp.Default" parent="Blueprint.Default" />
     <style name="MyApp.Default.Amoled" parent="Blueprint.Default.Amoled" />
-    <style name="MyApp.Default.MaterialYou" parent="Blueprint.Default.MaterialYou" />
-    <style name="MyApp.Default.Amoled.MaterialYou" parent="Blueprint.Default.Amoled.MaterialYou" />
+    <style name="MyApp.Default.MaterialYou" parent="Blueprint.Default.MaterialYou">
+        <item name="colorAccent">@color/era_tint_ios18</item>
+        <item name="colorSecondary">@color/era_tint_ios18</item>
+        <item name="colorSecondaryVariant">@color/era_tint_ios18</item>
+        <item name="colorPrimaryContainer">@color/era_tint_ios18</item>
+        <item name="colorSecondaryContainer">@color/era_tint_ios17</item>
+        <item name="colorTertiaryContainer">@color/era_tint_ios26_liquid_glass</item>
+        <item name="android:colorEdgeEffect">@color/era_tint_ios18</item>
+        <item name="snackbarButtonColor">@color/era_tint_ios18</item>
+    </style>
+    <style name="MyApp.Default.Amoled.MaterialYou" parent="Blueprint.Default.Amoled.MaterialYou">
+        <item name="colorAccent">@color/era_tint_ios18</item>
+        <item name="colorSecondary">@color/era_tint_ios18</item>
+        <item name="colorSecondaryVariant">@color/era_tint_ios18</item>
+        <item name="colorPrimaryContainer">@color/era_tint_ios18</item>
+        <item name="colorSecondaryContainer">@color/era_tint_ios17</item>
+        <item name="colorTertiaryContainer">@color/era_tint_ios26_liquid_glass</item>
+        <item name="android:colorEdgeEffect">@color/era_tint_ios18</item>
+        <item name="snackbarButtonColor">@color/era_tint_ios18</item>
+    </style>
 </resources>

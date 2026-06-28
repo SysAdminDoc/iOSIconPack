@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios17_music. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M76,54 L136,42 V114 C136,130 122,142 106,142 C94,142 84,136 84,126 C84,114 96,106 112,106 C116,106 120,107 124,108 V70 L88,78 V126 C88,142 74,154 58,154 C46,154 36,148 36,138 C36,126 48,118 64,118 C68,118 72,119 76,120 Z" />
+</vector>

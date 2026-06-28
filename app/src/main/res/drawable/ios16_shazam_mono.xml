@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_shazam. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="12" android:strokeLineCap="round" android:pathData="M92,66 C108,50 132,50 146,64 C160,78 160,101 144,116 L124,136 M100,126 C84,142 60,142 46,128 C32,114 32,91 48,76 L68,56 M76,108 L116,68 M116,84 L76,124" />
+</vector>

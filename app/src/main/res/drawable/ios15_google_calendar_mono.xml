@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios15_google_calendar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M48,48 H144 V148 H48 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M48,48 H144 V76 H48 Z M66,34 H78 V58 H66 Z M114,34 H126 V58 H114 Z M68,94 H84 V110 H68 Z M92,94 H108 V110 H92 Z M116,94 H132 V110 H116 Z M68,120 H84 V136 H68 Z M92,120 H108 V136 H92 Z M116,120 H132 V136 H116 Z" />
+</vector>

@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_pinterest. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M96,32 C66,32 46,52 46,79 C46,97 56,112 72,118 L78,96 C72,92 69,86 69,78 C69,62 80,52 96,52 C113,52 124,63 124,80 C124,101 115,116 102,116 C93,116 88,110 90,102 L96,78 H120 L108,125 C102,148 90,160 76,164 L84,124 C75,120 68,113 64,104 C60,96 58,88 58,80 C58,52 76,32 96,32 Z" />
+</vector>

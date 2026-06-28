@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_youtube. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M44,60 H148 C159,60 166,68 168,80 C170,91 170,101 168,112 C166,124 159,132 148,132 H44 C33,132 26,124 24,112 C22,101 22,91 24,80 C26,68 33,60 44,60 Z M84,82 V112 L116,97 Z" />
+</vector>

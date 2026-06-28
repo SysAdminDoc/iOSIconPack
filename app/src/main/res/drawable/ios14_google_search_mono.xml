@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios14_google_search. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:pathData="M84,44 C106,44 124,62 124,84 C124,106 106,124 84,124 C62,124 44,106 44,84 C44,62 62,44 84,44 Z" />
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="13" android:strokeLineCap="round" android:pathData="M114,114 L150,150" />
+</vector>

@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios16_reddit. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineCap="round" android:pathData="M74,62 L86,40 L116,48" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M118,42 C125,42 130,47 130,54 C130,61 125,66 118,66 C111,66 106,61 106,54 C106,47 111,42 118,42 Z M54,88 C62,74 78,66 96,66 C114,66 130,74 138,88 C149,88 158,97 158,108 C158,118 151,126 142,128 C132,142 115,150 96,150 C77,150 60,142 50,128 C41,126 34,118 34,108 C34,97 43,88 54,88 Z M74,104 C81,104 86,109 86,116 C86,123 81,128 74,128 C67,128 62,123 62,116 C62,109 67,104 74,104 Z M118,104 C125,104 130,109 130,116 C130,123 125,128 118,128 C111,128 106,123 106,116 C106,109 111,104 118,104 Z" />
+</vector>

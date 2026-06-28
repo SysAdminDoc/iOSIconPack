@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios17_slack. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M70,28 C79,28 86,35 86,44 V70 H60 C51,70 44,63 44,54 C44,45 51,38 60,38 H70 Z M108,28 C117,28 124,35 124,44 V82 H150 C159,82 166,89 166,98 C166,107 159,114 150,114 H108 Z M42,84 H84 V150 C84,159 77,166 68,166 C59,166 52,159 52,150 V124 H42 C33,124 26,117 26,108 C26,99 33,92 42,92 Z M108,122 H132 C141,122 148,129 148,138 C148,147 141,154 132,154 H122 V164 C122,173 115,180 106,180 C97,180 90,173 90,164 V122 Z" />
+</vector>
