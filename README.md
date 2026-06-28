@@ -87,8 +87,11 @@ python3 scripts/icontool.py add ios18_appname \
 python3 scripts/icontool.py add tp_appname \
     -c "com.example.app/com.example.app.MainActivity"
 
-# Validate everything:
+# Validate appfilter, drawables, and release metadata:
 python3 scripts/icontool.py check
+
+# Validate only release metadata and tag alignment:
+python3 scripts/icontool.py release-check
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions, and PR checklist.

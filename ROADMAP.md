@@ -60,13 +60,6 @@ Render each drawable at common launcher masks and diff locally before release.
 
 ## Research-Driven Additions
 
-- [ ] P0 - Add release tag and metadata consistency gate
-  Why: v1.2.0 is advertised in README/build/F-Droid metadata, but the local tag list currently stops at v1.1.9.
-  Evidence: `buildSrc/src/main/java/MyApp.kt`, `fdroid/metadata/com.sysadmindoc.iosicons.yml`, `README.md`, `git tag --list`
-  Touches: `scripts/icontool.py`, `fdroid/metadata/com.sysadmindoc.iosicons.yml`, release/tag workflow docs
-  Acceptance: a local preflight fails when `versionName`, README badge, F-Droid `CurrentVersion`, changelog heading, and `vX.Y.Z` git tag disagree.
-  Complexity: S
-
 - [ ] P0 - Fail closed for publish release signing
   Why: release signing currently falls back to a committed dev keystore and literal fallback passwords, which is fine for local sanity builds but unsafe for public artifacts.
   Evidence: `app/build.gradle`, Android APK signing expectations, GitHub/F-Droid release distribution

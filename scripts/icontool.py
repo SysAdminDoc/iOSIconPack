@@ -12,6 +12,7 @@ Commands
   rebuild  Sync drawable.xml with files on disk (batch-add missing entries)
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
+  release-check  Verify release version metadata and git tag alignment
 
 Examples
 --------
@@ -68,6 +69,10 @@ DRAWABLE_XML_RES = RES_XML / "drawable.xml"
 DRAWABLE_XML_ASSET = ASSETS / "drawable.xml"
 APPMAP_XML = RES_XML / "appmap.xml"
 ICON_PACK_XML = REPO_ROOT / "app/src/main/res/values/icon_pack.xml"
+MYAPP_KT = REPO_ROOT / "buildSrc/src/main/java/MyApp.kt"
+README_MD = REPO_ROOT / "README.md"
+FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
+CHANGELOG_XML = RES_XML / "changelog.xml"
 
 # ---------------------------------------------------------------------------
 # Era / category metadata
@@ -478,6 +483,110 @@ def _drawable_exists(drawable: str) -> bool:
 
 
 # ---------------------------------------------------------------------------
+# Release metadata check
+# ---------------------------------------------------------------------------
+
+def _required_match(label: str, path: Path, pattern: str, errors: list[str]) -> str:
+    if not path.exists():
+        errors.append(f"{label}: missing {path.relative_to(REPO_ROOT)}")
+        return ""
+    content = _read(path)
+    match = re.search(pattern, content, re.MULTILINE | re.DOTALL)
+    if not match:
+        errors.append(f"{label}: pattern not found in {path.relative_to(REPO_ROOT)}")
+        return ""
+    return match.group(1).strip()
+
+
+def _git_tag_exists(tag: str) -> bool:
+    result = subprocess.run(
+        ["git", "rev-parse", "--verify", "--quiet", f"refs/tags/{tag}"],
+        cwd=REPO_ROOT,
+        stdout=subprocess.DEVNULL,
+        stderr=subprocess.DEVNULL,
+    )
+    return result.returncode == 0
+
+
+def _release_metadata_errors() -> tuple[list[str], str, str]:
+    errors: list[str] = []
+
+    version_name = _required_match(
+        "build versionName",
+        MYAPP_KT,
+        r'const\s+val\s+versionName\s*=\s*"([^"]+)"',
+        errors,
+    )
+    version_code = _required_match(
+        "build versionCode",
+        MYAPP_KT,
+        r"const\s+val\s+version\s*=\s*(\d+)",
+        errors,
+    )
+    readme_version = _required_match(
+        "README badge",
+        README_MD,
+        r"badge/version-v?([0-9]+(?:\.[0-9]+){2})-",
+        errors,
+    )
+    fdroid_version = _required_match(
+        "F-Droid CurrentVersion",
+        FDROID_METADATA,
+        r"^CurrentVersion:\s*'?([^'\r\n]+)'?",
+        errors,
+    )
+    fdroid_code = _required_match(
+        "F-Droid CurrentversionCode",
+        FDROID_METADATA,
+        r"^CurrentversionCode:\s*(\d+)",
+        errors,
+    )
+    changelog_version = _required_match(
+        "dashboard changelog",
+        CHANGELOG_XML,
+        r'<version\s+title="([^"]+)"',
+        errors,
+    )
+
+    expected = version_name
+    if expected:
+        for label, actual in (
+            ("README badge", readme_version),
+            ("F-Droid CurrentVersion", fdroid_version),
+            ("dashboard changelog", changelog_version),
+        ):
+            if actual and actual != expected:
+                errors.append(f"{label}: {actual} != {expected}")
+
+        if version_code and fdroid_code and version_code != fdroid_code:
+            errors.append(f"F-Droid CurrentversionCode: {fdroid_code} != {version_code}")
+
+        expected_tag = f"v{expected}"
+        fdroid_text = _read(FDROID_METADATA) if FDROID_METADATA.exists() else ""
+        build_re = re.compile(
+            r"-\s+versionName:\s*'([^']+)'\s*"
+            r"\n\s+versionCode:\s*(\d+)\s*"
+            r"\n\s+commit:\s*([^\s]+)"
+        )
+        build_entries = build_re.findall(fdroid_text)
+        matching_builds = [entry for entry in build_entries if entry[0] == expected]
+        if not matching_builds:
+            errors.append(f"F-Droid Builds: missing versionName {expected}")
+        else:
+            _, build_code, build_commit = matching_builds[-1]
+            if version_code and build_code != version_code:
+                errors.append(f"F-Droid build versionCode: {build_code} != {version_code}")
+            if build_commit != expected_tag:
+                errors.append(f"F-Droid build commit: {build_commit} != {expected_tag}")
+
+        if not _git_tag_exists(expected_tag):
+            errors.append(f"git tag missing: {expected_tag}")
+        return errors, expected, expected_tag
+
+    return errors, "", ""
+
+
+# ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
 
@@ -651,7 +760,22 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         result = subprocess.run([sys.executable, str(validator)])
         if result.returncode != 0:
             rc = result.returncode
+    release_rc = cmd_release_check(args)
+    if release_rc != 0:
+        rc = release_rc
     return rc
+
+
+def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
+    errors, version_name, expected_tag = _release_metadata_errors()
+    if errors:
+        print("release metadata check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print(f"release metadata check: OK ({version_name}, {expected_tag})")
+    return 0
 
 
 def cmd_rebuild(args: argparse.Namespace) -> int:
@@ -880,9 +1004,16 @@ def _build_parser() -> argparse.ArgumentParser:
     # --- check ---
     check_p = sub.add_parser(
         "check",
-        help="Run the full validate_appfilter.py validator",
+        help="Run drawable, appfilter, and release metadata validators",
     )
     check_p.set_defaults(func=cmd_check)
+
+    # --- release-check ---
+    release_p = sub.add_parser(
+        "release-check",
+        help="Verify versionName, README, F-Droid metadata, changelog, and git tag alignment",
+    )
+    release_p.set_defaults(func=cmd_release_check)
 
     # --- stats ---
     stats_p = sub.add_parser(
