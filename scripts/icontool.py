@@ -13,6 +13,7 @@ Commands
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
   release-check  Verify release version metadata and git tag alignment
+  publish-check  Verify official publish APK signing inputs and fingerprint
 
 Examples
 --------
@@ -73,6 +74,15 @@ MYAPP_KT = REPO_ROOT / "buildSrc/src/main/java/MyApp.kt"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
+DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
+
+PUBLISH_SIGNING_ENV: tuple[str, ...] = (
+    "IOSICONS_KEYSTORE_PATH",
+    "IOSICONS_STORE_PASSWORD",
+    "IOSICONS_KEY_ALIAS",
+    "IOSICONS_KEY_PASSWORD",
+    "IOSICONS_RELEASE_CERT_SHA256",
+)
 
 # ---------------------------------------------------------------------------
 # Era / category metadata
@@ -508,6 +518,78 @@ def _git_tag_exists(tag: str) -> bool:
     return result.returncode == 0
 
 
+def _normalize_sha256(value: str | None) -> str:
+    return (value or "").replace(":", "").replace(" ", "").strip().upper()
+
+
+def _default_release_apk(version_name: str) -> Path:
+    return (
+        REPO_ROOT
+        / "app/build/outputs/apk/release"
+        / f"com.sysadmindoc.iosicons-{version_name}-release.apk"
+    )
+
+
+def _repo_relative_path(raw: str) -> Path:
+    path = Path(raw)
+    return path if path.is_absolute() else REPO_ROOT / path
+
+
+def _display_path(path: Path) -> str:
+    try:
+        return str(path.relative_to(REPO_ROOT))
+    except ValueError:
+        return str(path)
+
+
+def _find_apksigner() -> Path | None:
+    candidates: list[Path] = []
+    for env_name in ("ANDROID_HOME", "ANDROID_SDK_ROOT"):
+        value = os.environ.get(env_name)
+        if value:
+            candidates.append(Path(value))
+    local_appdata = os.environ.get("LOCALAPPDATA")
+    if local_appdata:
+        candidates.append(Path(local_appdata) / "Android" / "Sdk")
+
+    exe_name = "apksigner.bat" if os.name == "nt" else "apksigner"
+    for sdk in candidates:
+        build_tools = sdk / "build-tools"
+        if not build_tools.exists():
+            continue
+        tools = sorted(
+            (candidate / exe_name for candidate in build_tools.iterdir()),
+            key=lambda item: item.parent.name,
+        )
+        existing = [tool for tool in tools if tool.exists()]
+        if existing:
+            return existing[-1]
+    return None
+
+
+def _apk_signer_sha256(apk: Path, errors: list[str]) -> str:
+    apksigner = _find_apksigner()
+    if apksigner is None:
+        errors.append("Android SDK apksigner not found under ANDROID_HOME, ANDROID_SDK_ROOT, or LOCALAPPDATA")
+        return ""
+
+    result = subprocess.run(
+        [str(apksigner), "verify", "--print-certs", str(apk)],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    if result.returncode != 0:
+        errors.append(f"apksigner failed for {_display_path(apk)}: {result.stderr.strip()}")
+        return ""
+
+    match = re.search(r"Signer #1 certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)", result.stdout)
+    if not match:
+        errors.append("apksigner output did not include a signer SHA-256 digest")
+        return ""
+    return _normalize_sha256(match.group(1))
+
+
 def _release_metadata_errors() -> tuple[list[str], str, str]:
     errors: list[str] = []
 
@@ -584,6 +666,37 @@ def _release_metadata_errors() -> tuple[list[str], str, str]:
         return errors, expected, expected_tag
 
     return errors, "", ""
+
+
+def _publish_signing_errors(apk: Path) -> list[str]:
+    errors: list[str] = []
+
+    missing = [name for name in PUBLISH_SIGNING_ENV if not os.environ.get(name, "").strip()]
+    if missing:
+        errors.append("missing publish signing env vars: " + ", ".join(missing))
+
+    keystore_raw = os.environ.get("IOSICONS_KEYSTORE_PATH", "").strip()
+    if keystore_raw:
+        keystore = _repo_relative_path(keystore_raw)
+        if not keystore.exists():
+            errors.append(f"IOSICONS_KEYSTORE_PATH does not exist: {keystore}")
+        elif keystore.resolve() == DEV_KEYSTORE.resolve():
+            errors.append("IOSICONS_KEYSTORE_PATH cannot point at the committed dev keystore")
+
+    expected = _normalize_sha256(os.environ.get("IOSICONS_RELEASE_CERT_SHA256"))
+    if expected and not re.fullmatch(r"[A-F0-9]{64}", expected):
+        errors.append("IOSICONS_RELEASE_CERT_SHA256 must be a 64-character SHA-256 hex digest")
+
+    if not apk.exists():
+        errors.append(f"release APK not found: {_display_path(apk)}")
+        return errors
+
+    if expected:
+        actual = _apk_signer_sha256(apk, errors)
+        if actual and actual != expected:
+            errors.append(f"release APK signer SHA-256 mismatch: {actual} != {expected}")
+
+    return errors
 
 
 # ---------------------------------------------------------------------------
@@ -775,6 +888,21 @@ def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         return 1
 
     print(f"release metadata check: OK ({version_name}, {expected_tag})")
+    return 0
+
+
+def cmd_publish_check(args: argparse.Namespace) -> int:
+    metadata_errors, version_name, expected_tag = _release_metadata_errors()
+    apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
+    errors = metadata_errors + _publish_signing_errors(apk)
+
+    if errors:
+        print("publish release check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print(f"publish release check: OK ({version_name}, {expected_tag}, {_display_path(apk)})")
     return 0
 
 
@@ -1014,6 +1142,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Verify versionName, README, F-Droid metadata, changelog, and git tag alignment",
     )
     release_p.set_defaults(func=cmd_release_check)
+
+    # --- publish-check ---
+    publish_p = sub.add_parser(
+        "publish-check",
+        help="Verify official signing env vars and APK signer fingerprint for a publish release",
+    )
+    publish_p.add_argument(
+        "--apk",
+        default=None,
+        help="Release APK to verify (default: app/build/outputs/apk/release/<applicationId>-<version>-release.apk)",
+    )
+    publish_p.set_defaults(func=cmd_publish_check)
 
     # --- stats ---
     stats_p = sub.add_parser(

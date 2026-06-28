@@ -60,13 +60,6 @@ Render each drawable at common launcher masks and diff locally before release.
 
 ## Research-Driven Additions
 
-- [ ] P0 - Fail closed for publish release signing
-  Why: release signing currently falls back to a committed dev keystore and literal fallback passwords, which is fine for local sanity builds but unsafe for public artifacts.
-  Evidence: `app/build.gradle`, Android APK signing expectations, GitHub/F-Droid release distribution
-  Touches: `app/build.gradle`, `README.md`, `CONTRIBUTING.md`, release preflight script
-  Acceptance: publish/release packaging fails unless env-provided signing inputs exist and the output APK certificate fingerprint matches the documented official release fingerprint; contributor debug/dev release builds remain possible.
-  Complexity: M
-
 - [ ] P1 - Add explicit Android backup and data-extraction rules
   Why: the app currently allows backup with broad defaults, but request/settings data should have an intentional policy on Android 12+ and pre-12 devices.
   Evidence: `app/src/main/AndroidManifest.xml`, Android backup best-practice docs

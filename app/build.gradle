@@ -1,7 +1,50 @@
+import java.util.Locale
+
 apply plugin: 'com.android.application'
 apply plugin: 'org.jetbrains.kotlin.android'
 apply plugin: 'kotlin-parcelize'
 apply plugin: 'com.google.devtools.ksp'
+
+def truthy = { value ->
+    if (value == null) return false
+    def normalized = value.toString().trim().toLowerCase(Locale.US)
+    return normalized in ['1', 'true', 'yes', 'on']
+}
+
+def publishReleaseRequested = {
+    truthy(findProperty('iosicons.publishRelease')) ||
+            truthy(System.getenv('IOSICONS_PUBLISH_RELEASE'))
+}
+
+def publishSigningEnv = [
+        'IOSICONS_KEYSTORE_PATH',
+        'IOSICONS_STORE_PASSWORD',
+        'IOSICONS_KEY_ALIAS',
+        'IOSICONS_KEY_PASSWORD',
+        'IOSICONS_RELEASE_CERT_SHA256',
+]
+
+def missingPublishSigningEnv = {
+    publishSigningEnv.findAll { name ->
+        def value = System.getenv(name)
+        value == null || value.trim().isEmpty()
+    }
+}
+
+def normalizeSha256 = { value ->
+    value?.replace(':', '')?.replace(' ', '')?.trim()?.toUpperCase(Locale.US)
+}
+
+def findApksigner = {
+    def buildToolsDir = new File(android.sdkDirectory, 'build-tools')
+    if (!buildToolsDir.exists()) return null
+    def exeName = System.getProperty('os.name').toLowerCase(Locale.US).contains('windows')
+            ? 'apksigner.bat'
+            : 'apksigner'
+    def candidates = buildToolsDir.listFiles()?.collect { dir -> new File(dir, exeName) }?.findAll { it.exists() } ?: []
+    candidates.sort { a, b -> a.parentFile.name <=> b.parentFile.name }
+    return candidates ? candidates.last() : null
+}
 
 android {
     lint {
@@ -12,24 +55,38 @@ android {
 
     signingConfigs {
         release {
-            // Resolution order for the release keystore:
-            //   1. IOSICONS_KEYSTORE_PATH env var (CI step that materialises the
-            //      keystore from an IOSICONS_KEYSTORE_BASE64 secret).
-            //   2. ../iosicons.jks next to the repo root (local contributors).
-            // Passwords follow the same env-first, dev-fallback pattern.
+            def publishRelease = publishReleaseRequested()
             def envKeystorePath = System.getenv('IOSICONS_KEYSTORE_PATH')
             def envKeystore = envKeystorePath ? file(envKeystorePath) : null
             def localKeystore = rootProject.file('iosicons.jks')
-            def resolvedKeystore = (envKeystore && envKeystore.exists())
-                    ? envKeystore
-                    : (localKeystore.exists() ? localKeystore : null)
-            if (resolvedKeystore != null) {
-                storeFile resolvedKeystore
-                storePassword System.getenv('IOSICONS_STORE_PASSWORD') ?: "iconpack123"
-                keyAlias System.getenv('IOSICONS_KEY_ALIAS') ?: "iosicons"
-                keyPassword System.getenv('IOSICONS_KEY_PASSWORD') ?: "iconpack123"
+
+            if (publishRelease) {
+                def missing = missingPublishSigningEnv()
+                if (!missing.isEmpty()) {
+                    throw new GradleException("Official publish release requires env vars: ${missing.join(', ')}")
+                }
+                if (!envKeystore.exists()) {
+                    throw new GradleException("IOSICONS_KEYSTORE_PATH does not exist: ${envKeystore}")
+                }
+                if (envKeystore.canonicalFile == localKeystore.canonicalFile) {
+                    throw new GradleException("Official publish release cannot use the committed dev keystore.")
+                }
+                storeFile envKeystore
+                storePassword System.getenv('IOSICONS_STORE_PASSWORD')
+                keyAlias System.getenv('IOSICONS_KEY_ALIAS')
+                keyPassword System.getenv('IOSICONS_KEY_PASSWORD')
             } else {
-                logger.warn("iOSIconPack: no release keystore found; assembleRelease will produce an unsigned APK.")
+                def resolvedKeystore = (envKeystore && envKeystore.exists())
+                        ? envKeystore
+                        : (localKeystore.exists() ? localKeystore : null)
+                if (resolvedKeystore != null) {
+                    storeFile resolvedKeystore
+                    storePassword System.getenv('IOSICONS_STORE_PASSWORD') ?: "iconpack123"
+                    keyAlias System.getenv('IOSICONS_KEY_ALIAS') ?: "iosicons"
+                    keyPassword System.getenv('IOSICONS_KEY_PASSWORD') ?: "iconpack123"
+                } else {
+                    logger.warn("iOSIconPack: no release keystore found; assembleRelease will produce an unsigned APK.")
+                }
             }
         }
     }
@@ -92,6 +149,61 @@ android {
 
     buildFeatures {
         buildConfig = true
+    }
+}
+
+tasks.register('verifyPublishReleaseSigning') {
+    group = 'verification'
+    description = 'Verifies official publish release signing env and APK certificate fingerprint.'
+    dependsOn 'assembleRelease'
+
+    doLast {
+        if (!publishReleaseRequested()) {
+            throw new GradleException("Set -Piosicons.publishRelease=true or IOSICONS_PUBLISH_RELEASE=1 before verifying a publish release.")
+        }
+
+        def missing = missingPublishSigningEnv()
+        if (!missing.isEmpty()) {
+            throw new GradleException("Official publish release requires env vars: ${missing.join(', ')}")
+        }
+
+        def expected = normalizeSha256(System.getenv('IOSICONS_RELEASE_CERT_SHA256'))
+        if (!expected) {
+            throw new GradleException("IOSICONS_RELEASE_CERT_SHA256 is empty.")
+        }
+
+        def apk = layout.buildDirectory.file("outputs/apk/release/${MyApp.appId}-${MyApp.versionName}-release.apk").get().asFile
+        if (!apk.exists()) {
+            throw new GradleException("Release APK not found: ${apk}")
+        }
+
+        def apksigner = findApksigner()
+        if (apksigner == null) {
+            throw new GradleException("Android SDK apksigner was not found under ${android.sdkDirectory}/build-tools.")
+        }
+
+        def stdout = new ByteArrayOutputStream()
+        exec {
+            commandLine apksigner.absolutePath, 'verify', '--print-certs', apk.absolutePath
+            standardOutput = stdout
+        }
+        def matcher = stdout.toString('UTF-8') =~ /Signer #1 certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)/
+        if (!matcher.find()) {
+            throw new GradleException("Could not read APK signer SHA-256 digest from apksigner output.")
+        }
+
+        def actual = normalizeSha256(matcher.group(1))
+        if (actual != expected) {
+            throw new GradleException("Release APK signer SHA-256 mismatch: ${actual} != ${expected}")
+        }
+
+        println "iOSIconPack: publish release signing fingerprint OK (${actual})"
+    }
+}
+
+tasks.matching { it.name == 'assembleRelease' }.configureEach {
+    if (publishReleaseRequested()) {
+        finalizedBy 'verifyPublishReleaseSigning'
     }
 }
 

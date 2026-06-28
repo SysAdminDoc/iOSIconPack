@@ -74,6 +74,17 @@ JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 ```
 
+`assembleRelease` uses the committed development keystore only for local sanity
+builds. Official publish builds must set `IOSICONS_PUBLISH_RELEASE=1`,
+`IOSICONS_KEYSTORE_PATH`, `IOSICONS_STORE_PASSWORD`, `IOSICONS_KEY_ALIAS`,
+`IOSICONS_KEY_PASSWORD`, and the documented `IOSICONS_RELEASE_CERT_SHA256`, then
+run:
+
+```bash
+JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
+python3 scripts/icontool.py publish-check
+```
+
 ## Contributing Icons
 
 Use `icontool` — it wires all XML files in one command:
