@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for ios18_wallet.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ios18_wallet" />
+<!-- Hand-crafted monochrome vector for ios18_wallet. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M38,58 H154 V138 C154,146 148,152 140,152 H52 C44,152 38,146 38,138 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M48,42 H132 C140,42 146,48 146,56 V66 H48 Z M38,82 H154 V98 H38 Z M116,116 H140 V128 H116 Z" />
+</vector>

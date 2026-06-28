@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for ios18_weather.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/ios18_weather" />
+<!-- Hand-crafted monochrome vector for ios18_weather. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M72,42 C88,42 101,55 101,71 C101,87 88,100 72,100 C56,100 43,87 43,71 C43,55 56,42 72,42 Z M68,18 H76 V34 H68 Z M68,108 H76 V124 H68 Z M19,67 H35 V75 H19 Z M109,67 H125 V75 H109 Z M33,27 L45,39 L39,45 L27,33 Z M105,27 L117,33 L105,45 L99,39 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M82,90 C88,73 104,62 123,62 C145,62 164,80 164,103 C164,125 146,142 124,142 H66 C48,142 34,129 34,112 C34,95 48,82 65,82 C72,82 78,85 82,90 Z" />
+</vector>

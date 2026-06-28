@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios18_google_classroom. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M34,48 H158 V136 H34 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M66,76 C75,76 82,83 82,92 C82,101 75,108 66,108 C57,108 50,101 50,92 C50,83 57,76 66,76 Z M98,78 H140 V90 H98 Z M98,104 H132 V116 H98 Z M52,118 C60,112 72,112 80,118 L88,128 H44 Z" />
+</vector>

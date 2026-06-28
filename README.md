@@ -37,7 +37,7 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
 - **Mix & Match** — Apply different generations to different apps
 - **367 Icons + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
-- **Monochrome themed launcher icon** — Android 13+ dynamic theming support
+- **82 Monochrome themed vectors** — Android 13+ dynamic theming support for iOS 18, Google, and third-party variants
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **AMOLED Dark Theme** — Native dark mode dashboard
 - **Icon Requests** — Request icons for apps not yet covered

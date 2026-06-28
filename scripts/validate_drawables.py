@@ -110,6 +110,25 @@ def check_drawable_files() -> list[str]:
     return errors
 
 
+def _mono_root_counts() -> tuple[int, int, int]:
+    vector_count = 0
+    bitmap_count = 0
+    other_count = 0
+    for path in VEC_DIR.glob("*_mono.xml"):
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError:
+            other_count += 1
+            continue
+        if root.tag == "vector":
+            vector_count += 1
+        elif root.tag == "bitmap":
+            bitmap_count += 1
+        else:
+            other_count += 1
+    return vector_count, bitmap_count, other_count
+
+
 def check_squircle_corners() -> tuple[list[str], str | None]:
     """Warn if any PNG has too many opaque pixels in its four corner regions."""
     try:
@@ -167,6 +186,7 @@ def main() -> int:
     mono_count = sum(1 for _ in VEC_DIR.glob("*_mono.xml"))
     themed_count = sum(1 for _ in VEC_DIR.glob("*_themed.xml"))
     pure_vec_count = vec_count - mono_count - themed_count
+    mono_vector_count, mono_bitmap_count, mono_other_count = _mono_root_counts()
 
     all_errors.extend(png_errors)
     all_errors.extend(vec_errors)
@@ -181,8 +201,10 @@ def main() -> int:
     print(
         f"validate_drawables.py: OK "
         f"({png_count} PNGs at {EXPECTED_SIZE}x{EXPECTED_SIZE}px, "
-        f"{pure_vec_count} vector(s), "
-        f"{mono_count} mono stub(s), "
+        f"{pure_vec_count} catalog vector(s), "
+        f"{mono_vector_count} monochrome vector(s), "
+        f"{mono_bitmap_count} bitmap mono fallback(s), "
+        f"{mono_other_count} other mono XML(s), "
         f"{themed_count} themed wrapper(s))"
     )
     if squircle_warnings:

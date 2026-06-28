@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for tp_strava.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tp_strava" />
+<!-- Hand-crafted monochrome vector for tp_strava. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M82,34 L126,124 H102 L82,82 L62,124 H38 Z M126,124 L154,158 H132 L118,140 Z" />
+</vector>

@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for tp_tiktok.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tp_tiktok" />
+<!-- Hand-crafted monochrome vector for tp_tiktok. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M96,36 H120 C123,58 138,72 160,75 V99 C145,99 132,94 120,84 V124 C120,145 104,160 82,160 C61,160 46,146 46,127 C46,108 61,94 82,94 C87,94 91,95 96,97 Z M96,121 C92,118 88,116 82,116 C75,116 70,121 70,128 C70,135 75,140 82,140 C90,140 96,134 96,124 Z" />
+</vector>

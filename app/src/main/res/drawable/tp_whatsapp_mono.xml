@@ -1,8 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for tp_whatsapp.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tp_whatsapp" />
+<!-- Hand-crafted monochrome vector for tp_whatsapp. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M96,40 C127,40 152,65 152,96 C152,127 127,152 96,152 C86,152 77,150 68,145 L44,152 L51,128 C44,119 40,108 40,96 C40,65 65,40 96,40 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M75,68 C69,72 68,82 72,93 C79,112 96,129 116,136 C127,140 136,138 141,132 L130,115 C126,110 120,113 116,118 C104,113 95,104 90,92 C95,88 98,82 93,78 Z" />
+</vector>

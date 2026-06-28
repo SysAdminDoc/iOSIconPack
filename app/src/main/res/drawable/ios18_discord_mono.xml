@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios18_discord. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="11" android:strokeLineJoin="round" android:pathData="M56,64 C74,54 118,54 136,64 L148,132 C126,148 66,148 44,132 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M74,92 C81,92 86,97 86,104 C86,111 81,116 74,116 C67,116 62,111 62,104 C62,97 67,92 74,92 Z M118,92 C125,92 130,97 130,104 C130,111 125,116 118,116 C111,116 106,111 106,104 C106,97 111,92 118,92 Z" />
+</vector>

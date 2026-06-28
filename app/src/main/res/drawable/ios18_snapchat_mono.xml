@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios18_snapchat. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M96,32 C121,32 138,50 138,78 V100 C138,108 148,114 160,116 C157,126 148,132 136,134 C132,144 116,152 96,152 C76,152 60,144 56,134 C44,132 35,126 32,116 C44,114 54,108 54,100 V78 C54,50 71,32 96,32 Z" />
+</vector>

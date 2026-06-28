@@ -1,0 +1,10 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios18_google_translate. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M38,50 H112 V120 H38 Z M80,72 H144 V142 H80 Z" />
+    <path android:fillColor="#FFFFFFFF" android:pathData="M58,66 H70 L88,108 H76 L73,98 H55 L52,108 H40 Z M58,88 H70 L64,72 Z M98,92 H130 V104 H118 C116,112 112,119 106,124 L128,136 H106 L96,130 L86,136 H70 L94,122 C88,116 84,110 82,104 H94 C96,109 99,113 104,116 C108,112 111,108 112,104 H98 Z" />
+</vector>

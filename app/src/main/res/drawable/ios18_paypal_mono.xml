@@ -1,0 +1,9 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Hand-crafted monochrome vector for ios18_paypal. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M60,36 H112 C136,36 150,50 146,72 C142,96 124,108 96,108 H82 L74,156 H50 Z M84,58 L79,88 H100 C113,88 121,82 123,72 C125,63 119,58 107,58 Z" />
+</vector>

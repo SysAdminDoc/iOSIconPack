@@ -22,6 +22,7 @@ CODEX_CHANGELOG.md
 __pycache__/
 *.pyc
 *.pyo
+*.hprof
 .factory/
 
 # Markdown files local-only (except README)

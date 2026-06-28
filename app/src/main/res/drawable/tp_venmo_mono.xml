@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for tp_venmo.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tp_venmo" />
+<!-- Hand-crafted monochrome vector for tp_venmo. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M44,44 H72 L94,124 C110,98 120,70 120,44 H148 C148,86 128,126 100,154 H76 Z" />
+</vector>

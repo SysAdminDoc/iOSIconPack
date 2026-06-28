@@ -1,8 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
-<!--
-    Monochrome stub for tp_uber.
-    Replace with a hand-crafted vector <path> for better themed-icon results.
-    See: https://developer.android.com/develop/ui/views/launch/icon_design_adaptive#monochrome
--->
-<bitmap xmlns:android="http://schemas.android.com/apk/res/android"
-    android:src="@drawable/tp_uber" />
+<!-- Hand-crafted monochrome vector for tp_uber. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#FFFFFFFF" android:pathData="M52,42 H76 V104 C76,122 84,132 96,132 C108,132 116,122 116,104 V42 H140 V106 C140,138 123,158 96,158 C69,158 52,138 52,106 Z" />
+</vector>
