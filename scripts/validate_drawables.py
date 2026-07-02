@@ -15,6 +15,7 @@ Exit 0 on success, 1 on any failure.
 from __future__ import annotations
 
 import json
+import hashlib
 import os
 import struct
 import sys
@@ -31,6 +32,7 @@ THEME_RESOURCES_XML = REPO_ROOT / "app/src/main/res/xml/theme_resources.xml"
 ANDROID_MANIFEST = REPO_ROOT / "app/src/main/AndroidManifest.xml"
 WALLPAPERS_XML = REPO_ROOT / "app/src/main/res/values/wallpapers.xml"
 FRAMES_SETUP_XML = REPO_ROOT / "app/src/main/res/values/frames_setup.xml"
+PROVENANCE_JSON = ASSETS_DIR / "icon_provenance.json"
 RAW_GITHUB_PREFIX = "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/"
 
 EXPECTED_SIZE = 192          # px
@@ -97,6 +99,82 @@ def check_pngs() -> list[str]:
                 f"  TOO LARGE    {path.name}: {size_kb:.1f} KB (budget {MAX_FILE_KB} KB)"
             )
     return errors
+
+
+def _sha256_file(path: Path) -> str:
+    h = hashlib.sha256()
+    with path.open("rb") as handle:
+        for chunk in iter(lambda: handle.read(65536), b""):
+            h.update(chunk)
+    return h.hexdigest()
+
+
+def _png_era(name: str) -> str:
+    if name.startswith("ios26_lg_"):
+        return "ios26_lg"
+    if name.startswith("tp_"):
+        return "tp"
+    for era in ("ios18", "ios17", "ios16", "ios15", "ios14"):
+        if name.startswith(f"{era}_"):
+            return era
+    return ""
+
+
+def check_png_provenance() -> tuple[list[str], int]:
+    errors: list[str] = []
+    if not PROVENANCE_JSON.exists():
+        return [f"  MISSING PROVENANCE  {PROVENANCE_JSON.relative_to(REPO_ROOT)}"], 0
+    try:
+        manifest = json.loads(PROVENANCE_JSON.read_text(encoding="utf-8"))
+    except json.JSONDecodeError as exc:
+        return [f"  MALFORMED PROVENANCE  {PROVENANCE_JSON.relative_to(REPO_ROOT)}: {exc}"], 0
+    if not isinstance(manifest, dict):
+        return [f"  MALFORMED PROVENANCE  {PROVENANCE_JSON.relative_to(REPO_ROOT)}: root must be an object"], 0
+    if manifest.get("schema_version") != 1:
+        errors.append("  PROVENANCE SCHEMA  icon_provenance.json schema_version must be 1")
+    entries = manifest.get("entries")
+    if not isinstance(entries, dict):
+        return errors + ["  MALFORMED PROVENANCE  icon_provenance.json entries must be an object"], 0
+
+    pngs = {
+        path.stem: path
+        for path in sorted(HDPI_DIR.glob("*.png"))
+        if path.stem.startswith(("ios", "tp_"))
+    }
+    for name, path in pngs.items():
+        entry = entries.get(name)
+        if not isinstance(entry, dict):
+            errors.append(f"  MISSING PROVENANCE  {name}")
+            continue
+        expected_file = path.relative_to(REPO_ROOT).as_posix()
+        if entry.get("file") != expected_file:
+            errors.append(f"  PROVENANCE FILE  {name}: {entry.get('file')!r} != {expected_file!r}")
+        if entry.get("sha256") != _sha256_file(path):
+            errors.append(f"  PROVENANCE HASH  {name}: sha256 does not match shipped PNG")
+        for field in ("provider", "source_url", "source_query", "source_name", "source_role", "raw_artifact", "license_note"):
+            if not str(entry.get(field) or "").strip():
+                errors.append(f"  PROVENANCE FIELD  {name}: missing {field}")
+        transform = entry.get("transform")
+        if not isinstance(transform, dict):
+            errors.append(f"  PROVENANCE TRANSFORM  {name}: missing transform object")
+            continue
+        expected_era = _png_era(name)
+        if transform.get("era") != expected_era:
+            errors.append(f"  PROVENANCE ERA  {name}: {transform.get('era')!r} != {expected_era!r}")
+        if not str(transform.get("resize") or "").strip():
+            errors.append(f"  PROVENANCE TRANSFORM  {name}: missing resize")
+        grade = transform.get("color_grade")
+        if not isinstance(grade, dict):
+            errors.append(f"  PROVENANCE TRANSFORM  {name}: missing color_grade")
+        if bool(transform.get("liquid_glass_material")) != (expected_era == "ios26_lg"):
+            errors.append(f"  PROVENANCE TRANSFORM  {name}: liquid_glass_material does not match era")
+
+    stale = sorted(set(entries) - set(pngs))
+    for name in stale:
+        errors.append(f"  STALE PROVENANCE  {name} has no shipped PNG")
+    if manifest.get("entry_count") != len(entries):
+        errors.append("  PROVENANCE COUNT  entry_count does not match entries length")
+    return errors, len(entries)
 
 
 def check_vectors() -> list[str]:
@@ -488,6 +566,7 @@ def main() -> int:
     all_errors: list[str] = []
 
     png_errors = check_pngs()
+    provenance_errors, provenance_count = check_png_provenance()
     vec_errors = check_vectors()
     file_errors = check_drawable_files()
     themed_errors, themed_background_count = check_themed_backgrounds()
@@ -508,6 +587,7 @@ def main() -> int:
     mono_vector_count, mono_bitmap_count, mono_other_count = _mono_root_counts()
 
     all_errors.extend(png_errors)
+    all_errors.extend(provenance_errors)
     all_errors.extend(vec_errors)
     all_errors.extend(file_errors)
     all_errors.extend(themed_errors)
@@ -531,7 +611,8 @@ def main() -> int:
         f"{mono_other_count} other mono XML(s), "
         f"{glyph_count} transparent glyph variant(s), "
         f"{themed_count} themed wrapper(s), "
-        f"{themed_background_count} era background(s))"
+        f"{themed_background_count} era background(s), "
+        f"{provenance_count} provenance record(s))"
     )
     if squircle_warnings:
         affected = len({w.split()[2] for w in squircle_warnings})

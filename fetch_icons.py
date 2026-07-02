@@ -21,6 +21,8 @@ Usage:
     python3 fetch_icons.py --tp-only              # just third-party apps
     python3 fetch_icons.py --era ios18            # one era (repeatable)
     python3 fetch_icons.py --list                 # list all known icon names
+    python3 fetch_icons.py --write-provenance     # refresh icon provenance JSON
+    python3 fetch_icons.py --provenance-check     # verify provenance JSON
 
 Dependencies: Pillow. Install via `pip install -r requirements.txt` before
 running — the script will NOT bootstrap pip on its own, per project policy.
@@ -37,6 +39,7 @@ import sys
 import tempfile
 import time
 from pathlib import Path
+from urllib.parse import quote_plus
 from urllib.error import URLError
 from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
@@ -56,6 +59,7 @@ SCRIPT_DIR = Path(__file__).resolve().parent
 RAW_DIR = SCRIPT_DIR / "icons_raw"
 PACK_DIR = SCRIPT_DIR / "app" / "src" / "main" / "res" / "drawable-xxxhdpi"
 APPFILTER_XML = SCRIPT_DIR / "app" / "src" / "main" / "res" / "xml" / "appfilter.xml"
+PROVENANCE_JSON = SCRIPT_DIR / "app" / "src" / "main" / "assets" / "icon_provenance.json"
 RAW_DIR.mkdir(parents=True, exist_ok=True)
 PACK_DIR.mkdir(parents=True, exist_ok=True)
 
@@ -156,6 +160,11 @@ ERA_GRADES: dict[str, tuple[float, float, float]] = {
     "tp":       (1.00, 1.00, 1.00),   # no grade — preserve brand colors
 }
 
+LICENSE_NOTE = (
+    "Source URL is provenance metadata, not a license grant; app icons and "
+    "trademarks remain with their respective owners."
+)
+
 # --- Hash cache ---------------------------------------------------------
 
 HASH_CACHE_PATH = RAW_DIR / ".hash_cache.json"
@@ -183,6 +192,26 @@ def _sha256_file(path: Path) -> str:
         for chunk in iter(lambda: f.read(65536), b""):
             h.update(chunk)
     return h.hexdigest()
+
+
+def _source_api_url(name: str) -> str:
+    if name in APPLE_APP_IDS:
+        return f"https://itunes.apple.com/lookup?id={APPLE_APP_IDS[name]}&country=us"
+    term = APPLE_SEARCH_ONLY.get(name) or ERA_APP_VARIANTS.get(name) or THIRD_PARTY.get(name) or name
+    encoded = quote_plus(term)
+    return f"https://itunes.apple.com/search?term={encoded}&entity=software&country=us&limit=5"
+
+
+def _source_provider(name: str) -> str:
+    if name in APPLE_APP_IDS:
+        return "Apple iTunes Lookup API"
+    return "Apple iTunes Search API"
+
+
+def _source_query(name: str) -> str:
+    if name in APPLE_APP_IDS:
+        return str(APPLE_APP_IDS[name])
+    return APPLE_SEARCH_ONLY.get(name) or ERA_APP_VARIANTS.get(name) or THIRD_PARTY.get(name) or name
 
 
 # --- HTTP helpers -------------------------------------------------------
@@ -404,6 +433,103 @@ def _resize(src: Path, dst: Path, size: int = 192, era: str = "tp") -> bool:
         return False
 
 
+def _split_drawable_name(drawable: str) -> tuple[str, str]:
+    if drawable.startswith("ios26_lg_"):
+        return "ios26_lg", drawable.removeprefix("ios26_lg_")
+    if drawable.startswith("tp_"):
+        return "tp", drawable.removeprefix("tp_")
+    for era in ERAS:
+        prefix = f"{era}_"
+        if drawable.startswith(prefix):
+            return era, drawable.removeprefix(prefix)
+    return "", drawable
+
+
+def _source_role(name: str, era: str) -> str:
+    if era == "tp":
+        return "third_party_exact"
+    if name in APPLE_APP_IDS or name in APPLE_SEARCH_ONLY:
+        return "apple_stock_era_variant"
+    if name in ERA_APP_VARIANTS:
+        return "third_party_era_variant"
+    return "unknown"
+
+
+def _transform_record(era: str) -> dict[str, object]:
+    grade = ERA_GRADES.get(era, ERA_GRADES["tp"])
+    return {
+        "era": era,
+        "resize": "192x192 Lanczos",
+        "color_grade": {
+            "saturation": grade[0],
+            "contrast": grade[1],
+            "brightness": grade[2],
+        },
+        "liquid_glass_material": era == "ios26_lg",
+        "output_format": "PNG",
+    }
+
+
+def _provenance_entry(path: Path) -> dict[str, object]:
+    drawable = path.stem
+    era, name = _split_drawable_name(drawable)
+    rel_path = path.relative_to(SCRIPT_DIR).as_posix()
+    raw_name = f"tp_{name}_1024.png" if era == "tp" else f"{name}_1024.png"
+    raw_path = (RAW_DIR / raw_name).relative_to(SCRIPT_DIR).as_posix()
+    return {
+        "file": rel_path,
+        "sha256": _sha256_file(path),
+        "provider": _source_provider(name),
+        "source_url": _source_api_url(name),
+        "source_query": _source_query(name),
+        "source_name": name,
+        "source_role": _source_role(name, era),
+        "raw_artifact": raw_path,
+        "license_note": LICENSE_NOTE,
+        "transform": _transform_record(era),
+    }
+
+
+def _provenance_manifest() -> dict[str, object]:
+    entries = {
+        path.stem: _provenance_entry(path)
+        for path in sorted(PACK_DIR.glob("*.png"))
+        if path.stem.startswith(("ios", "tp_"))
+    }
+    return {
+        "schema_version": 1,
+        "project": "iOSIconPack",
+        "entry_count": len(entries),
+        "entries": entries,
+    }
+
+
+def _write_provenance_manifest() -> None:
+    manifest = _provenance_manifest()
+    PROVENANCE_JSON.parent.mkdir(parents=True, exist_ok=True)
+    with PROVENANCE_JSON.open("w", encoding="utf-8", newline="\n") as handle:
+        handle.write(json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+    print(f"provenance: wrote {manifest['entry_count']} records to {PROVENANCE_JSON.relative_to(SCRIPT_DIR)}")
+
+
+def _provenance_check() -> int:
+    expected = json.dumps(_provenance_manifest(), indent=2, sort_keys=True) + "\n"
+    try:
+        actual = PROVENANCE_JSON.read_text(encoding="utf-8")
+    except OSError as exc:
+        print(f"provenance: missing {PROVENANCE_JSON.relative_to(SCRIPT_DIR)} ({exc})", file=sys.stderr)
+        return 1
+    if actual != expected:
+        print(
+            "provenance: manifest is stale; run `python3 fetch_icons.py --write-provenance`",
+            file=sys.stderr,
+        )
+        return 1
+    count = len(_provenance_manifest()["entries"])  # type: ignore[arg-type]
+    print(f"provenance: OK ({count} records)")
+    return 0
+
+
 def _process(name: str, icon_url: str, prefix: str, dry_run: bool,
              cache: dict[str, str] | None = None) -> bool:
     raw = RAW_DIR / f"{name}_1024.png"
@@ -483,6 +609,10 @@ def _parse_args(argv: list[str] | None = None) -> argparse.Namespace:
                         help="Report icons without appfilter entries and exit")
     parser.add_argument("--list", action="store_true",
                         help="List all known icon names and exit")
+    parser.add_argument("--write-provenance", action="store_true",
+                        help="Refresh app/src/main/assets/icon_provenance.json and exit")
+    parser.add_argument("--provenance-check", action="store_true",
+                        help="Verify icon provenance JSON matches shipped PNGs and exit")
     return parser.parse_args(argv)
 
 
@@ -495,6 +625,13 @@ def main(argv: list[str] | None = None) -> int:
 
     if args.validate:
         return _validate(only_names)
+
+    if args.write_provenance:
+        _write_provenance_manifest()
+        return 0
+
+    if args.provenance_check:
+        return _provenance_check()
 
     if args.list:
         print("Apple stock apps:")
@@ -589,6 +726,8 @@ def main(argv: list[str] | None = None) -> int:
 
     if cache is not None:
         _save_cache(cache)
+    if not args.dry_run:
+        _write_provenance_manifest()
 
     print("\n" + "=" * 60)
     print(f"{'DRY-RUN: ' if args.dry_run else ''}DONE: {success} icons processed")

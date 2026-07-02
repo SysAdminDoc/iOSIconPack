@@ -146,6 +146,10 @@ crowdin download
 python3 scripts/gen_glyph_variants.py --force --prune
 python3 scripts/icontool.py rebuild
 
+# Refresh and verify source-art provenance for shipped PNG icons:
+python3 fetch_icons.py --write-provenance
+python3 fetch_icons.py --provenance-check
+
 # Convert raw SVG sources in app/src/main/svg into generated vector drawables:
 ./gradlew :app:convertSvgSources
 
