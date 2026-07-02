@@ -205,10 +205,12 @@ def generate(force: bool = False) -> list[dict[str, object]]:
             {
                 "name": spec.name,
                 "author": "SysAdminDoc",
-                "url": _remote_url(full_path),
-                "thumbnail": _remote_url(thumb_path),
+                "url": _asset_url(full_path),
+                "thumbnail": _asset_url(thumb_path),
                 "local_url": _asset_url(full_path),
                 "local_thumbnail": _asset_url(thumb_path),
+                "remote_url": _remote_url(full_path),
+                "remote_thumbnail": _remote_url(thumb_path),
                 "collections": spec.collection,
                 "downloadable": True,
                 "size": full_path.stat().st_size,
@@ -223,8 +225,6 @@ def generate(force: bool = False) -> list[dict[str, object]]:
 def _local_asset_path(url: str) -> Path | None:
     prefix = "file:///android_asset/"
     if not url.startswith(prefix):
-        if url.startswith(REMOTE_BASE + "/"):
-            return ASSET_DIR / url.removeprefix(REMOTE_BASE + "/")
         return None
     return REPO_ROOT / "app/src/main/assets" / url.removeprefix(prefix)
 

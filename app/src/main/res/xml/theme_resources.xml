@@ -5,5 +5,5 @@
 -->
 <Theme version="1">
     <Label value="iOS Icon Pack" />
-    <!-- Launcher preview nodes are omitted; Blueprint wallpapers use the raw GitHub JSON feed. -->
+    <!-- Launcher preview nodes are omitted; Blueprint wallpapers use the bundled asset JSON feed. -->
 </Theme>

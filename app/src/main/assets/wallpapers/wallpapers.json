@@ -8,9 +8,11 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios14_flow.webp",
     "local_url": "file:///android_asset/wallpapers/ios14_flow.webp",
     "name": "iOS 14 Flow",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios14_flow.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios14_flow.webp",
     "size": 40132,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios14_flow.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios14_flow.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios14_flow.webp",
+    "url": "file:///android_asset/wallpapers/ios14_flow.webp"
   },
   {
     "author": "SysAdminDoc",
@@ -21,9 +23,11 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios15_bloom.webp",
     "local_url": "file:///android_asset/wallpapers/ios15_bloom.webp",
     "name": "iOS 15 Bloom",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios15_bloom.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios15_bloom.webp",
     "size": 9300,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios15_bloom.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios15_bloom.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios15_bloom.webp",
+    "url": "file:///android_asset/wallpapers/ios15_bloom.webp"
   },
   {
     "author": "SysAdminDoc",
@@ -34,9 +38,11 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios16_orbit.webp",
     "local_url": "file:///android_asset/wallpapers/ios16_orbit.webp",
     "name": "iOS 16 Orbit",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios16_orbit.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios16_orbit.webp",
     "size": 52130,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios16_orbit.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios16_orbit.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios16_orbit.webp",
+    "url": "file:///android_asset/wallpapers/ios16_orbit.webp"
   },
   {
     "author": "SysAdminDoc",
@@ -47,9 +53,11 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios17_mist.webp",
     "local_url": "file:///android_asset/wallpapers/ios17_mist.webp",
     "name": "iOS 17 Mist",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios17_mist.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios17_mist.webp",
     "size": 9206,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios17_mist.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios17_mist.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios17_mist.webp",
+    "url": "file:///android_asset/wallpapers/ios17_mist.webp"
   },
   {
     "author": "SysAdminDoc",
@@ -60,9 +68,11 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios18_tint.webp",
     "local_url": "file:///android_asset/wallpapers/ios18_tint.webp",
     "name": "iOS 18 Tint",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios18_tint.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios18_tint.webp",
     "size": 42634,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios18_tint.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios18_tint.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios18_tint.webp",
+    "url": "file:///android_asset/wallpapers/ios18_tint.webp"
   },
   {
     "author": "SysAdminDoc",
@@ -73,8 +83,10 @@
     "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios26_glass.webp",
     "local_url": "file:///android_asset/wallpapers/ios26_glass.webp",
     "name": "iOS 26 Liquid Glass",
+    "remote_thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios26_glass.webp",
+    "remote_url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios26_glass.webp",
     "size": 38958,
-    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios26_glass.webp",
-    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios26_glass.webp"
+    "thumbnail": "file:///android_asset/wallpapers/thumbs/ios26_glass.webp",
+    "url": "file:///android_asset/wallpapers/ios26_glass.webp"
   }
 ]

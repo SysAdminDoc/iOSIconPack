@@ -67,6 +67,9 @@ All notable changes to iOSIconPack will be documented in this file.
 - Wallpaper entry points are backed by committed original assets; drawable
   validation now fails on missing launcher resource references, empty advertised
   wallpaper surfaces, or stale local wallpaper JSON metadata.
+- The Frames `json_url` wallpaper feed now loads from the bundled asset catalog
+  with local asset URLs, so the dashboard wallpaper tab does not depend on
+  GitHub Raw at runtime.
 - Contributor, gallery, and distribution docs now describe local validation and
   release commands only; stale current-process CI/GitHub Actions claims were
   removed.

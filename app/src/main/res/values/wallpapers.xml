@@ -1,6 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+    <string name="json_url" translatable="false">file:///android_asset/wallpapers/wallpapers.json</string>
     <string-array name="wallpapers_json_urls" translatable="false">
-        <item>https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/wallpapers.json</item>
+        <item>file:///android_asset/wallpapers/wallpapers.json</item>
     </string-array>
 </resources>

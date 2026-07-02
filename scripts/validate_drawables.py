@@ -261,10 +261,26 @@ def _wallpaper_item_count() -> int:
     except ET.ParseError:
         return 0
     count = 0
+    for string in root.iter("string"):
+        if string.get("name") == "json_url" and (string.text or "").strip():
+            count += 1
     for array in root.iter("string-array"):
         if array.get("name") == "wallpapers_json_urls":
             count += sum(1 for item in array.iter("item") if (item.text or "").strip())
     return count
+
+
+def _frames_wallpaper_json_url() -> str:
+    if not WALLPAPERS_XML.exists():
+        return ""
+    try:
+        root = ET.parse(WALLPAPERS_XML).getroot()
+    except ET.ParseError:
+        return ""
+    for string in root.iter("string"):
+        if string.get("name") == "json_url":
+            return (string.text or "").strip()
+    return ""
 
 
 def _wallpaper_json_urls() -> list[str]:
@@ -275,10 +291,13 @@ def _wallpaper_json_urls() -> list[str]:
     except ET.ParseError:
         return []
     urls: list[str] = []
+    frames_url = _frames_wallpaper_json_url()
+    if frames_url:
+        urls.append(frames_url)
     for array in root.iter("string-array"):
         if array.get("name") == "wallpapers_json_urls":
             urls.extend((item.text or "").strip() for item in array.iter("item") if (item.text or "").strip())
-    return urls
+    return list(dict.fromkeys(urls))
 
 
 def _wallpapers_section_enabled() -> bool:
@@ -306,8 +325,11 @@ def _asset_path_from_url(url: str) -> Path | None:
 def check_wallpaper_assets() -> list[str]:
     errors: list[str] = []
     urls = _wallpaper_json_urls()
+    if _wallpapers_section_enabled() and not _frames_wallpaper_json_url():
+        errors.append("  EMPTY WALLPAPER SURFACE  wallpapers section is enabled but Frames json_url is empty")
+        return errors
     if _wallpapers_section_enabled() and not urls:
-        errors.append("  EMPTY WALLPAPER SURFACE  wallpapers section is enabled but wallpapers_json_urls is empty")
+        errors.append("  EMPTY WALLPAPER SURFACE  wallpapers section is enabled but no wallpaper JSON URL is configured")
         return errors
 
     for url in urls:

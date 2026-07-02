@@ -43,6 +43,7 @@ MUST_NOT_TRANSLATE = {
     "credits_photos",
     "credits_titles",
     "credits_links",
+    "json_url",
     "wallpapers_json_urls",
 }
 
