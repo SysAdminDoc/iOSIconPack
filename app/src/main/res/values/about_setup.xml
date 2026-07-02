@@ -7,8 +7,8 @@
         <item>Blueprint Dashboard</item>
     </string-array>
     <string-array name="credits_descriptions">
-        <item>Icon Pack Creator</item>
-        <item>Dashboard by Jahir Fiquitiva</item>
+        <item>Icon pack creator and maintainer</item>
+        <item>Open-source dashboard framework by Jahir Fiquitiva</item>
     </string-array>
     <string-array name="credits_links" translatable="false">
         <item>https://github.com/SysAdminDoc</item>
