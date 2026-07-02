@@ -2,6 +2,20 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.2.1] - 2026-07-02
+
+### Added
+- Local preview regression checks for full-square, circle, rounded-square, and
+  squircle launcher masks.
+- Local sharp, line, and filled themed-icon style prototype generation under
+  `build/style-prototypes`.
+- Coverage-gap scoring, icon provenance validation, and dependency advisory
+  release gates.
+
+### Fixed
+- Issue-template contact links now route to enabled GitHub Issues instead of
+  disabled repository Discussions.
+
 ## [v1.2.0] — 2026-06-27
 
 ### Added

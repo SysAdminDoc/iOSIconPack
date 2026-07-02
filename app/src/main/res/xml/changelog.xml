@@ -1,5 +1,12 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.1" date="2026-07-02">
+        <text>Added local preview regression checks for common launcher masks</text>
+        <text>Added local sharp, line, and filled themed-icon style prototypes</text>
+        <text>Added coverage-gap, provenance, and dependency advisory release gates</text>
+        <text>Fixed issue-template contact links for repositories without Discussions</text>
+    </version>
+
     <version title="1.2.0" date="2026-06-27">
         <text>Expanded every iOS era to 57 icons</text>
         <text>Added per-era variants for popular third-party and Google apps</text>
