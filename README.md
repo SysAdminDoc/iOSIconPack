@@ -152,6 +152,9 @@ crowdin download
 python3 scripts/gen_glyph_variants.py --force --prune
 python3 scripts/icontool.py rebuild
 
+# Prototype sharp, line, and filled themed-icon style variants under build/:
+python3 scripts/icontool.py style-prototypes --limit 24
+
 # Refresh and verify source-art provenance for shipped PNG icons:
 python3 fetch_icons.py --write-provenance
 python3 fetch_icons.py --provenance-check

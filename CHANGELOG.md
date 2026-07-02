@@ -39,6 +39,9 @@ All notable changes to iOSIconPack will be documented in this file.
 - `scripts/gen_glyph_variants.py` generates 367 transparent glyph-only vector
   variants with a squircle border, exposed through the dashboard `Glyph`
   category and validated by the local drawable checks.
+- `icontool style-prototypes` generates local sharp, line, and filled
+  themed-icon XML variants under `build/style-prototypes` for review without
+  adding shipped drawable resources.
 - `app/src/main/assets/icon_provenance.json` records source URL, provider,
   shipped PNG SHA-256, license note, and era transform metadata for every
   committed icon PNG; `fetch_icons.py --provenance-check` and drawable

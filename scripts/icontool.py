@@ -15,6 +15,7 @@ Commands
   placeholder  Generate a ph_* letter-tile placeholder and optional mapping
   widget-export  Export KWGT/Kustom and Rainmeter icon catalog assets
   wallpaper-generate  Generate or check bundled original wallpaper assets
+  style-prototypes  Generate sharp/line/filled local themed-icon prototypes
   localization-check  Verify Crowdin config and localizable Android resources
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
@@ -3361,6 +3362,23 @@ def cmd_wallpaper_generate(args: argparse.Namespace) -> int:
     return subprocess.run(command, cwd=REPO_ROOT).returncode
 
 
+def cmd_style_prototypes(args: argparse.Namespace) -> int:
+    """Generate local sharp/line/filled themed-icon style prototypes."""
+    command = [
+        sys.executable,
+        str(REPO_ROOT / "scripts" / "gen_style_prototypes.py"),
+        "--output",
+        args.output,
+        "--limit",
+        str(args.limit),
+    ]
+    for drawable in args.drawable:
+        command.extend(["--drawable", drawable])
+    if args.check:
+        command.append("--check")
+    return subprocess.run(command, cwd=REPO_ROOT).returncode
+
+
 def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
     """Print icon pack statistics: counts by era, top apps by mapping count."""
     # ── per-era PNG counts from disk ──────────────────────────────────────────
@@ -3607,6 +3625,35 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Validate generated wallpaper assets and JSON.",
     )
     wallpaper_p.set_defaults(func=cmd_wallpaper_generate)
+
+    # --- style-prototypes ---
+    style_p = sub.add_parser(
+        "style-prototypes",
+        help="Generate local sharp, line, and filled themed-icon style prototypes",
+    )
+    style_p.add_argument(
+        "--output",
+        default="build/style-prototypes",
+        help="Output directory for generated prototypes (default: build/style-prototypes).",
+    )
+    style_p.add_argument(
+        "--drawable",
+        action="append",
+        default=[],
+        help="Limit generation to a drawable base name such as ios18_safari; repeatable.",
+    )
+    style_p.add_argument(
+        "--limit",
+        type=int,
+        default=0,
+        help="Generate only the first N matching sources for quick review (default: all).",
+    )
+    style_p.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate prototype generation without writing output files.",
+    )
+    style_p.set_defaults(func=cmd_style_prototypes)
 
     # --- localization-check ---
     localization_p = sub.add_parser(
