@@ -13,6 +13,7 @@ Commands
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
   release-check  Verify release version metadata and git tag alignment
+  release-channel-check  Verify GitHub Releases latest tag/assets
   publish-check  Verify official publish APK signing inputs and fingerprint
 
 Examples
@@ -46,12 +47,15 @@ Examples
 from __future__ import annotations
 
 import argparse
+import json
 import os
 import re
 import shutil
 import subprocess
 import sys
 import tempfile
+import urllib.error
+import urllib.request
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -75,6 +79,9 @@ README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
+GITHUB_REPO = "SysAdminDoc/iOSIconPack"
+GITHUB_API_ROOT = "https://api.github.com"
+VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
 
 PUBLISH_SIGNING_ENV: tuple[str, ...] = (
     "IOSICONS_KEYSTORE_PATH",
@@ -518,6 +525,65 @@ def _git_tag_exists(tag: str) -> bool:
     return result.returncode == 0
 
 
+def _git_text(args: list[str]) -> tuple[int, str, str]:
+    result = subprocess.run(
+        ["git", *args],
+        cwd=REPO_ROOT,
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, result.stdout, result.stderr
+
+
+def _parse_myapp_version(content: str) -> tuple[str, str]:
+    version_name = re.search(r'const\s+val\s+versionName\s*=\s*"([^"]+)"', content)
+    version_code = re.search(r"const\s+val\s+version\s*=\s*(\d+)", content)
+    return (
+        version_name.group(1).strip() if version_name else "",
+        version_code.group(1).strip() if version_code else "",
+    )
+
+
+def _version_tuple(value: str) -> tuple[int, int, int]:
+    parts = value.split(".")
+    if len(parts) != 3 or not all(part.isdigit() for part in parts):
+        return (9999, 9999, 9999)
+    return (int(parts[0]), int(parts[1]), int(parts[2]))
+
+
+def _git_version_tag_errors(expected_version: str, expected_code: str) -> list[str]:
+    errors: list[str] = []
+    rc, stdout, stderr = _git_text(["tag", "--list", "v[0-9]*"])
+    if rc != 0:
+        errors.append(f"git tag list failed: {stderr.strip()}")
+        return errors
+
+    myapp_path = MYAPP_KT.relative_to(REPO_ROOT).as_posix()
+    for tag in sorted(stdout.splitlines(), key=lambda item: _version_tuple(item.strip().removeprefix("v"))):
+        tag = tag.strip()
+        if not tag:
+            continue
+        match = VERSION_TAG_RE.fullmatch(tag)
+        if not match:
+            errors.append(f"git tag is not a three-part app SemVer tag: {tag}")
+            continue
+
+        rc, tag_text, stderr = _git_text(["show", f"{tag}:{myapp_path}"])
+        if rc != 0:
+            errors.append(f"git tag {tag}: cannot read {myapp_path}: {stderr.strip()}")
+            continue
+
+        tag_version, tag_code = _parse_myapp_version(tag_text)
+        if tag_version != match.group(1):
+            errors.append(f"git tag {tag}: tagged app versionName is {tag_version or 'missing'}")
+        if not tag_code:
+            errors.append(f"git tag {tag}: tagged app versionCode is missing")
+        if tag_version == expected_version and expected_code and tag_code != expected_code:
+            errors.append(f"git tag {tag}: tagged app versionCode {tag_code or 'missing'} != {expected_code}")
+
+    return errors
+
+
 def _normalize_sha256(value: str | None) -> str:
     return (value or "").replace(":", "").replace(" ", "").strip().upper()
 
@@ -663,6 +729,8 @@ def _release_metadata_errors() -> tuple[list[str], str, str]:
 
         if not _git_tag_exists(expected_tag):
             errors.append(f"git tag missing: {expected_tag}")
+        if version_code:
+            errors.extend(_git_version_tag_errors(expected, version_code))
         return errors, expected, expected_tag
 
     return errors, "", ""
@@ -697,6 +765,90 @@ def _publish_signing_errors(apk: Path) -> list[str]:
             errors.append(f"release APK signer SHA-256 mismatch: {actual} != {expected}")
 
     return errors
+
+
+def _github_json(repo: str, endpoint: str, errors: list[str]) -> object | None:
+    url = f"{GITHUB_API_ROOT}/repos/{repo}/{endpoint.lstrip('/')}"
+    headers = {
+        "Accept": "application/vnd.github+json",
+        "User-Agent": "iOSIconPack-icontool",
+        "X-GitHub-Api-Version": "2022-11-28",
+    }
+    token = os.environ.get("GITHUB_TOKEN") or os.environ.get("GH_TOKEN")
+    if token:
+        headers["Authorization"] = f"Bearer {token}"
+
+    request = urllib.request.Request(url, headers=headers)
+    try:
+        with urllib.request.urlopen(request, timeout=20) as response:
+            return json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace").strip()
+        errors.append(f"GitHub API {endpoint}: HTTP {exc.code} {exc.reason} {detail}")
+    except urllib.error.URLError as exc:
+        errors.append(f"GitHub API {endpoint}: {exc.reason}")
+    except json.JSONDecodeError as exc:
+        errors.append(f"GitHub API {endpoint}: invalid JSON: {exc}")
+    return None
+
+
+def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
+    metadata_errors, version_name, expected_tag = _release_metadata_errors()
+    errors = list(metadata_errors)
+    if not version_name:
+        return errors, "", ""
+
+    latest = _github_json(repo, "releases/latest", errors)
+    releases = _github_json(repo, "releases?per_page=100", errors)
+
+    if isinstance(latest, dict):
+        latest_tag = str(latest.get("tag_name") or "")
+        if latest_tag != expected_tag:
+            errors.append(f"GitHub latest release tag: {latest_tag or 'missing'} != {expected_tag}")
+
+    expected_release: dict[str, object] | None = None
+    current_version = _version_tuple(version_name)
+    if isinstance(releases, list):
+        for item in releases:
+            if not isinstance(item, dict):
+                continue
+            tag = str(item.get("tag_name") or "")
+            if tag == expected_tag:
+                expected_release = item
+
+            match = VERSION_TAG_RE.fullmatch(tag)
+            if match and _version_tuple(match.group(1)) > current_version:
+                errors.append(f"GitHub release {tag}: newer than checked-out app version {version_name}")
+
+        if expected_release is None:
+            errors.append(f"GitHub release missing: {expected_tag}")
+
+    if expected_release is not None:
+        assets = expected_release.get("assets")
+        asset_list = assets if isinstance(assets, list) else []
+        expected_asset = f"iOSIconPack-{expected_tag}-release.apk"
+        matching_asset: dict[str, object] | None = None
+        for item in asset_list:
+            if isinstance(item, dict) and item.get("name") == expected_asset:
+                matching_asset = item
+                break
+
+        if matching_asset is None:
+            actual = ", ".join(
+                str(item.get("name"))
+                for item in asset_list
+                if isinstance(item, dict) and item.get("name")
+            ) or "none"
+            errors.append(f"GitHub release {expected_tag}: missing asset {expected_asset} (assets: {actual})")
+        else:
+            size = int(matching_asset.get("size") or 0)
+            if size <= 0:
+                errors.append(f"GitHub release {expected_tag}: asset {expected_asset} is empty")
+            digest = str(matching_asset.get("digest") or "")
+            if not re.fullmatch(r"sha256:[A-Fa-f0-9]{64}", digest):
+                errors.append(f"GitHub release {expected_tag}: asset {expected_asset} missing sha256 digest")
+
+    return errors, version_name, expected_tag
 
 
 # ---------------------------------------------------------------------------
@@ -888,6 +1040,18 @@ def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         return 1
 
     print(f"release metadata check: OK ({version_name}, {expected_tag})")
+    return 0
+
+
+def cmd_release_channel_check(args: argparse.Namespace) -> int:
+    errors, version_name, expected_tag = _release_channel_errors(args.repo)
+    if errors:
+        print("release channel check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print(f"release channel check: OK ({args.repo}, {version_name}, {expected_tag})")
     return 0
 
 
@@ -1142,6 +1306,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Verify versionName, README, F-Droid metadata, changelog, and git tag alignment",
     )
     release_p.set_defaults(func=cmd_release_check)
+
+    # --- release-channel-check ---
+    release_channel_p = sub.add_parser(
+        "release-channel-check",
+        help="Verify GitHub Releases latest tag, expected APK asset, and release tag drift",
+    )
+    release_channel_p.add_argument(
+        "--repo",
+        default=GITHUB_REPO,
+        help=f"GitHub owner/repo to inspect (default: {GITHUB_REPO})",
+    )
+    release_channel_p.set_defaults(func=cmd_release_channel_check)
 
     # --- publish-check ---
     publish_p = sub.add_parser(

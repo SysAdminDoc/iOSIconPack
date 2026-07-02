@@ -83,7 +83,15 @@ run:
 ```bash
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 python3 scripts/icontool.py publish-check
+python3 scripts/icontool.py release-channel-check
 ```
+
+## Backup Policy
+
+iOS Icon Pack does not back up or transfer app-private data. The dashboard state
+is disposable, and launcher icon choices can be reapplied from the shipped icon
+catalog after reinstall. Android 11 and lower use `@xml/backup_rules`; Android
+12+ uses `@xml/data_extraction_rules`.
 
 ## Contributing Icons
 
@@ -103,6 +111,9 @@ python3 scripts/icontool.py check
 
 # Validate only release metadata and tag alignment:
 python3 scripts/icontool.py release-check
+
+# Validate the public GitHub release channel before publishing/install docs:
+python3 scripts/icontool.py release-channel-check
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions, and PR checklist.
