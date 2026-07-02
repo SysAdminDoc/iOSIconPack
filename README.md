@@ -138,6 +138,9 @@ python3 scripts/icontool.py maven-provenance-check
 # Check current vs latest core dependency versions and OSV advisories:
 python3 scripts/icontool.py dependency-audit
 
+# Diff rendered icon previews under common launcher masks:
+python3 scripts/icontool.py preview-regression
+
 # Validate Crowdin config and Android translatable resource boundaries:
 python3 scripts/icontool.py localization-check
 

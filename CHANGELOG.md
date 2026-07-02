@@ -27,6 +27,9 @@ All notable changes to iOSIconPack will be documented in this file.
 - `icontool dependency-audit` reports current versus latest-stable AGP, Kotlin,
   KSP, Blueprint, and Pillow versions, then queries OSV and fails on known
   advisories.
+- `icontool preview-regression` renders every shipped PNG through full-square,
+  circle, rounded-square, and squircle launcher masks, then fails when hashes
+  drift from the accepted local baseline.
 - Issue-template contact links now route to the enabled GitHub Issues surface
   instead of disabled repository Discussions.
 - First-party Google app defaults now use the shipped iOS 18 Google/Chrome/Gmail/

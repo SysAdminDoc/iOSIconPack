@@ -19,6 +19,7 @@ Commands
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
+  preview-regression  Diff icon renders under common launcher masks
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
   coverage-gap  Score high-value missing package coverage from requests and public icon packs
@@ -59,8 +60,10 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import hashlib
 import importlib.metadata
 import json
+import math
 import os
 import re
 import shutil
@@ -96,6 +99,10 @@ FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
 HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
+PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.json"
+PREVIEW_ICON_SIZE = 192
+PREVIEW_MASKS: tuple[str, ...] = ("full-square", "circle", "rounded-square", "squircle")
+PREVIEW_SCHEMA_VERSION = 1
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
@@ -720,6 +727,193 @@ def _display_path(path: Path) -> str:
         return str(path.relative_to(REPO_ROOT))
     except ValueError:
         return str(path)
+
+
+def _preview_png_paths(drawable_dir: Path = DRAWABLE_HDPI) -> list[Path]:
+    return sorted(path for path in drawable_dir.glob("*.png") if path.is_file())
+
+
+def _preview_pillow_modules():
+    try:
+        from PIL import Image, ImageChops, ImageDraw  # type: ignore
+    except ImportError as exc:
+        raise RuntimeError(
+            "preview-regression: Pillow is required. Install dependencies with "
+            "`python -m pip install -r requirements.txt`."
+        ) from exc
+    return Image, ImageChops, ImageDraw
+
+
+def _superellipse_points(size: int, exponent: float = 4.6) -> list[tuple[float, float]]:
+    center = (size - 1) / 2
+    radius = center
+    points: list[tuple[float, float]] = []
+    for degree in range(360):
+        theta = math.radians(degree)
+        cos_theta = math.cos(theta)
+        sin_theta = math.sin(theta)
+        x = center + radius * math.copysign(abs(cos_theta) ** (2 / exponent), cos_theta)
+        y = center + radius * math.copysign(abs(sin_theta) ** (2 / exponent), sin_theta)
+        points.append((x, y))
+    return points
+
+
+def _preview_mask(mask_name: str, size: int = PREVIEW_ICON_SIZE):
+    Image, _, ImageDraw = _preview_pillow_modules()
+    scale = 4
+    large = size * scale
+    mask = Image.new("L", (large, large), 0)
+    draw = ImageDraw.Draw(mask)
+
+    if mask_name == "full-square":
+        draw.rectangle((0, 0, large, large), fill=255)
+    elif mask_name == "circle":
+        draw.ellipse((0, 0, large - 1, large - 1), fill=255)
+    elif mask_name == "rounded-square":
+        draw.rounded_rectangle((0, 0, large - 1, large - 1), radius=int(large * 0.224), fill=255)
+    elif mask_name == "squircle":
+        draw.polygon(_superellipse_points(large), fill=255)
+    else:
+        raise ValueError(f"unknown preview mask: {mask_name}")
+
+    return mask.resize((size, size), Image.Resampling.LANCZOS)
+
+
+def _preview_render(image, mask_name: str):
+    Image, ImageChops, _ = _preview_pillow_modules()
+    icon = image.convert("RGBA")
+    if icon.size != (PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE):
+        icon = icon.resize((PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE), Image.Resampling.LANCZOS)
+    mask = _preview_mask(mask_name, PREVIEW_ICON_SIZE)
+    rendered = icon.copy()
+    rendered.putalpha(ImageChops.multiply(icon.getchannel("A"), mask))
+    return rendered
+
+
+def _preview_pixel_hash(image) -> str:
+    return hashlib.sha256(image.tobytes()).hexdigest()
+
+
+def _preview_regression_manifest(drawable_dir: Path = DRAWABLE_HDPI) -> dict[str, object]:
+    Image, _, _ = _preview_pillow_modules()
+    entries: dict[str, dict[str, object]] = {}
+
+    for path in _preview_png_paths(drawable_dir):
+        with Image.open(path) as raw:
+            icon = raw.convert("RGBA")
+
+        if icon.size != (PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE):
+            raise RuntimeError(
+                f"preview-regression: {path.name} is {icon.size[0]}x{icon.size[1]}px; "
+                f"expected {PREVIEW_ICON_SIZE}x{PREVIEW_ICON_SIZE}px"
+            )
+
+        alpha_bounds = icon.getchannel("A").getbbox()
+        renders = {
+            mask_name: _preview_pixel_hash(_preview_render(icon, mask_name))
+            for mask_name in PREVIEW_MASKS
+        }
+        entries[path.stem] = {
+            "source_sha256": hashlib.sha256(path.read_bytes()).hexdigest(),
+            "alpha_bounds": list(alpha_bounds or ()),
+            "renders": renders,
+        }
+
+    return {
+        "schema": PREVIEW_SCHEMA_VERSION,
+        "source": "app/src/main/res/drawable-xxxhdpi",
+        "icon_size": PREVIEW_ICON_SIZE,
+        "masks": list(PREVIEW_MASKS),
+        "entry_count": len(entries),
+        "entries": entries,
+    }
+
+
+def _preview_manifest_diff(
+    expected: dict[str, object],
+    actual: dict[str, object],
+) -> dict[str, object]:
+    expected_entries = expected.get("entries")
+    actual_entries = actual.get("entries")
+    if not isinstance(expected_entries, dict) or not isinstance(actual_entries, dict):
+        return {
+            "metadata": ["baseline/current manifest is missing an entries object"],
+            "missing": [],
+            "added": [],
+            "changed": [],
+        }
+
+    metadata: list[str] = []
+    for field in ("schema", "icon_size", "masks"):
+        if expected.get(field) != actual.get(field):
+            metadata.append(f"{field}: baseline={expected.get(field)!r} current={actual.get(field)!r}")
+
+    expected_names = set(expected_entries)
+    actual_names = set(actual_entries)
+    missing = sorted(expected_names - actual_names)
+    added = sorted(actual_names - expected_names)
+    changed: list[dict[str, object]] = []
+
+    for name in sorted(expected_names & actual_names):
+        expected_entry = expected_entries[name]
+        actual_entry = actual_entries[name]
+        if not isinstance(expected_entry, dict) or not isinstance(actual_entry, dict):
+            changed.append({"drawable": name, "fields": ["entry"]})
+            continue
+
+        fields: list[str] = []
+        for field in ("source_sha256", "alpha_bounds"):
+            if expected_entry.get(field) != actual_entry.get(field):
+                fields.append(field)
+
+        expected_renders = expected_entry.get("renders")
+        actual_renders = actual_entry.get("renders")
+        if not isinstance(expected_renders, dict) or not isinstance(actual_renders, dict):
+            fields.append("renders")
+        else:
+            for mask_name in PREVIEW_MASKS:
+                if expected_renders.get(mask_name) != actual_renders.get(mask_name):
+                    fields.append(f"render:{mask_name}")
+
+        if fields:
+            changed.append({"drawable": name, "fields": fields})
+
+    return {
+        "metadata": metadata,
+        "missing": missing,
+        "added": added,
+        "changed": changed,
+    }
+
+
+def _preview_has_diff(diff: dict[str, object]) -> bool:
+    return any(diff.get(key) for key in ("metadata", "missing", "added", "changed"))
+
+
+def _print_preview_diff(diff: dict[str, object], limit: int) -> None:
+    metadata = diff.get("metadata") or []
+    missing = diff.get("missing") or []
+    added = diff.get("added") or []
+    changed = diff.get("changed") or []
+
+    if metadata:
+        print("  metadata drift:")
+        for item in list(metadata)[:limit]:
+            print(f"    - {item}")
+    if missing:
+        print(f"  missing drawables ({len(missing)}):")
+        for item in list(missing)[:limit]:
+            print(f"    - {item}")
+    if added:
+        print(f"  added drawables ({len(added)}):")
+        for item in list(added)[:limit]:
+            print(f"    - {item}")
+    if changed:
+        print(f"  changed drawables ({len(changed)}):")
+        for item in list(changed)[:limit]:
+            if isinstance(item, dict):
+                fields = ", ".join(str(field) for field in item.get("fields", []))
+                print(f"    - {item.get('drawable')}: {fields}")
 
 
 def _find_apksigner() -> Path | None:
@@ -2329,6 +2523,56 @@ def cmd_launcher_compat_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     return 0
 
 
+def cmd_preview_regression(args: argparse.Namespace) -> int:
+    baseline = _repo_relative_path(
+        getattr(args, "baseline", None) or str(PREVIEW_REGRESSION_BASELINE)
+    )
+    current_output = getattr(args, "current_output", None)
+    diff_limit = int(getattr(args, "diff_limit", 20) or 20)
+
+    try:
+        manifest = _preview_regression_manifest()
+    except (RuntimeError, OSError, ValueError) as exc:
+        print(f"preview regression check: FAIL ({exc})", file=sys.stderr)
+        return 1
+
+    if current_output:
+        output_path = _repo_relative_path(current_output)
+        _write(output_path, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        print(f"preview regression check: wrote current manifest {_display_path(output_path)}")
+
+    if getattr(args, "update_baseline", False):
+        _write(baseline, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        print(
+            "preview regression check: updated "
+            f"{_display_path(baseline)} ({manifest['entry_count']} drawables x {len(PREVIEW_MASKS)} masks)"
+        )
+        return 0
+
+    if not baseline.exists():
+        print(f"preview regression check: FAIL missing baseline {_display_path(baseline)}", file=sys.stderr)
+        print("  run `python scripts/icontool.py preview-regression --update-baseline`", file=sys.stderr)
+        return 1
+
+    try:
+        expected = json.loads(_read(baseline))
+    except (OSError, json.JSONDecodeError) as exc:
+        print(f"preview regression check: FAIL cannot read baseline ({exc})", file=sys.stderr)
+        return 1
+
+    diff = _preview_manifest_diff(expected, manifest)
+    if _preview_has_diff(diff):
+        print("preview regression check: FAIL")
+        _print_preview_diff(diff, diff_limit)
+        if not current_output:
+            print("  add --current-output build/preview-regression-current.json for a full current manifest")
+        print("  update the baseline only after visually accepting the icon/mask changes")
+        return 1
+
+    print(f"preview regression check: OK ({manifest['entry_count']} drawables x {len(PREVIEW_MASKS)} masks)")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
     for script in ("validate_appfilter.py", "validate_drawables.py", "validate_localization.py"):
@@ -2350,6 +2594,16 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         result = subprocess.run([sys.executable, str(wallpapers), "--check"])
         if result.returncode != 0:
             rc = result.returncode
+    preview_rc = cmd_preview_regression(
+        argparse.Namespace(
+            baseline=str(PREVIEW_REGRESSION_BASELINE),
+            current_output=None,
+            diff_limit=20,
+            update_baseline=False,
+        )
+    )
+    if preview_rc != 0:
+        rc = preview_rc
     release_rc = cmd_release_check(args)
     if release_rc != 0:
         rc = release_rc
@@ -3386,6 +3640,34 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"GitHub owner/repo to inspect (default: {GITHUB_REPO})",
     )
     release_channel_p.set_defaults(func=cmd_release_channel_check)
+
+    # --- preview-regression ---
+    preview_p = sub.add_parser(
+        "preview-regression",
+        help="Diff rendered icon previews under common launcher masks against a local baseline",
+    )
+    preview_p.add_argument(
+        "--baseline",
+        default=str(PREVIEW_REGRESSION_BASELINE.relative_to(REPO_ROOT)),
+        help="Baseline JSON path (default: scripts/preview_regression_baseline.json)",
+    )
+    preview_p.add_argument(
+        "--current-output",
+        default=None,
+        help="Optional path to write the current rendered-hash manifest.",
+    )
+    preview_p.add_argument(
+        "--diff-limit",
+        type=int,
+        default=20,
+        help="Maximum rows to print per diff section (default: 20).",
+    )
+    preview_p.add_argument(
+        "--update-baseline",
+        action="store_true",
+        help="Overwrite the baseline with the current accepted renders.",
+    )
+    preview_p.set_defaults(func=cmd_preview_regression)
 
     # --- developer-verification-check ---
     developer_verification_p = sub.add_parser(
