@@ -196,6 +196,25 @@ def _css() -> str:
         }
         a.gh-link:hover { color: var(--accent); }
 
+        .sr-only {
+            position: absolute;
+            width: 1px;
+            height: 1px;
+            padding: 0;
+            margin: -1px;
+            overflow: hidden;
+            clip: rect(0, 0, 0, 0);
+            white-space: nowrap;
+            border: 0;
+        }
+
+        a:focus-visible,
+        button:focus-visible,
+        input:focus-visible {
+            outline: 2px solid var(--accent);
+            outline-offset: 2px;
+        }
+
         /* Search */
         .search-wrap {
             display: flex;
@@ -214,7 +233,7 @@ def _css() -> str:
             padding: 0.4rem 0.75rem;
             outline: none;
         }
-        #search:focus { border-color: var(--accent); }
+        #search:focus-visible { border-color: var(--accent); }
         #search::placeholder { color: var(--muted); }
 
         /* Era filter */
@@ -235,7 +254,8 @@ def _css() -> str:
             transition: all 0.15s;
         }
         .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-        .filter-btn.active {
+        .filter-btn.active,
+        .filter-btn[aria-pressed="true"] {
             border-color: var(--accent);
             color: var(--accent);
             background: rgba(88,166,255,0.1);
@@ -358,10 +378,15 @@ def _css() -> str:
         /* Tab nav */
         .tab-bar {
             display: flex;
+            align-items: stretch;
             gap: 0.25rem;
             border-bottom: 1px solid var(--border);
             padding: 0 1.5rem;
             background: var(--surface);
+        }
+        .tab-list {
+            display: flex;
+            gap: 0.25rem;
         }
         .tab-btn {
             background: transparent;
@@ -375,7 +400,11 @@ def _css() -> str:
             transition: color 0.15s, border-color 0.15s;
         }
         .tab-btn:hover { color: var(--text); }
-        .tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+        .tab-btn.active,
+        .tab-btn[aria-selected="true"] {
+            color: var(--accent);
+            border-bottom-color: var(--accent);
+        }
 
         /* Compare grid */
         .compare-note {
@@ -443,9 +472,10 @@ def _js() -> str:
             const cards = document.querySelectorAll('.icon-card');
             const sections = document.querySelectorAll('.era-section');
             const emptyMsg = document.getElementById('empty-msg');
+            const resultStatus = document.getElementById('gallery-result-status');
             const browseView = document.getElementById('browse-view');
             const compareView = document.getElementById('compare-view');
-            const tabBtns = document.querySelectorAll('.tab-btn');
+            const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
 
             let activeEra = 'all';
 
@@ -469,35 +499,96 @@ def _js() -> str:
                 });
 
                 emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+                if (resultStatus) {
+                    const noun = visible === 1 ? 'icon' : 'icons';
+                    resultStatus.textContent = `Showing ${visible} ${noun}.`;
+                }
             }
 
             search.addEventListener('input', update);
 
+            function moveFocus(items, current, delta) {
+                const list = Array.from(items);
+                const index = list.indexOf(current);
+                if (index === -1) return;
+                const next = (index + delta + list.length) % list.length;
+                list[next].focus();
+            }
+
+            function setActiveFilter(selected) {
+                filterBtns.forEach(btn => {
+                    const isActive = btn === selected;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-pressed', String(isActive));
+                });
+                activeEra = selected.dataset.era;
+                update();
+            }
+
             filterBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    filterBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    activeEra = btn.dataset.era;
-                    update();
+                    setActiveFilter(btn);
+                });
+                btn.addEventListener('keydown', event => {
+                    if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                        event.preventDefault();
+                        moveFocus(filterBtns, btn, 1);
+                    } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                        event.preventDefault();
+                        moveFocus(filterBtns, btn, -1);
+                    } else if (event.key === 'Home') {
+                        event.preventDefault();
+                        filterBtns[0].focus();
+                    } else if (event.key === 'End') {
+                        event.preventDefault();
+                        filterBtns[filterBtns.length - 1].focus();
+                    }
                 });
             });
 
-            // Tab switching
+            function setActiveTab(selected) {
+                tabBtns.forEach(btn => {
+                    const isActive = btn === selected;
+                    btn.classList.toggle('active', isActive);
+                    btn.setAttribute('aria-selected', String(isActive));
+                    btn.tabIndex = isActive ? 0 : -1;
+                });
+                const tab = selected.dataset.tab;
+                browseView.hidden = tab !== 'browse';
+                compareView.hidden = tab !== 'compare';
+
+                const searchWrap = document.querySelector('.search-wrap');
+                const filterBar = document.querySelector('.filter-bar');
+                const hide = tab === 'compare';
+                if (searchWrap) searchWrap.hidden = hide;
+                if (filterBar) filterBar.hidden = hide;
+            }
+
             tabBtns.forEach(btn => {
                 btn.addEventListener('click', () => {
-                    tabBtns.forEach(b => b.classList.remove('active'));
-                    btn.classList.add('active');
-                    const tab = btn.dataset.tab;
-                    browseView.hidden = tab !== 'browse';
-                    compareView.hidden = tab !== 'compare';
-                    // Hide search/filter bar in compare mode
-                    const searchWrap = document.querySelector('.search-wrap');
-                    const filterBar = document.querySelector('.filter-bar');
-                    const hide = tab === 'compare';
-                    if (searchWrap) searchWrap.style.display = hide ? 'none' : '';
-                    if (filterBar) filterBar.style.display = hide ? 'none' : '';
+                    setActiveTab(btn);
+                });
+                btn.addEventListener('keydown', event => {
+                    if (event.key === 'ArrowRight') {
+                        event.preventDefault();
+                        moveFocus(tabBtns, btn, 1);
+                    } else if (event.key === 'ArrowLeft') {
+                        event.preventDefault();
+                        moveFocus(tabBtns, btn, -1);
+                    } else if (event.key === 'Home') {
+                        event.preventDefault();
+                        tabBtns[0].focus();
+                    } else if (event.key === 'End') {
+                        event.preventDefault();
+                        tabBtns[tabBtns.length - 1].focus();
+                    } else if (event.key === 'Enter' || event.key === ' ') {
+                        event.preventDefault();
+                        setActiveTab(btn);
+                    }
                 });
             });
+
+            update();
         })();
     """).strip()
 
@@ -575,7 +666,7 @@ def _comparison_html() -> str:
 
     rows_html = "\n".join(rows)
     return f"""\
-<section id="compare-view" hidden>
+<section id="compare-view" role="tabpanel" aria-labelledby="tab-compare" hidden>
   <p class="compare-note">Icons with era variants shown across all 6 design eras.</p>
   <div class="cmp-scroll">
     <table class="cmp-table">
@@ -596,12 +687,16 @@ def _generate_html() -> str:
     counts     = _parse_component_counts()
     total_icons = sum(len(icons) for _, icons in categories)
 
-    filter_buttons = ['<button class="filter-btn active" data-era="all">All eras</button>']
+    filter_buttons = [
+        '<button class="filter-btn active" type="button" data-era="all" '
+        'aria-pressed="true">All eras</button>',
+    ]
     for cat, _ in categories:
         colour   = ERA_COLOURS.get(cat, "#9CA3AF")
         era_slug = cat.replace(" ", "-").replace(".", "").replace("/", "").replace("--", "-").lower()
         filter_buttons.append(
-            f'<button class="filter-btn" data-era="{era_slug}" '
+            f'<button class="filter-btn" type="button" data-era="{era_slug}" '
+            f'aria-pressed="false" '
             f'style="--dot:{colour}">{cat}</button>'
         )
 
@@ -647,23 +742,27 @@ def _generate_html() -> str:
             </a>
           </div>
           <div class="search-wrap">
-            <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false">
+            <label class="sr-only" for="search">Search icons by drawable name</label>
+            <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false" aria-controls="browse-view" aria-describedby="gallery-result-status">
           </div>
-          <div class="filter-bar">
+          <p id="gallery-result-status" class="sr-only" aria-live="polite">{total_icons} icons available.</p>
+          <div class="filter-bar" role="group" aria-label="Filter icons by era">
             {filters_joined}
           </div>
         </header>
 
-        <nav class="tab-bar">
-          <button class="tab-btn active" data-tab="browse">Browse</button>
-          <button class="tab-btn" data-tab="compare">Compare Eras</button>
+        <nav class="tab-bar" aria-label="Gallery navigation">
+          <div class="tab-list" role="tablist" aria-label="Gallery views">
+            <button id="tab-browse" class="tab-btn active" type="button" role="tab" data-tab="browse" aria-selected="true" aria-controls="browse-view" tabindex="0">Browse</button>
+            <button id="tab-compare" class="tab-btn" type="button" role="tab" data-tab="compare" aria-selected="false" aria-controls="compare-view" tabindex="-1">Compare Eras</button>
+          </div>
           <a class="tab-btn" href="requests.html" style="text-decoration:none">Requests ↗</a>
         </nav>
 
         <main>
-          <div id="browse-view">
+          <div id="browse-view" role="tabpanel" aria-labelledby="tab-browse">
             {sections_joined}
-            <p id="empty-msg">No icons match your search.</p>
+            <p id="empty-msg" role="status">No icons match your search.</p>
           </div>
           {_comparison_html()}
         </main>
@@ -683,6 +782,30 @@ def _generate_html() -> str:
     """)
 
 
+def _accessibility_errors(html: str) -> list[str]:
+    """Return deterministic smoke-test failures for generated gallery semantics."""
+    checks: list[tuple[str, str]] = [
+        ("search input has an explicit label", '<label class="sr-only" for="search">'),
+        ("search input references browse results", 'aria-controls="browse-view"'),
+        ("search input references live result status", 'aria-describedby="gallery-result-status"'),
+        ("result count status is a polite live region", 'id="gallery-result-status" class="sr-only" aria-live="polite"'),
+        ("era filters are grouped", 'class="filter-bar" role="group" aria-label="Filter icons by era"'),
+        ("active era filter exposes pressed state", 'class="filter-btn active" type="button" data-era="all" aria-pressed="true"'),
+        ("inactive era filters expose pressed state", 'aria-pressed="false"'),
+        ("gallery views expose a tablist", 'class="tab-list" role="tablist" aria-label="Gallery views"'),
+        ("browse tab controls browse panel", 'id="tab-browse" class="tab-btn active" type="button" role="tab" data-tab="browse" aria-selected="true" aria-controls="browse-view"'),
+        ("compare tab controls compare panel", 'id="tab-compare" class="tab-btn" type="button" role="tab" data-tab="compare" aria-selected="false" aria-controls="compare-view"'),
+        ("browse panel references selected tab", 'id="browse-view" role="tabpanel" aria-labelledby="tab-browse"'),
+        ("compare panel references selected tab", 'id="compare-view" role="tabpanel" aria-labelledby="tab-compare" hidden'),
+        ("visible keyboard focus style is present", ':focus-visible'),
+        ("filter script syncs aria-pressed", "setAttribute('aria-pressed'"),
+        ("tab script syncs aria-selected", "setAttribute('aria-selected'"),
+        ("keyboard roving focus handles arrow keys", "event.key === 'ArrowRight'"),
+        ("keyboard tab activation handles Enter", "event.key === 'Enter'"),
+    ]
+    return [description for description, needle in checks if needle not in html]
+
+
 def generate(dry_run: bool = False) -> str:
     html = _generate_html()
     total = sum(len(icons) for _, icons in _parse_drawables())
@@ -690,7 +813,7 @@ def generate(dry_run: bool = False) -> str:
         print(html)
     else:
         OUT_FILE.parent.mkdir(exist_ok=True)
-        OUT_FILE.write_text(html, encoding="utf-8")
+        OUT_FILE.write_text(html, encoding="utf-8", newline="\n")
         print(f"Wrote {OUT_FILE} ({len(html):,} bytes, {total} icons)")
     return html
 
@@ -705,7 +828,19 @@ def main(argv: list[str] | None = None) -> int:
                    help="Print HTML to stdout instead of writing docs/index.html")
     p.add_argument("--check", action="store_true",
                    help="Exit 1 if docs/index.html is stale")
+    p.add_argument("--a11y-check", action="store_true",
+                   help="Exit 1 if generated gallery accessibility semantics regress")
     args = p.parse_args(argv)
+
+    if args.a11y_check:
+        errors = _accessibility_errors(_generate_html())
+        if errors:
+            print("docs/index.html accessibility smoke check failed:", file=sys.stderr)
+            for error in errors:
+                print(f"  - {error}", file=sys.stderr)
+            return 1
+        print("docs/index.html accessibility smoke check passed.")
+        return 0
 
     if args.check:
         generated = _generate_html()

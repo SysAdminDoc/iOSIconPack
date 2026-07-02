@@ -15,6 +15,9 @@ All notable changes to iOSIconPack will be documented in this file.
   against `appfilter.xml`, reporting already-covered, duplicate,
   needs-ComponentInfo, ready-to-map, and malformed request buckets without
   mutating GitHub.
+- Generated gallery accessibility smoke checks now validate search labels,
+  filter pressed states, tab semantics, focus-visible support, and keyboard
+  activation through the local validator path.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.

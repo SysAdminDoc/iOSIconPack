@@ -111,6 +111,10 @@ python3 scripts/icontool.py add tp_appname \
 # Validate appfilter, drawables, and release metadata:
 python3 scripts/icontool.py check
 
+# Validate generated gallery freshness and accessibility semantics:
+python3 scripts/gen_gallery.py --check
+python3 scripts/gen_gallery.py --a11y-check
+
 # Validate launcher intent filters and icon-pack resource signals:
 python3 scripts/icontool.py launcher-compat-check
 

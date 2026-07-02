@@ -1414,6 +1414,12 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         result = subprocess.run([sys.executable, str(validator)])
         if result.returncode != 0:
             rc = result.returncode
+    gallery = REPO_ROOT / "scripts" / "gen_gallery.py"
+    if gallery.exists():
+        for flag in ("--check", "--a11y-check"):
+            result = subprocess.run([sys.executable, str(gallery), flag])
+            if result.returncode != 0:
+                rc = result.returncode
     release_rc = cmd_release_check(args)
     if release_rc != 0:
         rc = release_rc

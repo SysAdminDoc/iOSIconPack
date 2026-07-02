@@ -75,6 +75,25 @@ a.gh-link {
 }
 a.gh-link:hover { color: var(--accent); }
 
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 2px;
+}
+
 /* Search */
 .search-wrap {
     display: flex;
@@ -93,7 +112,7 @@ a.gh-link:hover { color: var(--accent); }
     padding: 0.4rem 0.75rem;
     outline: none;
 }
-#search:focus { border-color: var(--accent); }
+#search:focus-visible { border-color: var(--accent); }
 #search::placeholder { color: var(--muted); }
 
 /* Era filter */
@@ -114,7 +133,8 @@ a.gh-link:hover { color: var(--accent); }
     transition: all 0.15s;
 }
 .filter-btn:hover { border-color: var(--accent); color: var(--text); }
-.filter-btn.active {
+.filter-btn.active,
+.filter-btn[aria-pressed="true"] {
     border-color: var(--accent);
     color: var(--accent);
     background: rgba(88,166,255,0.1);
@@ -237,10 +257,15 @@ footer a { color: var(--accent); text-decoration: none; }
 /* Tab nav */
 .tab-bar {
     display: flex;
+    align-items: stretch;
     gap: 0.25rem;
     border-bottom: 1px solid var(--border);
     padding: 0 1.5rem;
     background: var(--surface);
+}
+.tab-list {
+    display: flex;
+    gap: 0.25rem;
 }
 .tab-btn {
     background: transparent;
@@ -254,7 +279,11 @@ footer a { color: var(--accent); text-decoration: none; }
     transition: color 0.15s, border-color 0.15s;
 }
 .tab-btn:hover { color: var(--text); }
-.tab-btn.active { color: var(--accent); border-bottom-color: var(--accent); }
+.tab-btn.active,
+.tab-btn[aria-selected="true"] {
+    color: var(--accent);
+    border-bottom-color: var(--accent);
+}
 
 /* Compare grid */
 .compare-note {
@@ -326,28 +355,32 @@ footer a { color: var(--accent); text-decoration: none; }
             </a>
           </div>
           <div class="search-wrap">
-            <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false">
+            <label class="sr-only" for="search">Search icons by drawable name</label>
+            <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false" aria-controls="browse-view" aria-describedby="gallery-result-status">
           </div>
-          <div class="filter-bar">
-            <button class="filter-btn active" data-era="all">All eras</button>
-        <button class="filter-btn" data-era="ios-18" style="--dot:#58A6FF">iOS 18</button>
-        <button class="filter-btn" data-era="ios-17" style="--dot:#A78BFA">iOS 17</button>
-        <button class="filter-btn" data-era="ios-16" style="--dot:#34D399">iOS 16</button>
-        <button class="filter-btn" data-era="ios-15" style="--dot:#FBBF24">iOS 15</button>
-        <button class="filter-btn" data-era="ios-14" style="--dot:#F87171">iOS 14</button>
-        <button class="filter-btn" data-era="ios-26--liquid-glass" style="--dot:#67E8F9">iOS 26 - Liquid Glass</button>
-        <button class="filter-btn" data-era="third-party" style="--dot:#9CA3AF">Third Party</button>
+          <p id="gallery-result-status" class="sr-only" aria-live="polite">367 icons available.</p>
+          <div class="filter-bar" role="group" aria-label="Filter icons by era">
+            <button class="filter-btn active" type="button" data-era="all" aria-pressed="true">All eras</button>
+        <button class="filter-btn" type="button" data-era="ios-18" aria-pressed="false" style="--dot:#58A6FF">iOS 18</button>
+        <button class="filter-btn" type="button" data-era="ios-17" aria-pressed="false" style="--dot:#A78BFA">iOS 17</button>
+        <button class="filter-btn" type="button" data-era="ios-16" aria-pressed="false" style="--dot:#34D399">iOS 16</button>
+        <button class="filter-btn" type="button" data-era="ios-15" aria-pressed="false" style="--dot:#FBBF24">iOS 15</button>
+        <button class="filter-btn" type="button" data-era="ios-14" aria-pressed="false" style="--dot:#F87171">iOS 14</button>
+        <button class="filter-btn" type="button" data-era="ios-26--liquid-glass" aria-pressed="false" style="--dot:#67E8F9">iOS 26 - Liquid Glass</button>
+        <button class="filter-btn" type="button" data-era="third-party" aria-pressed="false" style="--dot:#9CA3AF">Third Party</button>
           </div>
         </header>
 
-        <nav class="tab-bar">
-          <button class="tab-btn active" data-tab="browse">Browse</button>
-          <button class="tab-btn" data-tab="compare">Compare Eras</button>
+        <nav class="tab-bar" aria-label="Gallery navigation">
+          <div class="tab-list" role="tablist" aria-label="Gallery views">
+            <button id="tab-browse" class="tab-btn active" type="button" role="tab" data-tab="browse" aria-selected="true" aria-controls="browse-view" tabindex="0">Browse</button>
+            <button id="tab-compare" class="tab-btn" type="button" role="tab" data-tab="compare" aria-selected="false" aria-controls="compare-view" tabindex="-1">Compare Eras</button>
+          </div>
           <a class="tab-btn" href="requests.html" style="text-decoration:none">Requests ↗</a>
         </nav>
 
         <main>
-          <div id="browse-view">
+          <div id="browse-view" role="tabpanel" aria-labelledby="tab-browse">
             <section class="era-section" data-era="ios-18">
   <h2 class="era-heading"><span class="era-dot" style="background:#58A6FF"></span>iOS 18<span class="icon-count">57</span></h2>
   <div class="icon-grid">
@@ -2591,9 +2624,9 @@ footer a { color: var(--accent); text-decoration: none; }
 </div>
 </div>
 </section>
-            <p id="empty-msg">No icons match your search.</p>
+            <p id="empty-msg" role="status">No icons match your search.</p>
           </div>
-          <section id="compare-view" hidden>
+          <section id="compare-view" role="tabpanel" aria-labelledby="tab-compare" hidden>
   <p class="compare-note">Icons with era variants shown across all 6 design eras.</p>
   <div class="cmp-scroll">
     <table class="cmp-table">
@@ -2677,9 +2710,10 @@ footer a { color: var(--accent); text-decoration: none; }
     const cards = document.querySelectorAll('.icon-card');
     const sections = document.querySelectorAll('.era-section');
     const emptyMsg = document.getElementById('empty-msg');
+    const resultStatus = document.getElementById('gallery-result-status');
     const browseView = document.getElementById('browse-view');
     const compareView = document.getElementById('compare-view');
-    const tabBtns = document.querySelectorAll('.tab-btn');
+    const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
 
     let activeEra = 'all';
 
@@ -2703,35 +2737,96 @@ footer a { color: var(--accent); text-decoration: none; }
         });
 
         emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+        if (resultStatus) {
+            const noun = visible === 1 ? 'icon' : 'icons';
+            resultStatus.textContent = `Showing ${visible} ${noun}.`;
+        }
     }
 
     search.addEventListener('input', update);
 
+    function moveFocus(items, current, delta) {
+        const list = Array.from(items);
+        const index = list.indexOf(current);
+        if (index === -1) return;
+        const next = (index + delta + list.length) % list.length;
+        list[next].focus();
+    }
+
+    function setActiveFilter(selected) {
+        filterBtns.forEach(btn => {
+            const isActive = btn === selected;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-pressed', String(isActive));
+        });
+        activeEra = selected.dataset.era;
+        update();
+    }
+
     filterBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            filterBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            activeEra = btn.dataset.era;
-            update();
+            setActiveFilter(btn);
+        });
+        btn.addEventListener('keydown', event => {
+            if (event.key === 'ArrowRight' || event.key === 'ArrowDown') {
+                event.preventDefault();
+                moveFocus(filterBtns, btn, 1);
+            } else if (event.key === 'ArrowLeft' || event.key === 'ArrowUp') {
+                event.preventDefault();
+                moveFocus(filterBtns, btn, -1);
+            } else if (event.key === 'Home') {
+                event.preventDefault();
+                filterBtns[0].focus();
+            } else if (event.key === 'End') {
+                event.preventDefault();
+                filterBtns[filterBtns.length - 1].focus();
+            }
         });
     });
 
-    // Tab switching
+    function setActiveTab(selected) {
+        tabBtns.forEach(btn => {
+            const isActive = btn === selected;
+            btn.classList.toggle('active', isActive);
+            btn.setAttribute('aria-selected', String(isActive));
+            btn.tabIndex = isActive ? 0 : -1;
+        });
+        const tab = selected.dataset.tab;
+        browseView.hidden = tab !== 'browse';
+        compareView.hidden = tab !== 'compare';
+
+        const searchWrap = document.querySelector('.search-wrap');
+        const filterBar = document.querySelector('.filter-bar');
+        const hide = tab === 'compare';
+        if (searchWrap) searchWrap.hidden = hide;
+        if (filterBar) filterBar.hidden = hide;
+    }
+
     tabBtns.forEach(btn => {
         btn.addEventListener('click', () => {
-            tabBtns.forEach(b => b.classList.remove('active'));
-            btn.classList.add('active');
-            const tab = btn.dataset.tab;
-            browseView.hidden = tab !== 'browse';
-            compareView.hidden = tab !== 'compare';
-            // Hide search/filter bar in compare mode
-            const searchWrap = document.querySelector('.search-wrap');
-            const filterBar = document.querySelector('.filter-bar');
-            const hide = tab === 'compare';
-            if (searchWrap) searchWrap.style.display = hide ? 'none' : '';
-            if (filterBar) filterBar.style.display = hide ? 'none' : '';
+            setActiveTab(btn);
+        });
+        btn.addEventListener('keydown', event => {
+            if (event.key === 'ArrowRight') {
+                event.preventDefault();
+                moveFocus(tabBtns, btn, 1);
+            } else if (event.key === 'ArrowLeft') {
+                event.preventDefault();
+                moveFocus(tabBtns, btn, -1);
+            } else if (event.key === 'Home') {
+                event.preventDefault();
+                tabBtns[0].focus();
+            } else if (event.key === 'End') {
+                event.preventDefault();
+                tabBtns[tabBtns.length - 1].focus();
+            } else if (event.key === 'Enter' || event.key === ' ') {
+                event.preventDefault();
+                setActiveTab(btn);
+            }
         });
     });
+
+    update();
 })();
         </script>
 
