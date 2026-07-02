@@ -11,8 +11,7 @@ Checks enforced:
      vector sets, matching `ios{ver}_{app}` and `tp_{app}` naming).
   4. No duplicate `<item component="..."/>` entries in appfilter.xml.
 
-Exit code is non-zero on any failure; the CI pipeline blocks the release when
-that happens.
+Exit code is non-zero on any failure; run this locally before release.
 """
 from __future__ import annotations
 

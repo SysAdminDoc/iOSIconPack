@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""validate_drawables.py — CI validator for PNG and vector drawable assets.
+"""validate_drawables.py — local validator for PNG and vector drawable assets.
 
 Checks:
   1. Every PNG in drawable-xxxhdpi/ is exactly 192x192 pixels.

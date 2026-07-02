@@ -31,6 +31,6 @@ body:
       options:
         - label: Icon artwork (new era, redraw, theming)
         - label: Dashboard UI (Blueprint config, AMOLED polish)
-        - label: Build tooling (`fetch_icons.py`, CI, validators)
+        - label: Build tooling (`fetch_icons.py`, local validators)
         - label: Launcher integration (new launcher support, per-launcher install flow)
         - label: Documentation

@@ -10,11 +10,9 @@ Usage
   python3 scripts/gen_gallery.py           # writes docs/index.html
   python3 scripts/gen_gallery.py --dry-run # print output to stdout
 
-The generated file is checked into the repo.  GitHub Pages serves it from the
-docs/ folder on the master branch.
-
-CI runs this and fails the build if docs/index.html is stale (i.e., the
-generated output differs from what's committed).
+The generated file is checked into the repo. GitHub Pages serves it from the
+docs/ folder on the master branch. Run with `--check` locally before release to
+fail when docs/index.html is stale.
 """
 from __future__ import annotations
 
@@ -706,7 +704,7 @@ def main(argv: list[str] | None = None) -> int:
     p.add_argument("--dry-run", "-n", action="store_true",
                    help="Print HTML to stdout instead of writing docs/index.html")
     p.add_argument("--check", action="store_true",
-                   help="Exit 1 if docs/index.html is stale (for CI)")
+                   help="Exit 1 if docs/index.html is stale")
     args = p.parse_args(argv)
 
     if args.check:

@@ -23,6 +23,9 @@ All notable changes to iOSIconPack will be documented in this file.
   12+ backup paths.
 
 ### Changed
+- Contributor, gallery, and distribution docs now describe local validation and
+  release commands only; stale current-process CI/GitHub Actions claims were
+  removed.
 - Every iOS era now has 57 icons; total PNG coverage is 367 icons.
 - `set_era.py` now remaps `tp_*` entries when matching per-era variants exist.
 - `icontool rebuild` now syncs `icon_pack.xml` so Blueprint filters stay current.
