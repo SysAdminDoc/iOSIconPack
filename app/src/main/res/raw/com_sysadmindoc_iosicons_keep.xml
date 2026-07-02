@@ -1,0 +1,3 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources xmlns:tools="http://schemas.android.com/tools"
+    tools:keep="@drawable/ios14_*,@drawable/ios15_*,@drawable/ios16_*,@drawable/ios17_*,@drawable/ios18_*,@drawable/ios26_lg_*,@drawable/tp_*,@drawable/*_mono,@drawable/*_themed,@mipmap/ic_launcher*,@xml/appfilter,@xml/drawable,@xml/appmap,@xml/theme_resources,@xml/icon_pack,@xml/file_providers,@xml/network_security_config,@xml/backup_rules,@xml/data_extraction_rules" />

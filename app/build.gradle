@@ -48,7 +48,7 @@ def findApksigner = {
 
 android {
     lint {
-        abortOnError false
+        abortOnError true
         checkReleaseBuilds true
         disable 'MissingTranslation', 'GoogleAppIndexingWarning'
     }
@@ -117,7 +117,9 @@ android {
             debuggable false
             zipAlignEnabled true
             minifyEnabled true
-            shrinkResources false
+            // Icon-pack drawables are resolved dynamically from appfilter/drawable XML.
+            // Keep rules live in res/raw/com_sysadmindoc_iosicons_keep.xml.
+            shrinkResources true
             proguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
             consumerProguardFiles 'proguard-android-optimize.txt', 'proguard-rules.pro'
         }

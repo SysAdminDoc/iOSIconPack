@@ -72,6 +72,7 @@ Nova, Lawnchair, Apex, Smart Launcher, OnePlus, Samsung One UI, LG Home, Sony, P
 ```bash
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
+python3 scripts/icontool.py preflight
 ```
 
 `assembleRelease` uses the committed development keystore only for local sanity
@@ -109,6 +110,9 @@ python3 scripts/icontool.py add tp_appname \
 
 # Validate appfilter, drawables, and release metadata:
 python3 scripts/icontool.py check
+
+# Run the full local release preflight with lint, packaging, and APK size gate:
+python3 scripts/icontool.py preflight
 
 # Validate only release metadata and tag alignment:
 python3 scripts/icontool.py release-check

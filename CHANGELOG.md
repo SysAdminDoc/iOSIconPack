@@ -5,6 +5,9 @@ All notable changes to iOSIconPack will be documented in this file.
 ## [v1.2.0] — 2026-06-27
 
 ### Added
+- `icontool preflight` runs local validators, Gradle test/lint/release
+  packaging, reports release APK size, and fails when the size budget is
+  exceeded.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.
@@ -23,6 +26,9 @@ All notable changes to iOSIconPack will be documented in this file.
   12+ backup paths.
 
 ### Changed
+- Release lint is fail-closed again, and release builds now enable resource
+  shrinking with an explicit icon-pack keep file for dynamically referenced
+  launcher/dashboard resources.
 - Wallpaper, theme-preview, and Muzei entry points are hidden until original
   wallpaper assets exist; drawable validation now fails on missing launcher
   resource references or empty advertised wallpaper surfaces.

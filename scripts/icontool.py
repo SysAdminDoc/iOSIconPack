@@ -16,6 +16,7 @@ Commands
   release-channel-check  Verify GitHub Releases latest tag/assets
   developer-verification-check  Report Android developer verification readiness
   publish-check  Verify official publish APK signing inputs and fingerprint
+  preflight  Run local release validators, Gradle checks, and APK size gate
 
 Examples
 --------
@@ -929,6 +930,30 @@ def _print_bullets(items: list[str] | tuple[str, ...], indent: str = "  - ") -> 
         print(f"{indent}{item}")
 
 
+def _gradle_wrapper() -> Path:
+    return REPO_ROOT / ("gradlew.bat" if os.name == "nt" else "gradlew")
+
+
+def _format_bytes(size: int) -> str:
+    mib = size / (1024 * 1024)
+    return f"{mib:.2f} MiB ({size:,} bytes)"
+
+
+def _gradle_env() -> dict[str, str]:
+    env = os.environ.copy()
+    if not env.get("JAVA_HOME"):
+        android_studio_jbr = Path("C:/Program Files/Android/Android Studio/jbr")
+        if android_studio_jbr.exists():
+            env["JAVA_HOME"] = str(android_studio_jbr)
+    if not env.get("ANDROID_HOME"):
+        local_appdata = env.get("LOCALAPPDATA")
+        if local_appdata:
+            android_sdk = Path(local_appdata) / "Android" / "Sdk"
+            if android_sdk.exists():
+                env["ANDROID_HOME"] = str(android_sdk)
+    return env
+
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
@@ -1238,6 +1263,48 @@ def cmd_publish_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_preflight(args: argparse.Namespace) -> int:
+    print("preflight: repository validators")
+    check_rc = cmd_check(args)
+    if check_rc != 0:
+        return check_rc
+
+    gradle = _gradle_wrapper()
+    if not gradle.exists():
+        print(f"preflight: Gradle wrapper missing: {_display_path(gradle)}", file=sys.stderr)
+        return 1
+
+    tasks = args.gradle_task or ["test", "lintRelease", "assembleRelease"]
+    command = [str(gradle), *tasks, "--no-daemon"]
+    print("\npreflight: " + " ".join([gradle.name, *tasks, "--no-daemon"]))
+    result = subprocess.run(command, cwd=REPO_ROOT, env=_gradle_env())
+    if result.returncode != 0:
+        return result.returncode
+
+    metadata_errors, version_name, _ = _release_metadata_errors()
+    if metadata_errors:
+        print("preflight: release metadata changed during build", file=sys.stderr)
+        for error in metadata_errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
+    if not apk.exists():
+        print(f"preflight: release APK not found: {_display_path(apk)}", file=sys.stderr)
+        return 1
+
+    size = apk.stat().st_size
+    limit = int(args.max_apk_mb * 1024 * 1024)
+    print(f"\npreflight: release APK size {_format_bytes(size)}")
+    print(f"preflight: size budget {args.max_apk_mb:.2f} MiB")
+    if size > limit:
+        print(f"preflight: FAIL size budget exceeded by {_format_bytes(size - limit)}", file=sys.stderr)
+        return 1
+
+    print("preflight: OK")
+    return 0
+
+
 def cmd_rebuild(args: argparse.Namespace) -> int:
     """Sync drawable.xml with files on disk.
 
@@ -1515,6 +1582,30 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Release APK to verify (default: app/build/outputs/apk/release/<applicationId>-<version>-release.apk)",
     )
     publish_p.set_defaults(func=cmd_publish_check)
+
+    # --- preflight ---
+    preflight_p = sub.add_parser(
+        "preflight",
+        help="Run local validators, Gradle test/lint/release packaging, and APK size gate",
+    )
+    preflight_p.add_argument(
+        "--apk",
+        default=None,
+        help="Release APK to inspect after Gradle tasks complete (default: app/build/outputs/apk/release/<applicationId>-<version>-release.apk)",
+    )
+    preflight_p.add_argument(
+        "--max-apk-mb",
+        type=float,
+        default=12.0,
+        help="Maximum release APK size in MiB (default: 12.0)",
+    )
+    preflight_p.add_argument(
+        "--gradle-task",
+        action="append",
+        default=None,
+        help="Gradle task to run before size check (repeatable; default: test, lintRelease, assembleRelease)",
+    )
+    preflight_p.set_defaults(func=cmd_preflight)
 
     # --- stats ---
     stats_p = sub.add_parser(
