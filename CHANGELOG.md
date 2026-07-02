@@ -11,6 +11,10 @@ All notable changes to iOSIconPack will be documented in this file.
 - `icontool launcher-compat-check` validates launcher intent filters and core
   icon-pack XML resources for Nova, Lawnchair, Smart Launcher, OnePlus,
   Samsung/ADW generic channels, Niagara, Pixel, and Holo/LauncherPro.
+- `icontool request-audit` audits open `icon-request` issues or saved issue JSON
+  against `appfilter.xml`, reporting already-covered, duplicate,
+  needs-ComponentInfo, ready-to-map, and malformed request buckets without
+  mutating GitHub.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.

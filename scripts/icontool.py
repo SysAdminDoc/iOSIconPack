@@ -16,6 +16,7 @@ Commands
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
   developer-verification-check  Report Android developer verification readiness
+  request-audit  Audit open icon requests against appfilter.xml
   publish-check  Verify official publish APK signing inputs and fingerprint
   preflight  Run local release validators, Gradle checks, and APK size gate
 
@@ -297,6 +298,20 @@ def _af_components_for_drawable(content: str, drawable: str) -> list[str]:
         r'<item\s+component="([^"]+)"\s+drawable="' + re.escape(drawable) + r'"'
     )
     return pat.findall(content)
+
+
+def _af_component_index(content: str) -> tuple[dict[str, str], dict[str, list[tuple[str, str]]]]:
+    by_component: dict[str, str] = {}
+    by_package: dict[str, list[tuple[str, str]]] = {}
+    item_re = re.compile(r'<item\s+component="([^"]+)"\s+drawable="([^"]+)"')
+    for component, drawable in item_re.findall(content):
+        by_component[component] = drawable
+        try:
+            package, _ = _parse_component(component)
+        except ValueError:
+            continue
+        by_package.setdefault(package, []).append((component, drawable))
+    return by_component, by_package
 
 
 # ---------------------------------------------------------------------------
@@ -928,6 +943,92 @@ def _published_channel_summary(app_id: str) -> list[str]:
     return channels
 
 
+def _issue_field(body: str, label: str) -> str:
+    pattern = re.compile(
+        r"###\s+" + re.escape(label) + r"\s*\n+(.*?)(?=\n###\s+|\Z)",
+        re.DOTALL | re.IGNORECASE,
+    )
+    match = pattern.search(body or "")
+    if not match:
+        return ""
+    value = re.sub(r"\n{3,}", "\n\n", match.group(1)).strip()
+    if value.lower() in {"_no response_", "no response", "none", "n/a"}:
+        return ""
+    return value
+
+
+def _package_from_play_url(value: str) -> str:
+    match = re.search(r"[?&]id=([A-Za-z0-9._]+)", value or "")
+    return match.group(1) if match else ""
+
+
+def _issue_labels(issue: dict[str, object]) -> set[str]:
+    labels = issue.get("labels") or []
+    names: set[str] = set()
+    if isinstance(labels, list):
+        for label in labels:
+            if isinstance(label, dict):
+                name = str(label.get("name") or "")
+            else:
+                name = str(label)
+            if name:
+                names.add(name)
+    return names
+
+
+def _normalize_issue(issue: dict[str, object]) -> dict[str, object]:
+    body = str(issue.get("body") or "")
+    package_name = _issue_field(body, "Package name")
+    if not package_name:
+        package_name = _package_from_play_url(_issue_field(body, "Play Store URL"))
+
+    component_raw = _issue_field(body, "ComponentInfo (optional)")
+    component = ""
+    if component_raw:
+        try:
+            component = _norm_component(component_raw)
+        except ValueError:
+            component = ""
+
+    return {
+        "number": int(issue.get("number") or 0),
+        "title": str(issue.get("title") or ""),
+        "url": str(issue.get("html_url") or ""),
+        "app_name": _issue_field(body, "App name"),
+        "package": package_name.strip(),
+        "component": component,
+        "labels": _issue_labels(issue),
+    }
+
+
+def _load_issues_from_file(path: Path) -> list[dict[str, object]]:
+    raw = json.loads(path.read_text(encoding="utf-8-sig"))
+    if isinstance(raw, dict) and isinstance(raw.get("issues"), list):
+        raw = raw["issues"]
+    if not isinstance(raw, list):
+        raise ValueError("issue input must be a JSON list or an object with an issues list")
+    return [item for item in raw if isinstance(item, dict)]
+
+
+def _fetch_icon_request_issues(repo: str, errors: list[str]) -> list[dict[str, object]]:
+    issues: list[dict[str, object]] = []
+    page = 1
+    while True:
+        endpoint = f"issues?state=open&labels=icon-request&per_page=100&page={page}"
+        data = _github_json(repo, endpoint, errors)
+        if not isinstance(data, list):
+            break
+        page_issues = [
+            item for item in data
+            if isinstance(item, dict) and "pull_request" not in item
+        ]
+        issues.extend(page_issues)
+        if len(data) < 100:
+            break
+        page += 1
+    return issues
+
+
 def _print_bullets(items: list[str] | tuple[str, ...], indent: str = "  - ") -> None:
     for item in items:
         print(f"{indent}{item}")
@@ -1436,6 +1537,108 @@ def cmd_developer_verification_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_request_audit(args: argparse.Namespace) -> int:
+    errors: list[str] = []
+    if args.input:
+        try:
+            raw_issues = _load_issues_from_file(_repo_relative_path(args.input))
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"request audit: cannot read input: {exc}", file=sys.stderr)
+            return 1
+        source = args.input
+    else:
+        raw_issues = _fetch_icon_request_issues(args.repo, errors)
+        source = f"GitHub {args.repo} open icon-request issues"
+
+    if errors:
+        print("request audit: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    appfilter = _read(APPFILTER_RES)
+    by_component, by_package = _af_component_index(appfilter)
+    requests = [
+        _normalize_issue(issue)
+        for issue in raw_issues
+        if "icon-request" in _issue_labels(issue) or args.input
+    ]
+
+    groups: dict[str, list[dict[str, object]]] = {}
+    for request in requests:
+        key = str(request.get("component") or request.get("package") or request.get("title") or request.get("number"))
+        groups.setdefault(key, []).append(request)
+
+    already_covered: list[tuple[dict[str, object], str]] = []
+    needs_component: list[dict[str, object]] = []
+    ready: list[dict[str, object]] = []
+    malformed: list[dict[str, object]] = []
+
+    for request in requests:
+        package_name = str(request.get("package") or "")
+        component = str(request.get("component") or "")
+        if component and component in by_component:
+            already_covered.append((request, f"{component} -> {by_component[component]}"))
+        elif package_name and package_name in by_package:
+            component_hit, drawable = by_package[package_name][0]
+            already_covered.append((request, f"{component_hit} -> {drawable}"))
+        elif component:
+            ready.append(request)
+        elif package_name:
+            needs_component.append(request)
+        else:
+            malformed.append(request)
+
+    duplicates = {
+        key: values
+        for key, values in groups.items()
+        if key and len(values) > 1
+    }
+
+    def issue_label(issue: dict[str, object]) -> str:
+        number = int(issue.get("number") or 0)
+        app_name = str(issue.get("app_name") or issue.get("title") or "Unknown app")
+        package_name = str(issue.get("package") or "no package")
+        return f"#{number} {app_name} ({package_name})"
+
+    print("icon request audit")
+    print(f"  source: {source}")
+    print(f"  requests: {len(requests)}")
+    print(f"  already-covered: {len(already_covered)}")
+    print(f"  duplicate groups: {len(duplicates)}")
+    print(f"  needs ComponentInfo: {len(needs_component)}")
+    print(f"  ready to map: {len(ready)}")
+    print(f"  malformed: {len(malformed)}")
+
+    if already_covered:
+        print("\nAlready covered")
+        for request, evidence in already_covered:
+            print(f"  - {issue_label(request)}: {evidence}")
+
+    if duplicates:
+        print("\nDuplicate request groups")
+        for key, values in sorted(duplicates.items()):
+            joined = ", ".join(f"#{int(item.get('number') or 0)}" for item in values)
+            print(f"  - {key}: {joined}")
+
+    if needs_component:
+        print("\nNeeds ComponentInfo")
+        for request in needs_component:
+            print(f"  - {issue_label(request)}")
+
+    if ready:
+        print("\nReady to map")
+        for request in ready:
+            print(f"  - {issue_label(request)}: {request['component']}")
+
+    if malformed:
+        print("\nMalformed request forms")
+        for request in malformed:
+            print(f"  - {issue_label(request)}")
+
+    return 0
+
+
 def cmd_publish_check(args: argparse.Namespace) -> int:
     metadata_errors, version_name, expected_tag = _release_metadata_errors()
     apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
@@ -1765,6 +1968,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Exit non-zero when operator verification/signing actions are still required",
     )
     developer_verification_p.set_defaults(func=cmd_developer_verification_check)
+
+    # --- request-audit ---
+    request_audit_p = sub.add_parser(
+        "request-audit",
+        help="Audit icon-request issues against appfilter coverage without mutating GitHub",
+    )
+    request_audit_p.add_argument(
+        "--repo",
+        default=GITHUB_REPO,
+        help=f"GitHub owner/repo to fetch when --input is omitted (default: {GITHUB_REPO})",
+    )
+    request_audit_p.add_argument(
+        "--input",
+        default=None,
+        help="Read saved GitHub issue JSON from this file instead of fetching live issues",
+    )
+    request_audit_p.set_defaults(func=cmd_request_audit)
 
     # --- publish-check ---
     publish_p = sub.add_parser(

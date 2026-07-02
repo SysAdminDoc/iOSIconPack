@@ -114,6 +114,9 @@ python3 scripts/icontool.py check
 # Validate launcher intent filters and icon-pack resource signals:
 python3 scripts/icontool.py launcher-compat-check
 
+# Audit open icon requests without mutating GitHub:
+python3 scripts/icontool.py request-audit
+
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight
 
