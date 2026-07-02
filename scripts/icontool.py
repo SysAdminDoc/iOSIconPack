@@ -13,6 +13,7 @@ Commands
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
   placeholder  Generate a ph_* letter-tile placeholder and optional mapping
+  widget-export  Export KWGT/Kustom and Rainmeter icon catalog assets
   localization-check  Verify Crowdin config and localizable Android resources
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
@@ -2267,6 +2268,25 @@ def cmd_placeholder(args: argparse.Namespace) -> int:
     return subprocess.run(command, cwd=REPO_ROOT).returncode
 
 
+def cmd_widget_export(args: argparse.Namespace) -> int:
+    """Export widget-ready catalog assets for Kustom/KWGT and Rainmeter."""
+    command = [
+        sys.executable,
+        str(REPO_ROOT / "scripts" / "export_widget_catalog.py"),
+        "--output",
+        args.output,
+        "--format",
+        args.format,
+        "--rainmeter-preview-count",
+        str(args.rainmeter_preview_count),
+    ]
+    if args.include_placeholders:
+        command.append("--include-placeholders")
+    if args.check:
+        command.append("--check")
+    return subprocess.run(command, cwd=REPO_ROOT).returncode
+
+
 def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
     """Print icon pack statistics: counts by era, top apps by mapping count."""
     # ── per-era PNG counts from disk ──────────────────────────────────────────
@@ -2462,6 +2482,40 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Print planned output without writing files.",
     )
     placeholder_p.set_defaults(func=cmd_placeholder)
+
+    # --- widget-export ---
+    widget_export_p = sub.add_parser(
+        "widget-export",
+        help="Export KWGT/Kustom and Rainmeter-ready icon catalog assets",
+    )
+    widget_export_p.add_argument(
+        "--output",
+        default="build/widget-catalog/iOSIconPack-widget-catalog.zip",
+        help="Output zip path (default: build/widget-catalog/iOSIconPack-widget-catalog.zip).",
+    )
+    widget_export_p.add_argument(
+        "--format",
+        choices=("all", "kwgt", "rainmeter"),
+        default="all",
+        help="Export layout to include (default: all).",
+    )
+    widget_export_p.add_argument(
+        "--include-placeholders",
+        action="store_true",
+        help="Include ph_* placeholder PNGs when present.",
+    )
+    widget_export_p.add_argument(
+        "--rainmeter-preview-count",
+        type=int,
+        default=32,
+        help="Number of icons in the Rainmeter sample grid (default: 32).",
+    )
+    widget_export_p.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate an existing export zip instead of generating one.",
+    )
+    widget_export_p.set_defaults(func=cmd_widget_export)
 
     # --- localization-check ---
     localization_p = sub.add_parser(

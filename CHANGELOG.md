@@ -37,6 +37,8 @@ All notable changes to iOSIconPack will be documented in this file.
   app-owned deep links and local launcher compatibility validation.
 - `icontool placeholder` generates deterministic `ph_*` letter-tile PNGs for
   uncovered app components without adding them to the dashboard catalog.
+- `icontool widget-export` builds a local zip with Kustom/KWGT image assets,
+  JSON/CSV catalog metadata, and a Rainmeter skin/resource layout.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.

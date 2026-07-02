@@ -145,6 +145,9 @@ python3 scripts/icontool.py rebuild
 # Convert raw SVG sources in app/src/main/svg into generated vector drawables:
 ./gradlew :app:convertSvgSources
 
+# Export PNG icon assets for Kustom/KWGT and Rainmeter widget workflows:
+python3 scripts/icontool.py widget-export
+
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight
 
