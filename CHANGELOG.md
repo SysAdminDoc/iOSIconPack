@@ -24,6 +24,9 @@ All notable changes to iOSIconPack will be documented in this file.
 - `icontool maven-provenance-check` reports declared Gradle repositories,
   resolved buildscript/release artifacts, Maven source repository, license, and
   source URL metadata for F-Droid distribution review.
+- `icontool dependency-audit` reports current versus latest-stable AGP, Kotlin,
+  KSP, Blueprint, and Pillow versions, then queries OSV and fails on known
+  advisories.
 - First-party Google app defaults now use the shipped iOS 18 Google/Chrome/Gmail/
   YouTube variants instead of generic Apple analogues or static `tp_*` icons.
 - iOS 26 Liquid Glass icons now use a deterministic frosted squircle material

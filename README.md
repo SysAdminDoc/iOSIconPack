@@ -135,6 +135,9 @@ python3 scripts/icontool.py coverage-gap
 # Audit Gradle repository and artifact provenance for F-Droid review:
 python3 scripts/icontool.py maven-provenance-check
 
+# Check current vs latest core dependency versions and OSV advisories:
+python3 scripts/icontool.py dependency-audit
+
 # Validate Crowdin config and Android translatable resource boundaries:
 python3 scripts/icontool.py localization-check
 

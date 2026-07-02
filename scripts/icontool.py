@@ -23,6 +23,7 @@ Commands
   request-audit  Audit open icon requests against appfilter.xml
   coverage-gap  Score high-value missing package coverage from requests and public icon packs
   maven-provenance-check  Verify Maven repository/artifact provenance
+  dependency-audit  Check core dependency versions and OSV advisories
   publish-check  Verify official publish APK signing inputs and fingerprint
   preflight  Run local release validators, Gradle checks, and APK size gate
 
@@ -58,6 +59,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import importlib.metadata
 import json
 import os
 import re
@@ -88,6 +90,7 @@ APPMAP_XML = RES_XML / "appmap.xml"
 ICON_PACK_XML = REPO_ROOT / "app/src/main/res/values/icon_pack.xml"
 MYAPP_KT = REPO_ROOT / "buildSrc/src/main/java/MyApp.kt"
 VERSIONS_KT = REPO_ROOT / "buildSrc/src/main/java/Versions.kt"
+REQUIREMENTS_TXT = REPO_ROOT / "requirements.txt"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
@@ -95,6 +98,7 @@ HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
+OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
 VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 LAUNCHER_APPLY_SCHEME = "iosiconpack"
@@ -1642,6 +1646,262 @@ def _resolve_maven_artifact(
     }
 
 
+_PRERELEASE_VERSION_RE = re.compile(
+    r"(?:^|[.\-+_])(?:alpha|beta|rc|dev|preview|eap|snapshot|m\d|canary)",
+    re.IGNORECASE,
+)
+
+
+def _is_stable_version(version: str) -> bool:
+    return bool(version) and _PRERELEASE_VERSION_RE.search(version) is None
+
+
+def _version_sort_key(version: str) -> tuple[int, int, int, int, str]:
+    numbers = [int(value) for value in re.findall(r"\d+", version)]
+    padded = (numbers + [0, 0, 0, 0])[:4]
+    return (*padded, version.lower())
+
+
+def _latest_stable_version(versions: list[str]) -> str:
+    stable = [version for version in versions if _is_stable_version(version)]
+    if not stable:
+        return ""
+    return sorted(stable, key=_version_sort_key)[-1]
+
+
+def _maven_metadata_url(repo: dict[str, str], group: str, artifact: str) -> str:
+    path = "/".join(group.split("."))
+    return f"{repo['url'].rstrip('/')}/{path}/{artifact}/maven-metadata.xml"
+
+
+def _maven_metadata_versions(
+    group: str,
+    artifact: str,
+    repositories: list[str],
+    timeout: float,
+) -> tuple[str, str, str]:
+    misses: list[str] = []
+    for repo_id in repositories:
+        repo = MAVEN_REPOSITORY_BY_ID.get(repo_id)
+        if repo is None:
+            misses.append(f"{repo_id}: unknown repository")
+            continue
+        url = _maven_metadata_url(repo, group, artifact)
+        content, error = _fetch_text(url, timeout)
+        if content is None:
+            misses.append(f"{repo_id}: {error}")
+            continue
+        try:
+            root = ET.fromstring(content)
+        except ET.ParseError as exc:
+            misses.append(f"{repo_id}: malformed metadata ({exc})")
+            continue
+        versions = [
+            (node.text or "").strip()
+            for node in root.findall(".//{*}version")
+            if (node.text or "").strip()
+        ]
+        latest = _latest_stable_version(versions)
+        if latest:
+            return latest, f"{repo['name']} ({url})", ""
+        misses.append(f"{repo_id}: no stable versions in metadata")
+    return "", "", "; ".join(misses)
+
+
+def _pypi_versions(package: str, timeout: float) -> tuple[str, str]:
+    url = f"https://pypi.org/pypi/{package}/json"
+    content, error = _fetch_text(url, timeout)
+    if content is None:
+        return "", error or "unavailable"
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        return "", f"invalid PyPI JSON: {exc}"
+    releases = data.get("releases")
+    if isinstance(releases, dict):
+        latest = _latest_stable_version([str(version) for version in releases])
+        if latest:
+            return latest, url
+    info = data.get("info")
+    version = str(info.get("version") or "") if isinstance(info, dict) else ""
+    return (version, url) if version else ("", "PyPI JSON did not include versions")
+
+
+def _requirement_spec(package: str) -> tuple[str, str]:
+    if not REQUIREMENTS_TXT.exists():
+        return "", ""
+    pattern = re.compile(
+        r"^\s*" + re.escape(package) + r"\s*([<>=!~]=?)\s*([A-Za-z0-9_.!+\-]+)",
+        re.IGNORECASE,
+    )
+    for line in REQUIREMENTS_TXT.read_text(encoding="utf-8").splitlines():
+        stripped = line.split("#", 1)[0].strip()
+        if not stripped:
+            continue
+        match = pattern.match(stripped)
+        if match:
+            return stripped, match.group(2)
+    return "", ""
+
+
+def _installed_python_distribution(package: str) -> str:
+    try:
+        return importlib.metadata.version(package)
+    except importlib.metadata.PackageNotFoundError:
+        return ""
+
+
+def _dependency_specs() -> tuple[list[dict[str, str]], list[str]]:
+    errors: list[str] = []
+
+    def version_constant(name: str) -> str:
+        return _required_match(
+            f"Versions.{name}",
+            VERSIONS_KT,
+            rf'const\s+val\s+{re.escape(name)}\s*=\s*"([^"]+)"',
+            errors,
+        )
+
+    agp = version_constant("gradle")
+    kotlin = version_constant("kotlin")
+    ksp = version_constant("ksp")
+    blueprint = version_constant("blueprint")
+    pillow_requirement, pillow_minimum = _requirement_spec("Pillow")
+    pillow_installed = _installed_python_distribution("Pillow")
+    if not pillow_requirement:
+        errors.append("requirements.txt: missing Pillow requirement")
+
+    deps = [
+        {
+            "id": "agp",
+            "name": "Android Gradle Plugin",
+            "ecosystem": "Maven",
+            "package": "com.android.tools.build:gradle",
+            "current": agp,
+            "advisory_version": agp,
+            "scope": "buildscript",
+            "repositories": "google,mavenCentral",
+        },
+        {
+            "id": "kotlin",
+            "name": "Kotlin Gradle Plugin",
+            "ecosystem": "Maven",
+            "package": "org.jetbrains.kotlin:kotlin-gradle-plugin",
+            "current": kotlin,
+            "advisory_version": kotlin,
+            "scope": "buildscript",
+            "repositories": "mavenCentral,google",
+        },
+        {
+            "id": "ksp",
+            "name": "KSP Gradle Plugin",
+            "ecosystem": "Maven",
+            "package": "com.google.devtools.ksp:com.google.devtools.ksp.gradle.plugin",
+            "current": ksp,
+            "advisory_version": ksp,
+            "scope": "buildscript",
+            "repositories": "mavenCentral,google",
+        },
+        {
+            "id": "blueprint",
+            "name": "Blueprint dashboard",
+            "ecosystem": "Maven",
+            "package": "dev.jahir:Blueprint",
+            "current": blueprint,
+            "advisory_version": blueprint,
+            "scope": "releaseRuntimeClasspath",
+            "repositories": "mavenCentral,jitpack",
+        },
+        {
+            "id": "pillow",
+            "name": "Pillow",
+            "ecosystem": "PyPI",
+            "package": "Pillow",
+            "current": pillow_installed or pillow_minimum,
+            "advisory_version": pillow_installed or pillow_minimum,
+            "scope": "local tooling",
+            "repositories": "pypi",
+            "requirement": pillow_requirement,
+            "installed": pillow_installed,
+        },
+    ]
+    return deps, errors
+
+
+def _dependency_latest(dep: dict[str, str], timeout: float) -> tuple[str, str, str]:
+    if dep["ecosystem"] == "PyPI":
+        latest, source = _pypi_versions(dep["package"], timeout)
+        return latest, source, "" if latest else source
+    group, artifact = dep["package"].split(":", 1)
+    latest, source, error = _maven_metadata_versions(
+        group,
+        artifact,
+        [repo.strip() for repo in dep["repositories"].split(",") if repo.strip()],
+        timeout,
+    )
+    return latest, source, error
+
+
+def _osv_vuln_ids(result: object) -> list[str]:
+    if not isinstance(result, dict):
+        return []
+    vulns = result.get("vulns")
+    if not isinstance(vulns, list):
+        return []
+    ids: list[str] = []
+    for vuln in vulns:
+        if isinstance(vuln, dict):
+            vuln_id = str(vuln.get("id") or "")
+            if vuln_id:
+                ids.append(vuln_id)
+    return ids
+
+
+def _osv_query(deps: list[dict[str, str]], timeout: float) -> tuple[dict[str, list[str]], str]:
+    query_deps = [dep for dep in deps if dep.get("advisory_version")]
+    if not query_deps:
+        return {}, "no dependency versions available for OSV query"
+    payload = {
+        "queries": [
+            {
+                "package": {
+                    "ecosystem": dep["ecosystem"],
+                    "name": dep["package"],
+                },
+                "version": dep["advisory_version"],
+            }
+            for dep in query_deps
+        ]
+    }
+    request = urllib.request.Request(
+        OSV_QUERYBATCH_URL,
+        data=json.dumps(payload).encode("utf-8"),
+        headers={
+            "Content-Type": "application/json",
+            "User-Agent": "iOSIconPack-dependency-audit",
+        },
+        method="POST",
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            data = json.loads(response.read().decode("utf-8"))
+    except urllib.error.HTTPError as exc:
+        detail = exc.read().decode("utf-8", errors="replace").strip()
+        return {}, f"OSV HTTP {exc.code}: {detail}"
+    except urllib.error.URLError as exc:
+        return {}, f"OSV unavailable: {exc.reason}"
+    except (TimeoutError, json.JSONDecodeError) as exc:
+        return {}, f"OSV query failed: {exc}"
+
+    results = data.get("results") if isinstance(data, dict) else None
+    if not isinstance(results, list):
+        return {}, "OSV response did not include results"
+    advisories: dict[str, list[str]] = {}
+    for dep, result in zip(query_deps, results):
+        advisories[dep["id"]] = _osv_vuln_ids(result)
+    return advisories, ""
+
+
 def _manifest_filters(errors: list[str]) -> list[tuple[set[str], set[str]]]:
     manifest = REPO_ROOT / "app/src/main/AndroidManifest.xml"
     try:
@@ -2552,6 +2812,114 @@ def cmd_maven_provenance_check(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_dependency_audit(args: argparse.Namespace) -> int:
+    deps, errors = _dependency_specs()
+    metadata_errors: list[str] = []
+    records: list[dict[str, object]] = []
+
+    for dep in deps:
+        latest, source, error = _dependency_latest(dep, args.timeout)
+        if error:
+            metadata_errors.append(f"{dep['name']}: {error}")
+        current = dep.get("current", "")
+        status = "unknown"
+        if latest and current:
+            status = "current" if latest == current else "update available"
+        records.append(
+            {
+                **dep,
+                "latest": latest,
+                "latest_source": source,
+                "status": status,
+                "advisories": [],
+            }
+        )
+
+    advisory_error = ""
+    if args.skip_osv:
+        advisory_error = "OSV advisory query skipped by --skip-osv"
+    else:
+        advisories, advisory_error = _osv_query(deps, args.timeout)
+        for record in records:
+            record["advisories"] = advisories.get(str(record["id"]), [])
+
+    vulnerable = [
+        record for record in records
+        if record.get("advisories")
+    ]
+
+    if args.json:
+        payload = {
+            "dependencies": records,
+            "metadata_errors": errors + metadata_errors,
+            "advisory_error": advisory_error,
+            "vulnerable": [
+                {
+                    "id": record["id"],
+                    "package": record["package"],
+                    "version": record["advisory_version"],
+                    "advisories": record["advisories"],
+                }
+                for record in vulnerable
+            ],
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+    else:
+        print("dependency advisory audit")
+        print(f"  metadata timeout: {args.timeout:.1f}s")
+        print(f"  OSV: {'skipped' if args.skip_osv else OSV_QUERYBATCH_URL}")
+        print("\nDependencies")
+        for record in records:
+            current = str(record.get("current") or "missing")
+            latest = str(record.get("latest") or "unavailable")
+            status = str(record.get("status") or "unknown")
+            requirement = str(record.get("requirement") or "")
+            installed = str(record.get("installed") or "")
+            details = []
+            if requirement:
+                details.append(f"requirement {requirement}")
+            if installed:
+                details.append(f"installed {installed}")
+            detail_text = f" ({'; '.join(details)})" if details else ""
+            print(
+                f"  - {record['name']}: current {current}, latest stable {latest}, "
+                f"{status}{detail_text}"
+            )
+            print(f"    package: {record['ecosystem']} {record['package']} [{record['scope']}]")
+            if record.get("latest_source"):
+                print(f"    latest source: {record['latest_source']}")
+            advisory_ids = record.get("advisories") or []
+            if advisory_ids:
+                print(f"    advisories: {', '.join(str(item) for item in advisory_ids)}")
+            elif not args.skip_osv:
+                print("    advisories: none")
+
+        if errors or metadata_errors:
+            print("\nMetadata errors")
+            for error in errors + metadata_errors:
+                print(f"  - {error}")
+        if advisory_error:
+            print("\nAdvisory check")
+            print(f"  - {advisory_error}")
+        if vulnerable:
+            print("\nKnown vulnerable dependencies")
+            for record in vulnerable:
+                print(
+                    f"  - {record['package']} {record['advisory_version']}: "
+                    + ", ".join(str(item) for item in record["advisories"])
+                )
+
+    if errors or metadata_errors:
+        return 1
+    if advisory_error and not args.skip_osv:
+        return 1
+    if vulnerable:
+        return 1
+    if not args.json:
+        print("\ndependency advisory audit: OK")
+    return 0
+
+
 def cmd_publish_check(args: argparse.Namespace) -> int:
     metadata_errors, version_name, expected_tag = _release_metadata_errors()
     apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
@@ -3138,6 +3506,29 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Maximum missing-metadata/unresolved rows to print per section (default: 25)",
     )
     maven_provenance_p.set_defaults(func=cmd_maven_provenance_check)
+
+    # --- dependency-audit ---
+    dependency_audit_p = sub.add_parser(
+        "dependency-audit",
+        help="Check core dependency versions and OSV advisories before release",
+    )
+    dependency_audit_p.add_argument(
+        "--timeout",
+        type=float,
+        default=15.0,
+        help="Seconds to wait for Maven, PyPI, and OSV requests (default: 15)",
+    )
+    dependency_audit_p.add_argument(
+        "--skip-osv",
+        action="store_true",
+        help="Skip OSV advisory lookup; useful for offline version-only diagnostics.",
+    )
+    dependency_audit_p.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit machine-readable JSON instead of text.",
+    )
+    dependency_audit_p.set_defaults(func=cmd_dependency_audit)
 
     # --- publish-check ---
     publish_p = sub.add_parser(
