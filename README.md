@@ -36,7 +36,7 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 
 - **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
 - **Mix & Match** — Apply different generations to different apps
-- **367 Icons + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
+- **367 raster icons + 367 transparent glyph variants + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
 - **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **AMOLED Dark Theme** — Native dark mode dashboard
@@ -123,6 +123,10 @@ python3 scripts/icontool.py request-audit
 
 # Audit Gradle repository and artifact provenance for F-Droid review:
 python3 scripts/icontool.py maven-provenance-check
+
+# Regenerate transparent glyph-only dashboard variants from monochrome vectors:
+python3 scripts/gen_glyph_variants.py --force --prune
+python3 scripts/icontool.py rebuild
 
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight

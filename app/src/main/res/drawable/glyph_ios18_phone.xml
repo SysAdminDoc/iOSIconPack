@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios18_phone. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M66,34 C58,38 48,52 48,68 C48,104 88,144 124,144 C140,144 154,134 158,126 L142,104 C138,99 130,98 126,103 L116,114 C99,107 85,93 78,76 L89,66 C94,62 93,54 88,50 Z" />
+    </group>
+</vector>

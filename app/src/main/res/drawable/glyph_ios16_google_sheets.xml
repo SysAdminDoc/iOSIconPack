@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios16_google_sheets. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M56,34 H118 L146,62 V158 H56 Z M118,34 V62 H146" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M72,82 H132 V94 H72 Z M72,106 H132 V118 H72 Z M72,130 H132 V142 H72 Z M90,82 H100 V142 H90 Z M112,82 H122 V142 H112 Z" />
+    </group>
+</vector>

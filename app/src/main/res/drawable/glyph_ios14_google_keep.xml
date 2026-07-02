@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios14_google_keep. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#FFFFFFFF" android:fillType="evenOdd" android:pathData="M96,34 C123,34 144,55 144,82 C144,100 135,114 122,124 V146 H70 V124 C57,114 48,100 48,82 C48,55 69,34 96,34 Z M82,82 C82,74 88,68 96,68 C104,68 110,74 110,82 C110,90 104,96 96,96 C88,96 82,90 82,82 Z M76,156 H116 V168 H76 Z" />
+    </group>
+</vector>

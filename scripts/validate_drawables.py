@@ -8,6 +8,7 @@ Checks:
   4. Every vector drawable in drawable/ parses as valid XML.
   5. Every item in drawable.xml has a corresponding file on disk.
   6. iOS 26 Liquid Glass PNGs use clipped squircle corners and opaque centers.
+  7. Glyph-only variants exist for vector monochrome sources and stay vector.
 
 Exit 0 on success, 1 on any failure.
 """
@@ -41,6 +42,15 @@ PNG_MAGIC     = b"\x89PNG\r\n\x1a\n"
 # Launcher/system drawables in drawable/ that aren't icon-pack artwork
 _VEC_SKIP_PREFIXES = ("ic_launcher", "ic_", "background", "foreground", "ic_muzei")
 _ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
+_GLYPH_SOURCE_PREFIXES = (
+    "ios14_",
+    "ios15_",
+    "ios16_",
+    "ios17_",
+    "ios18_",
+    "ios26_lg_",
+    "tp_",
+)
 _THEMED_BACKGROUND_BY_PREFIX = {
     "ios14_": "@color/ios14_themed_icon_background",
     "ios15_": "@color/ios15_themed_icon_background",
@@ -172,6 +182,57 @@ def check_themed_backgrounds() -> tuple[list[str], int]:
             f"  WRONG THEMED BG  {path.name}: {actual or '<missing>'} (expected {expected})"
         )
     return errors, themed_background_count
+
+
+def _tag_name(tag: str) -> str:
+    return tag.rsplit("}", 1)[-1]
+
+
+def check_glyph_variants() -> tuple[list[str], int]:
+    errors: list[str] = []
+    expected: set[str] = set()
+
+    for path in sorted(VEC_DIR.glob("*_mono.xml")):
+        base = path.stem.removesuffix("_mono")
+        if not base.startswith(_GLYPH_SOURCE_PREFIXES):
+            continue
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError:
+            continue
+        if _tag_name(root.tag) == "vector":
+            expected.add(f"glyph_{base}")
+
+    glyph_files = {path.stem: path for path in sorted(VEC_DIR.glob("glyph_*.xml"))}
+    for name in sorted(expected - set(glyph_files)):
+        errors.append(f"  MISSING GLYPH  {name}.xml")
+    for name in sorted(set(glyph_files) - expected):
+        errors.append(f"  STALE GLYPH  {name}.xml has no vector mono source")
+
+    for name, path in glyph_files.items():
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError as exc:
+            errors.append(f"  MALFORMED GLYPH  {path.name}: {exc}")
+            continue
+        if _tag_name(root.tag) != "vector":
+            errors.append(f"  BAD GLYPH ROOT  {path.name}: root must be <vector>")
+            continue
+        if any(_tag_name(element.tag) == "bitmap" for element in root.iter()):
+            errors.append(f"  BITMAP GLYPH  {path.name}: glyph variants must stay vector-only")
+        paths = [element for element in root.iter() if _tag_name(element.tag) == "path"]
+        has_border = any(
+            element.attrib.get(f"{_ANDROID_NS}strokeColor")
+            and element.attrib.get(f"{_ANDROID_NS}fillColor", "").upper() in {
+                "#00000000",
+                "#00FFFFFF",
+            }
+            for element in paths
+        )
+        if not has_border:
+            errors.append(f"  BORDERLESS GLYPH  {path.name}: missing transparent border stroke")
+
+    return errors, len(glyph_files)
 
 
 def _resource_name(value: str) -> str:
@@ -312,6 +373,7 @@ def main() -> int:
     vec_errors = check_vectors()
     file_errors = check_drawable_files()
     themed_errors, themed_background_count = check_themed_backgrounds()
+    glyph_errors, glyph_count = check_glyph_variants()
     launcher_errors = check_launcher_resources()
     liquid_glass_errors = check_liquid_glass_masks()
     squircle_warnings, squircle_note = check_squircle_corners()
@@ -323,13 +385,14 @@ def main() -> int:
     )
     mono_count = sum(1 for _ in VEC_DIR.glob("*_mono.xml"))
     themed_count = sum(1 for _ in VEC_DIR.glob("*_themed.xml"))
-    pure_vec_count = vec_count - mono_count - themed_count
+    pure_vec_count = vec_count - mono_count - themed_count - glyph_count
     mono_vector_count, mono_bitmap_count, mono_other_count = _mono_root_counts()
 
     all_errors.extend(png_errors)
     all_errors.extend(vec_errors)
     all_errors.extend(file_errors)
     all_errors.extend(themed_errors)
+    all_errors.extend(glyph_errors)
     all_errors.extend(launcher_errors)
     all_errors.extend(liquid_glass_errors)
 
@@ -346,6 +409,7 @@ def main() -> int:
         f"{mono_vector_count} monochrome vector(s), "
         f"{mono_bitmap_count} bitmap mono fallback(s), "
         f"{mono_other_count} other mono XML(s), "
+        f"{glyph_count} transparent glyph variant(s), "
         f"{themed_count} themed wrapper(s), "
         f"{themed_background_count} era background(s))"
     )

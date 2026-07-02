@@ -28,6 +28,7 @@ DRAWABLE_XML = REPO_ROOT / "app/src/main/res/xml/drawable.xml"
 APPFILTER_XML = REPO_ROOT / "app/src/main/res/xml/appfilter.xml"
 PACK_DIR = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 OUT_FILE = REPO_ROOT / "docs/index.html"
+GALLERY_EXCLUDED_CATEGORIES = {"Glyph"}
 
 RAW_BASE = (
     "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master"
@@ -99,6 +100,11 @@ def _parse_drawables() -> list[tuple[str, list[str]]]:
 
     if current_cat is not None:
         categories.append((current_cat, items))
+    categories = [
+        (cat, icons)
+        for cat, icons in categories
+        if cat not in GALLERY_EXCLUDED_CATEGORIES
+    ]
 
     # tp_* icons are not in drawable.xml; show every shipped PNG, even when a
     # default app mapping has moved to an era-aware variant.

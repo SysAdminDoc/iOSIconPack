@@ -1,0 +1,12 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios18_robinhood. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#FFFFFFFF" android:pathData="M48,128 C86,118 117,88 136,42 C118,54 96,58 74,58 C82,68 92,74 105,76 C88,88 69,96 48,98 C58,106 72,111 88,112 C76,122 62,128 48,128 Z M124,78 L146,68 L136,94 Z" />
+    </group>
+</vector>

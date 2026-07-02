@@ -178,10 +178,13 @@ CATEGORY_ORDER: list[str] = [
     "iOS 14",
     "iOS 26 - Liquid Glass",
     "Third Party",
+    "Glyph",
 ]
 
 # tp_ icons live only in appfilter.xml + on disk, never in drawable.xml.
 TP_PREFIX = "tp_"
+GLYPH_PREFIX = "glyph_"
+GLYPH_CATEGORY = "Glyph"
 
 ERA_ARRAY_NAMES: dict[str, str] = {
     "iOS 18": "ios18",
@@ -190,6 +193,7 @@ ERA_ARRAY_NAMES: dict[str, str] = {
     "iOS 15": "ios15",
     "iOS 14": "ios14",
     "iOS 26 - Liquid Glass": "ios26_liquid_glass",
+    "Glyph": "glyph",
 }
 
 
@@ -201,6 +205,8 @@ def _era_prefix(drawable: str) -> str:
 
 
 def _category_title(drawable: str) -> str:
+    if drawable.startswith(GLYPH_PREFIX):
+        return GLYPH_CATEGORY
     return ERA_CATEGORY.get(_era_prefix(drawable), "")
 
 
@@ -491,8 +497,8 @@ def _sync_icon_pack_xml(drawable_content: str) -> None:
         ("icons_preview", preview),
         ("icon_filters", [
             "all", "ios18", "ios17", "ios16", "ios15", "ios14",
-            "ios26_liquid_glass", "system", "google", "social", "media",
-            "productivity", "games",
+            "ios26_liquid_glass", "glyph", "system", "google", "social",
+            "media", "productivity", "games",
         ]),
         ("all", all_items),
     ]
@@ -2084,7 +2090,7 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
         if (
             not any(name.startswith(p) for p in skip_prefixes)
             and not name.endswith(skip_suffixes)
-            and _era_prefix(name)
+            and (_era_prefix(name) or name.startswith(GLYPH_PREFIX))
         ):
             on_disk.add(name)
 

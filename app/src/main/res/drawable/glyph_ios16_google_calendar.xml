@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios16_google_calendar. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineJoin="round" android:pathData="M48,48 H144 V148 H48 Z" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M48,48 H144 V76 H48 Z M66,34 H78 V58 H66 Z M114,34 H126 V58 H114 Z M68,94 H84 V110 H68 Z M92,94 H108 V110 H92 Z M116,94 H132 V110 H116 Z M68,120 H84 V136 H68 Z M92,120 H108 V136 H92 Z M116,120 H132 V136 H116 Z" />
+    </group>
+</vector>

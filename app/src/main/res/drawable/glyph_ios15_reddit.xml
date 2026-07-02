@@ -1,0 +1,13 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- Generated transparent glyph variant for ios15_reddit. -->
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="192dp"
+    android:height="192dp"
+    android:viewportWidth="192"
+    android:viewportHeight="192">
+    <path android:fillColor="#00000000" android:strokeColor="#E6FFFFFF" android:strokeWidth="5" android:strokeLineCap="round" android:strokeLineJoin="round" android:pathData="M96,8 C132,8 151,8 168,24 C184,41 184,60 184,96 C184,132 184,151 168,168 C151,184 132,184 96,184 C60,184 41,184 24,168 C8,151 8,132 8,96 C8,60 8,41 24,24 C41,8 60,8 96,8 Z" />
+    <group android:pivotX="96" android:pivotY="96" android:scaleX="0.82" android:scaleY="0.82">
+        <path android:fillColor="#00000000" android:strokeColor="#FFFFFFFF" android:strokeWidth="10" android:strokeLineCap="round" android:pathData="M74,62 L86,40 L116,48" />
+        <path android:fillColor="#FFFFFFFF" android:pathData="M118,42 C125,42 130,47 130,54 C130,61 125,66 118,66 C111,66 106,61 106,54 C106,47 111,42 118,42 Z M54,88 C62,74 78,66 96,66 C114,66 130,74 138,88 C149,88 158,97 158,108 C158,118 151,126 142,128 C132,142 115,150 96,150 C77,150 60,142 50,128 C41,126 34,118 34,108 C34,97 43,88 54,88 Z M74,104 C81,104 86,109 86,116 C86,123 81,128 74,128 C67,128 62,123 62,116 C62,109 67,104 74,104 Z M118,104 C125,104 130,109 130,116 C130,123 125,128 118,128 C111,128 106,123 106,116 C106,109 111,104 118,104 Z" />
+    </group>
+</vector>

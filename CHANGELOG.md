@@ -25,6 +25,9 @@ All notable changes to iOSIconPack will be documented in this file.
   YouTube variants instead of generic Apple analogues or static `tp_*` icons.
 - iOS 26 Liquid Glass icons now use a deterministic frosted squircle material
   pass with translucent depth, rim highlights, and clipped safe-zone corners.
+- `scripts/gen_glyph_variants.py` generates 367 transparent glyph-only vector
+  variants with a squircle border, exposed through the dashboard `Glyph`
+  category and validated by the local drawable checks.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.
