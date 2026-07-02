@@ -13,6 +13,7 @@ All notable changes to iOSIconPack will be documented in this file.
   mobile layout.
 - Tightened dashboard home-card copy, launcher apply recovery messages, and
   About credits.
+- Added a concrete privacy policy target for the in-app request consent dialog.
 
 ## [v1.2.1] - 2026-07-02
 

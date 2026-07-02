@@ -98,6 +98,14 @@ is disposable, and launcher icon choices can be reapplied from the shipped icon
 catalog after reinstall. Android 11 and lower use `@xml/backup_rules`; Android
 12+ uses `@xml/data_extraction_rules`.
 
+## Privacy
+
+iOS Icon Pack has no ads, tracking SDKs, analytics, or in-app purchases. When
+you use the in-app icon request flow, the dashboard may collect the selected
+installed-app package/component names plus basic device details such as Android
+version and screen dimensions so missing icons can be mapped accurately. Request
+data is used only to triage and build icon coverage for this project.
+
 ## Contributing Icons
 
 Use `icontool` — it wires all XML files in one command:

@@ -4,6 +4,7 @@
         <text>Polished the icon gallery and request dashboard states</text>
         <text>Improved mobile layout, keyboard focus, and light/dark web surfaces</text>
         <text>Refined launcher apply recovery messages and dashboard home-card copy</text>
+        <text>Added a privacy policy target for the request consent dialog</text>
     </version>
 
     <version title="1.2.1" date="2026-07-02">

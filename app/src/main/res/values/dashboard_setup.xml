@@ -3,7 +3,7 @@
     <string name="toolbar_logo" translatable="false"></string>
     <bool name="notifications_enabled_by_default">false</bool>
     <bool name="animations_enabled_by_default">true</bool>
-    <string name="privacy_policy_link" translatable="false">""</string>
+    <string name="privacy_policy_link" translatable="false">https://github.com/SysAdminDoc/iOSIconPack#privacy</string>
     <string name="terms_conditions_link" translatable="false">""</string>
     <bool name="show_versions_in_settings">true</bool>
 
