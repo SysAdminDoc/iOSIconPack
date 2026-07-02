@@ -1,5 +1,5 @@
 blank_issues_enabled: false
 contact_links:
-  - name: Discussions
-    url: https://github.com/SysAdminDoc/iOSIconPack/discussions
-    about: For general questions, show-and-tell, or open-ended ideas.
+  - name: Existing issues
+    url: https://github.com/SysAdminDoc/iOSIconPack/issues
+    about: Search current requests and reports before opening a structured template.
