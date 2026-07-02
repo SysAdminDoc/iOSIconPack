@@ -29,7 +29,7 @@
     <item component="ComponentInfo{com.samsung.android.contacts/com.samsung.android.contacts.ContactsActivity}" drawable="ios18_phone" />
 
     <!-- ==================== BROWSERS ==================== -->
-    <item component="ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}" drawable="tp_chrome" />
+    <item component="ComponentInfo{com.android.chrome/com.google.android.apps.chrome.Main}" drawable="ios18_chrome" />
     <item component="ComponentInfo{org.mozilla.firefox/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
     <item component="ComponentInfo{org.mozilla.firefox_beta/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
     <item component="ComponentInfo{org.mozilla.fenix/org.mozilla.fenix.HomeActivity}" drawable="ios18_safari" />
@@ -57,7 +57,7 @@
     <item component="ComponentInfo{com.sonyericsson.android.camera/com.sonyericsson.android.camera.CameraActivity}" drawable="ios18_camera" />
 
     <!-- ==================== PHOTOS / GALLERY ==================== -->
-    <item component="ComponentInfo{com.google.android.apps.photos/com.google.android.apps.photos.home.HomeActivity}" drawable="ios18_photos" />
+    <item component="ComponentInfo{com.google.android.apps.photos/com.google.android.apps.photos.home.HomeActivity}" drawable="ios18_google_photos" />
     <item component="ComponentInfo{com.samsung.android.gallery/com.samsung.android.gallery.app.activity.GalleryActivity}" drawable="ios18_photos" />
     <item component="ComponentInfo{com.miui.gallery/com.miui.gallery.activity.HomePageActivity}" drawable="ios18_photos" />
     <item component="ComponentInfo{com.oneplus.gallery/com.oneplus.gallery.GalleryActivity}" drawable="ios18_photos" />
@@ -69,7 +69,7 @@
     <item component="ComponentInfo{com.android.settings/com.android.settings.homepage.SettingsHomepageActivity}" drawable="ios18_settings" />
 
     <!-- ==================== EMAIL ==================== -->
-    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.ConversationListActivityGmail}" drawable="tp_gmail" />
+    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.ConversationListActivityGmail}" drawable="ios18_gmail" />
     <item component="ComponentInfo{com.microsoft.office.outlook/com.microsoft.office.outlook.MainActivity}" drawable="ios18_mail" />
     <item component="ComponentInfo{com.samsung.android.email.provider/com.samsung.android.email.composer.activity.MessageList}" drawable="ios18_mail" />
     <item component="ComponentInfo{com.yahoo.mobile.client.android.mail/com.yahoo.mail.ui.YahooMainTabActivity}" drawable="ios18_mail" />
@@ -78,7 +78,7 @@
     <item component="ComponentInfo{com.fsck.k9/com.fsck.k9.activity.MessageList}" drawable="ios18_mail" />
 
     <!-- ==================== MAPS / NAVIGATION ==================== -->
-    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.maps.MapsActivity}" drawable="tp_google_maps" />
+    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.maps.MapsActivity}" drawable="ios18_google_maps" />
     <item component="ComponentInfo{com.waze/com.waze.FreeMapAppActivity}" drawable="ios18_maps" />
     <item component="ComponentInfo{com.here.app.maps/com.here.app.maps.appwidget.AppWidgetMainActivity}" drawable="ios18_maps" />
     <item component="ComponentInfo{com.mapbox.mapboxgl.testapp/com.mapbox.mapboxgl.testapp.activity.FeatureOverviewActivity}" drawable="ios18_maps" />
@@ -98,7 +98,7 @@
     <item component="ComponentInfo{org.climasense/org.climasense.main.MainActivity}" drawable="ios18_weather" />
 
     <!-- ==================== NOTES ==================== -->
-    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_google_keep" />
     <item component="ComponentInfo{com.samsung.android.app.notes/com.samsung.android.app.notes.memolist.MemoListActivity}" drawable="ios18_notes" />
     <item component="ComponentInfo{com.microsoft.office.onenote/com.microsoft.office.onenote.MainActivity}" drawable="ios18_notes" />
     <item component="ComponentInfo{md.obsidian/md.obsidian.MainActivity}" drawable="ios18_notes" />
@@ -107,7 +107,7 @@
     <item component="ComponentInfo{com.noodleofdeath.noteful/com.noodleofdeath.noteful.MainActivity}" drawable="ios18_notes" />
 
     <!-- ==================== CALENDAR ==================== -->
-    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
+    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_google_calendar" />
     <item component="ComponentInfo{com.samsung.android.calendar/com.samsung.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
     <item component="ComponentInfo{ws.xsoh.etar/ws.xsoh.etar.CalendarActivity}" drawable="ios18_calendar" />
 
@@ -119,11 +119,11 @@
     <item component="ComponentInfo{com.samsung.android.voc/com.samsung.android.voc.GalaxyStoreMainActivity}" drawable="ios18_appstore" />
 
     <!-- ==================== VIDEO CALLS ==================== -->
-    <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.MainActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.MainActivity}" drawable="ios18_google_meet" />
     <item component="ComponentInfo{us.zoom.videomeetings/us.zoom.videomeetings.ZoomActivity}" drawable="tp_zoom" />
     <item component="ComponentInfo{com.microsoft.teams/com.microsoft.skype.teams.Launcher}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.skype.raider/com.skype.raider.Main}" drawable="ios18_facetime" />
-    <item component="ComponentInfo{com.google.android.apps.meetings/com.google.android.apps.meetings.launch.MeetLaunchActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.google.android.apps.meetings/com.google.android.apps.meetings.launch.MeetLaunchActivity}" drawable="ios18_google_meet" />
 
     <!-- ==================== MUSIC / AUDIO ==================== -->
     <item component="ComponentInfo{com.google.android.apps.youtube.music/com.google.android.apps.youtube.music.activities.MusicActivity}" drawable="ios18_music" />
@@ -189,7 +189,7 @@
     <item component="ComponentInfo{com.mastodon.android/com.mastodon.android.MainActivity}" drawable="ios18_safari" />
 
     <!-- ==================== YOUTUBE ==================== -->
-    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.youtube.HomeActivity}" drawable="ios18_youtube" />
     <item component="ComponentInfo{com.vanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
     <item component="ComponentInfo{app.revanced.android.youtube/com.google.android.youtube.HomeActivity}" drawable="tp_youtube" />
 
@@ -204,15 +204,15 @@
     <item component="ComponentInfo{tv.twitch.android.app/tv.twitch.android.app.core.LandingActivity}" drawable="ios18_facetime" />
 
     <!-- ==================== GOOGLE APPS ==================== -->
-    <item component="ComponentInfo{com.google.android.apps.docs/com.google.android.apps.docs.drive.startup.StartupActivity}" drawable="ios18_files" />
-    <item component="ComponentInfo{com.google.android.apps.docs.editors.docs/com.google.android.apps.docs.editors.kix.KixEditorActivity}" drawable="ios18_notes" />
-    <item component="ComponentInfo{com.google.android.apps.docs.editors.sheets/com.google.android.apps.docs.editors.sheets.SheetsEditorActivity}" drawable="ios18_notes" />
-    <item component="ComponentInfo{com.google.android.apps.docs.editors.slides/com.google.android.apps.docs.editors.slides.SlidesEditorActivity}" drawable="ios18_notes" />
-    <item component="ComponentInfo{com.google.android.apps.translate/com.google.android.apps.translate.TranslateActivity}" drawable="ios18_safari" />
-    <item component="ComponentInfo{com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.SearchActivity}" drawable="ios18_safari" />
-    <item component="ComponentInfo{com.google.android.apps.googleassistant/com.google.android.apps.googleassistant.AssistantActivity}" drawable="ios18_safari" />
+    <item component="ComponentInfo{com.google.android.apps.docs/com.google.android.apps.docs.drive.startup.StartupActivity}" drawable="ios18_google_drive" />
+    <item component="ComponentInfo{com.google.android.apps.docs.editors.docs/com.google.android.apps.docs.editors.kix.KixEditorActivity}" drawable="ios18_google_docs" />
+    <item component="ComponentInfo{com.google.android.apps.docs.editors.sheets/com.google.android.apps.docs.editors.sheets.SheetsEditorActivity}" drawable="ios18_google_sheets" />
+    <item component="ComponentInfo{com.google.android.apps.docs.editors.slides/com.google.android.apps.docs.editors.slides.SlidesEditorActivity}" drawable="ios18_google_slides" />
+    <item component="ComponentInfo{com.google.android.apps.translate/com.google.android.apps.translate.TranslateActivity}" drawable="ios18_google_translate" />
+    <item component="ComponentInfo{com.google.android.googlequicksearchbox/com.google.android.googlequicksearchbox.SearchActivity}" drawable="ios18_google_search" />
+    <item component="ComponentInfo{com.google.android.apps.googleassistant/com.google.android.apps.googleassistant.AssistantActivity}" drawable="ios18_google_search" />
     <item component="ComponentInfo{com.google.android.apps.podcasts/com.google.android.apps.podcasts.activity.MainActivity}" drawable="ios18_music" />
-    <item component="ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.ListCourseActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.ListCourseActivity}" drawable="ios18_google_classroom" />
     <item component="ComponentInfo{com.google.ar.lens/com.google.vr.apps.ornament.app.MainActivity}" drawable="ios18_camera" />
     <item component="ComponentInfo{com.google.android.apps.authenticator2/com.google.android.apps.authenticator.AuthenticatorActivity}" drawable="ios18_settings" />
 
@@ -342,7 +342,7 @@
     <!-- Obsidian notes -->
     <item component="ComponentInfo{md.obsidian/md.obsidian.MainActivity}" drawable="ios18_notes" />
     <!-- Google Keep -->
-    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.google.android.keep/com.google.android.keep.activities.BrowseActivity}" drawable="ios18_google_keep" />
     <!-- Notion -->
     <item component="ComponentInfo{notion.id/notion.id.main.MainActivity}" drawable="ios18_notes" />
     <!-- Bear Notes - use notes icon -->
@@ -350,7 +350,7 @@
     <!-- Todoist -->
     <item component="ComponentInfo{com.todoist/com.todoist.MainActivity}" drawable="ios18_calendar" />
     <!-- Google Calendar -->
-    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_calendar" />
+    <item component="ComponentInfo{com.google.android.calendar/com.android.calendar.AllInOneActivity}" drawable="ios18_google_calendar" />
     <item component="ComponentInfo{com.yahoo.mobile.client.android.mail/com.yahoo.mobile.client.android.mail.MainActivity}" drawable="ios18_mail" />
     <!-- Proton Mail -->
     <item component="ComponentInfo{ch.protonmail.android/ch.protonmail.android.MainActivity}" drawable="ios18_mail" />
@@ -362,12 +362,12 @@
     <!-- Khan Academy -->
     <item component="ComponentInfo{org.khanacademy.android/org.khanacademy.android.activity.MainActivity}" drawable="ios18_appstore" />
     <item component="ComponentInfo{com.spotify.music.free/com.spotify.music.MainActivity}" drawable="tp_spotify" />
-    <item component="ComponentInfo{com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.youtube/com.google.android.apps.youtube.app.honeycomb.Shell$HomeActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.GmailActivity}" drawable="tp_gmail" />
-    <item component="ComponentInfo{com.chrome.beta/com.google.android.apps.chrome.Main}" drawable="tp_chrome" />
-    <item component="ComponentInfo{com.chrome.dev/com.google.android.apps.chrome.Main}" drawable="tp_chrome" />
-    <item component="ComponentInfo{com.chrome.canary/com.google.android.apps.chrome.Main}" drawable="tp_chrome" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.apps.youtube.app.WatchWhileActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.youtube/com.google.android.apps.youtube.app.honeycomb.Shell$HomeActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.gm/com.google.android.gm.GmailActivity}" drawable="ios18_gmail" />
+    <item component="ComponentInfo{com.chrome.beta/com.google.android.apps.chrome.Main}" drawable="ios18_chrome" />
+    <item component="ComponentInfo{com.chrome.dev/com.google.android.apps.chrome.Main}" drawable="ios18_chrome" />
+    <item component="ComponentInfo{com.chrome.canary/com.google.android.apps.chrome.Main}" drawable="ios18_chrome" />
     <item component="ComponentInfo{com.discord/com.discord.app.AppActivity$Main}" drawable="tp_discord" />
     <item component="ComponentInfo{com.facebook.katana/com.facebook.katana.activity.UnauthenticatedFbFragmentActivity}" drawable="tp_facebook" />
     <item component="ComponentInfo{com.netflix.mediaclient/com.netflix.mediaclient.activity.StartupActivity}" drawable="tp_netflix" />
@@ -394,15 +394,15 @@
     <item component="ComponentInfo{com.sec.android.gallery3d/com.samsung.android.gallery.app.activity.GalleryActivity}" drawable="ios18_photos" />
     <item component="ComponentInfo{com.oneplus.gallery/com.oneplus.gallery.MainActivity}" drawable="ios18_photos" />
     <item component="ComponentInfo{com.xiaomi.skywork.gallery/com.xiaomi.skywork.gallery.MainActivity}" drawable="ios18_photos" />
-    <item component="ComponentInfo{com.google.android.apps.photosgo/com.google.android.apps.photos.home.HomeActivity}" drawable="ios18_photos" />
-    <item component="ComponentInfo{com.google.android.apps.meetings/com.google.android.apps.meetings.MainActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.google.android.apps.photosgo/com.google.android.apps.photos.home.HomeActivity}" drawable="ios18_google_photos" />
+    <item component="ComponentInfo{com.google.android.apps.meetings/com.google.android.apps.meetings.MainActivity}" drawable="ios18_google_meet" />
     <item component="ComponentInfo{com.skype.m2/com.skype.raider.Main}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.microsoft.skype.teams.ipphone/com.skype.raider.Main}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.webex.meetings/com.cisco.webex.meetings.act.HomeActivity}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.samsung.android.alarmclocknew/com.samsung.android.alarmclocknew.AlarmClockNew}" drawable="ios18_clock" />
     <item component="ComponentInfo{com.htc.android.worldclock/com.htc.android.worldclock.WorldClockTabControl}" drawable="ios18_clock" />
     <item component="ComponentInfo{com.oneplus.clock/com.oneplus.clock.MainFragmentActivity}" drawable="ios18_clock" />
-    <item component="ComponentInfo{com.google.android.apps.docs/com.google.android.apps.docs.app.NewMainProxyActivity}" drawable="ios18_files" />
+    <item component="ComponentInfo{com.google.android.apps.docs/com.google.android.apps.docs.app.NewMainProxyActivity}" drawable="ios18_google_drive" />
     <item component="ComponentInfo{com.dropbox.android/com.dropbox.android.activity.GetStarted}" drawable="ios18_files" />
     <item component="ComponentInfo{com.box.android/com.box.android.activities.SplashActivity}" drawable="ios18_files" />
     <item component="ComponentInfo{com.microsoft.skydrive/com.microsoft.skydrive.MainActivity}" drawable="ios18_files" />
@@ -545,7 +545,7 @@
     <item component="ComponentInfo{com.huawei.appmarket/com.huawei.appmarket.HomeActivity}" drawable="ios18_appstore" />
     <item component="ComponentInfo{com.aptoide.partners/cm.aptoide.pt.home.HomeActivity}" drawable="ios18_appstore" />
     <item component="ComponentInfo{com.miui.packageinstaller/com.miui.packageinstaller.MainActivity}" drawable="ios18_appstore" />
-    <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.ui.main.MainActivity}" drawable="ios18_facetime" />
+    <item component="ComponentInfo{com.google.android.apps.tachyon/com.google.android.apps.tachyon.ui.main.MainActivity}" drawable="ios18_google_meet" />
     <item component="ComponentInfo{com.cisco.webex.meetings/com.cisco.webex.meetings.ui.SplashActivity}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.gotomeeting/com.gotomeeting.ui.LaunchActivity}" drawable="ios18_facetime" />
     <item component="ComponentInfo{com.bluejeans.android.blindside.meetings/com.blazeovideo.android.activities.SplashScreen}" drawable="ios18_facetime" />
@@ -554,7 +554,7 @@
     <item component="ComponentInfo{vn.axie.compass.pro/vn.axie.compass.pro.MainActivity}" drawable="ios18_compass" />
     <item component="ComponentInfo{com.samsung.android.app.compass/com.samsung.android.app.compass.MainActivity}" drawable="ios18_compass" />
     <item component="ComponentInfo{com.huawei.compass/com.huawei.compass.MainActivity}" drawable="ios18_compass" />
-    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.apps.gmm.map.MapDisplayActivity}" drawable="tp_google_maps" />
+    <item component="ComponentInfo{com.google.android.apps.maps/com.google.android.apps.gmm.map.MapDisplayActivity}" drawable="ios18_google_maps" />
     <item component="ComponentInfo{com.pinterest/com.pinterest.activity.PinItActivity}" drawable="tp_pinterest" />
     <item component="ComponentInfo{com.pinterest.twa/com.pinterest.twa.TwaLauncherActivity}" drawable="tp_pinterest" />
     <item component="ComponentInfo{com.shazam.encore.android/com.shazam.android.activities.MainActivity}" drawable="tp_shazam" />
@@ -570,11 +570,11 @@
     <!-- Following Arcticons pattern: link existing drawables to more package variants -->
 
     <!-- YouTube variants -->
-    <item component="ComponentInfo{com.google.android.apps.youtube.kids/com.google.android.apps.youtube.kids.browse.BrowseActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.youtube.tv/com.google.android.youtube.tv.MainActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.youtube.tvkids/com.google.android.youtube.tvkids.MainActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.apps.youtube.creator/com.google.android.apps.youtube.creator.MainActivity}" drawable="tp_youtube" />
-    <item component="ComponentInfo{com.google.android.apps.youtube.unplugged/com.google.android.apps.youtube.unplugged.app.MainActivity}" drawable="tp_youtube" />
+    <item component="ComponentInfo{com.google.android.apps.youtube.kids/com.google.android.apps.youtube.kids.browse.BrowseActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.youtube.tv/com.google.android.youtube.tv.MainActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.youtube.tvkids/com.google.android.youtube.tvkids.MainActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.apps.youtube.creator/com.google.android.apps.youtube.creator.MainActivity}" drawable="ios18_youtube" />
+    <item component="ComponentInfo{com.google.android.apps.youtube.unplugged/com.google.android.apps.youtube.unplugged.app.MainActivity}" drawable="ios18_youtube" />
 
     <!-- Facebook / Meta Lite variants -->
     <item component="ComponentInfo{com.facebook.lite/com.facebook.lite.MainActivity}" drawable="tp_facebook" />
@@ -606,7 +606,7 @@
     <item component="ComponentInfo{com.google.android.apps.nbu.files/com.google.android.apps.nbu.files.home.HomeActivity}" drawable="ios18_files" />
     <item component="ComponentInfo{com.google.android.apps.adwords/com.google.android.apps.adwords.ui.LaunchActivity}" drawable="tp_google_maps" />
     <item component="ComponentInfo{com.google.android.apps.paidtasks/com.google.android.apps.paidtasks.ui.overview.OverviewActivity}" drawable="ios18_wallet" />
-    <item component="ComponentInfo{com.google.android.apps.youtube.gaming/com.google.android.apps.youtube.gaming.MainActivity}" drawable="tp_youtube" />
+    <item component="ComponentInfo{com.google.android.apps.youtube.gaming/com.google.android.apps.youtube.gaming.MainActivity}" drawable="ios18_youtube" />
     <item component="ComponentInfo{com.google.earth/com.google.earth.EarthActivity}" drawable="tp_google_maps" />
 
     <!-- Oppo / ColorOS OEM variants -->
@@ -690,7 +690,7 @@
     <item component="ComponentInfo{com.audible.application/com.audible.application.MainActivity}" drawable="ios18_music" />
     <item component="ComponentInfo{com.duolingo/com.duolingo.app.splash.SplashActivity}" drawable="ios18_notes" />
     <item component="ComponentInfo{org.khanacademy.android/org.khanacademy.android.ui.library.NavigationActivity}" drawable="ios18_notes" />
-    <item component="ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.ClassListActivity}" drawable="ios18_notes" />
+    <item component="ComponentInfo{com.google.android.apps.classroom/com.google.android.apps.classroom.ClassListActivity}" drawable="ios18_google_classroom" />
 
     <!-- Productivity / Notes apps -->
     <item component="ComponentInfo{notion.id/notion.id.MainActivity}" drawable="ios18_notes" />
@@ -870,7 +870,7 @@
 
     <!-- ==================== GOOGLE APPS (additional) ==================== -->
     <item component="ComponentInfo{com.google.android.inputmethod.latin/com.android.inputmethod.latin.LatinIME}" drawable="ios18_settings" />
-    <item component="ComponentInfo{com.google.android.apps.subscriptions.red/com.google.android.apps.subscriptions.red.LaunchActivity}" drawable="ios18_appstore" />
+    <item component="ComponentInfo{com.google.android.apps.subscriptions.red/com.google.android.apps.subscriptions.red.LaunchActivity}" drawable="ios18_google_one" />
     <item component="ComponentInfo{com.google.android.apps.cloudconsole/com.google.android.apps.cloudconsole.CloudConsoleActivity}" drawable="ios18_settings" />
 
     <!-- ==================== MOTOROLA SYSTEM ==================== -->

@@ -7,25 +7,25 @@
     <item class="com.google.android.dialer.extensions.GoogleDialtactsActivity" name="ios18_phone" />
     <item class="com.android.dialer.DialtactsActivity" name="ios18_phone" />
     <item class="com.google.android.apps.messaging.ui.ConversationListActivity" name="ios18_messages" />
-    <item class="com.google.android.apps.chrome.Main" name="ios18_safari" />
+    <item class="com.google.android.apps.chrome.Main" name="ios18_chrome" />
     <item class="com.android.camera.CameraLauncher" name="ios18_camera" />
-    <item class="com.google.android.apps.photos.home.HomeActivity" name="ios18_photos" />
+    <item class="com.google.android.apps.photos.home.HomeActivity" name="ios18_google_photos" />
     <item class="com.android.settings.Settings" name="ios18_settings" />
-    <item class="com.google.android.gm.ConversationListActivityGmail" name="ios18_mail" />
-    <item class="com.google.android.maps.MapsActivity" name="ios18_maps" />
+    <item class="com.google.android.gm.ConversationListActivityGmail" name="ios18_gmail" />
+    <item class="com.google.android.maps.MapsActivity" name="ios18_google_maps" />
     <item class="com.android.deskclock.DeskClock" name="ios18_clock" />
-    <item class="com.google.android.keep.activities.BrowseActivity" name="ios18_notes" />
-    <item class="com.android.calendar.AllInOneActivity" name="ios18_calendar" />
+    <item class="com.google.android.keep.activities.BrowseActivity" name="ios18_google_keep" />
+    <item class="com.android.calendar.AllInOneActivity" name="ios18_google_calendar" />
     <item class="com.google.android.finsky.activities.MainActivity" name="ios18_appstore" />
-    <item class="com.google.android.apps.tachyon.MainActivity" name="ios18_facetime" />
+    <item class="com.google.android.apps.tachyon.MainActivity" name="ios18_google_meet" />
     <item class="com.android.calculator2.Calculator" name="ios18_calculator" />
     <item class="com.google.android.apps.nbu.files.home.HomeActivity" name="ios18_files" />
     <item class="com.google.android.apps.walletnfcrel.WalletActivity" name="ios18_wallet" />
     <item class="com.google.android.apps.fitness.FitMainActivity" name="ios18_health" />
     <item class="com.spotify.music.MainActivity" name="tp_spotify" />
-    <item class="com.google.android.apps.youtube.app.WatchWhileActivity" name="tp_youtube" />
-    <item class="com.google.android.apps.youtube.app.honeycomb.Shell$HomeActivity" name="tp_youtube" />
-    <item class="com.google.android.gm.GmailActivity" name="tp_gmail" />
+    <item class="com.google.android.apps.youtube.app.WatchWhileActivity" name="ios18_youtube" />
+    <item class="com.google.android.apps.youtube.app.honeycomb.Shell$HomeActivity" name="ios18_youtube" />
+    <item class="com.google.android.gm.GmailActivity" name="ios18_gmail" />
     <item class="com.discord.app.AppActivity$Main" name="tp_discord" />
     <item class="com.facebook.katana.activity.UnauthenticatedFbFragmentActivity" name="tp_facebook" />
     <item class="com.netflix.mediaclient.activity.StartupActivity" name="tp_netflix" />
@@ -50,13 +50,13 @@
     <item class="com.samsung.android.gallery.app.activity.GalleryActivity" name="ios18_photos" />
     <item class="com.oneplus.gallery.MainActivity" name="ios18_photos" />
     <item class="com.xiaomi.skywork.gallery.MainActivity" name="ios18_photos" />
-    <item class="com.google.android.apps.meetings.MainActivity" name="ios18_facetime" />
+    <item class="com.google.android.apps.meetings.MainActivity" name="ios18_google_meet" />
     <item class="com.skype.raider.Main" name="ios18_facetime" />
     <item class="com.cisco.webex.meetings.act.HomeActivity" name="ios18_facetime" />
     <item class="com.samsung.android.alarmclocknew.AlarmClockNew" name="ios18_clock" />
     <item class="com.htc.android.worldclock.WorldClockTabControl" name="ios18_clock" />
     <item class="com.oneplus.clock.MainFragmentActivity" name="ios18_clock" />
-    <item class="com.google.android.apps.docs.app.NewMainProxyActivity" name="ios18_files" />
+    <item class="com.google.android.apps.docs.app.NewMainProxyActivity" name="ios18_google_drive" />
     <item class="com.dropbox.android.activity.GetStarted" name="ios18_files" />
     <item class="com.box.android.activities.SplashActivity" name="ios18_files" />
     <item class="com.microsoft.skydrive.MainActivity" name="ios18_files" />
@@ -179,7 +179,7 @@
     <item class="com.huawei.appmarket.HomeActivity" name="ios18_appstore" />
     <item class="cm.aptoide.pt.home.HomeActivity" name="ios18_appstore" />
     <item class="com.miui.packageinstaller.MainActivity" name="ios18_appstore" />
-    <item class="com.google.android.apps.tachyon.ui.main.MainActivity" name="ios18_facetime" />
+    <item class="com.google.android.apps.tachyon.ui.main.MainActivity" name="ios18_google_meet" />
     <item class="com.cisco.webex.meetings.ui.SplashActivity" name="ios18_facetime" />
     <item class="com.gotomeeting.ui.LaunchActivity" name="ios18_facetime" />
     <item class="com.blazeovideo.android.activities.SplashScreen" name="ios18_facetime" />
@@ -188,7 +188,7 @@
     <item class="vn.axie.compass.pro.MainActivity" name="ios18_compass" />
     <item class="com.samsung.android.app.compass.MainActivity" name="ios18_compass" />
     <item class="com.huawei.compass.MainActivity" name="ios18_compass" />
-    <item class="com.google.android.apps.gmm.map.MapDisplayActivity" name="tp_google_maps" />
+    <item class="com.google.android.apps.gmm.map.MapDisplayActivity" name="ios18_google_maps" />
     <item class="com.pinterest.activity.PinItActivity" name="tp_pinterest" />
     <item class="com.pinterest.twa.TwaLauncherActivity" name="tp_pinterest" />
     <item class="com.shazam.android.activities.MainActivity" name="tp_shazam" />

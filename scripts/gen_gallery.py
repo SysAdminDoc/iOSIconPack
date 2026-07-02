@@ -100,13 +100,15 @@ def _parse_drawables() -> list[tuple[str, list[str]]]:
     if current_cat is not None:
         categories.append((current_cat, items))
 
-    # tp_* icons are not in drawable.xml — collect from appfilter instead
+    # tp_* icons are not in drawable.xml; show every shipped PNG, even when a
+    # default app mapping has moved to an era-aware variant.
     af_text = APPFILTER_XML.read_text(encoding="utf-8")
-    in_drawable: set[str] = {d for _, lst in categories for d in lst}
-    tp_icons: list[str] = sorted({
+    tp_from_appfilter = {
         m.group(1)
         for m in re.finditer(r'drawable="(tp_[^"]+)"', af_text)
-    })
+    }
+    tp_from_disk = {p.stem for p in PACK_DIR.glob("tp_*.png")}
+    tp_icons: list[str] = sorted(tp_from_appfilter | tp_from_disk)
     if tp_icons:
         categories.append(("Third Party", tp_icons))
 

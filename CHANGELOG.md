@@ -21,6 +21,8 @@ All notable changes to iOSIconPack will be documented in this file.
 - `icontool maven-provenance-check` reports declared Gradle repositories,
   resolved buildscript/release artifacts, Maven source repository, license, and
   source URL metadata for F-Droid distribution review.
+- First-party Google app defaults now use the shipped iOS 18 Google/Chrome/Gmail/
+  YouTube variants instead of generic Apple analogues or static `tp_*` icons.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.
