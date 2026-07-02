@@ -19,9 +19,13 @@ import xml.etree.ElementTree as ET
 from pathlib import Path
 
 REPO_ROOT     = Path(__file__).resolve().parents[1]
+RES_ROOT      = REPO_ROOT / "app/src/main/res"
 HDPI_DIR      = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 VEC_DIR       = REPO_ROOT / "app/src/main/res/drawable"
 DRAWABLE_XML  = REPO_ROOT / "app/src/main/res/xml/drawable.xml"
+THEME_RESOURCES_XML = REPO_ROOT / "app/src/main/res/xml/theme_resources.xml"
+ANDROID_MANIFEST = REPO_ROOT / "app/src/main/AndroidManifest.xml"
+WALLPAPERS_XML = REPO_ROOT / "app/src/main/res/values/wallpapers.xml"
 
 EXPECTED_SIZE = 192          # px
 MAX_FILE_KB   = 200          # KB
@@ -169,6 +173,67 @@ def check_themed_backgrounds() -> tuple[list[str], int]:
     return errors, themed_background_count
 
 
+def _resource_name(value: str) -> str:
+    return value.strip().removeprefix("@").split("/")[-1]
+
+
+def _resource_exists(name: str) -> bool:
+    if not name:
+        return False
+    for family in ("drawable*", "mipmap*"):
+        for path in RES_ROOT.glob(f"{family}/*"):
+            if path.is_file() and path.stem == name:
+                return True
+    return False
+
+
+def _wallpaper_item_count() -> int:
+    if not WALLPAPERS_XML.exists():
+        return 0
+    try:
+        root = ET.parse(WALLPAPERS_XML).getroot()
+    except ET.ParseError:
+        return 0
+    count = 0
+    for array in root.iter("string-array"):
+        if array.get("name") == "wallpapers_json_urls":
+            count += sum(1 for item in array.iter("item") if (item.text or "").strip())
+    return count
+
+
+def check_launcher_resources() -> list[str]:
+    errors: list[str] = []
+    if THEME_RESOURCES_XML.exists():
+        try:
+            root = ET.parse(THEME_RESOURCES_XML).getroot()
+        except ET.ParseError as exc:
+            return [f"  MALFORMED theme_resources.xml: {exc}"]
+        for node in root.iter():
+            for attr in ("image", "image1", "image2", "selector"):
+                raw = node.get(attr, "")
+                if not raw:
+                    continue
+                name = _resource_name(raw)
+                if not _resource_exists(name):
+                    errors.append(
+                        f"  MISSING LAUNCHER RESOURCE  theme_resources.xml <{node.tag}> {attr}='{raw}'"
+                    )
+
+    manifest = ANDROID_MANIFEST.read_text(encoding="utf-8") if ANDROID_MANIFEST.exists() else ""
+    advertises_wallpapers = any(
+        marker in manifest
+        for marker in (
+            "android.intent.action.SET_WALLPAPER",
+            "android.intent.action.GET_CONTENT",
+            "com.google.android.apps.muzei.api.MuzeiArtProvider",
+        )
+    )
+    if advertises_wallpapers and _wallpaper_item_count() == 0:
+        errors.append("  EMPTY WALLPAPER SURFACE  manifest advertises wallpapers but wallpapers_json_urls is empty")
+
+    return errors
+
+
 def check_squircle_corners() -> tuple[list[str], str | None]:
     """Warn if any PNG has too many opaque pixels in its four corner regions."""
     try:
@@ -217,6 +282,7 @@ def main() -> int:
     vec_errors = check_vectors()
     file_errors = check_drawable_files()
     themed_errors, themed_background_count = check_themed_backgrounds()
+    launcher_errors = check_launcher_resources()
     squircle_warnings, squircle_note = check_squircle_corners()
 
     png_count = len(list(HDPI_DIR.glob("*.png")))
@@ -233,6 +299,7 @@ def main() -> int:
     all_errors.extend(vec_errors)
     all_errors.extend(file_errors)
     all_errors.extend(themed_errors)
+    all_errors.extend(launcher_errors)
 
     if all_errors:
         print(f"validate_drawables.py: FAILED ({len(all_errors)} error(s))", file=sys.stderr)

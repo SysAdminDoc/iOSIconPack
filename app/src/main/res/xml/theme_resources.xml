@@ -5,10 +5,5 @@
 -->
 <Theme version="1">
     <Label value="iOS Icon Pack" />
-    <Wallpaper image="wallpaper_01" />
-    <LockScreenWallpaper image="wallpaper_01" />
-    <ThemePreview image1="preview1" image2="preview2" />
-    <ThemePreviewWork image1="preview1" image2="preview2" />
-    <ThemePreviewMenu image1="preview1" image2="preview2" />
-    <DockMenuAppIcon selector="drawer_icon" />
+    <!-- Wallpaper and preview nodes are intentionally omitted until original wallpaper assets ship. -->
 </Theme>

@@ -23,6 +23,9 @@ All notable changes to iOSIconPack will be documented in this file.
   12+ backup paths.
 
 ### Changed
+- Wallpaper, theme-preview, and Muzei entry points are hidden until original
+  wallpaper assets exist; drawable validation now fails on missing launcher
+  resource references or empty advertised wallpaper surfaces.
 - Contributor, gallery, and distribution docs now describe local validation and
   release commands only; stale current-process CI/GitHub Actions claims were
   removed.
