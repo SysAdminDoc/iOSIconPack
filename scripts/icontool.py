@@ -17,6 +17,7 @@ Commands
   release-channel-check  Verify GitHub Releases latest tag/assets
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
+  maven-provenance-check  Verify Maven repository/artifact provenance
   publish-check  Verify official publish APK signing inputs and fingerprint
   preflight  Run local release validators, Gradle checks, and APK size gate
 
@@ -51,6 +52,7 @@ Examples
 from __future__ import annotations
 
 import argparse
+import concurrent.futures
 import json
 import os
 import re
@@ -111,6 +113,35 @@ PUBLISH_SIGNING_ENV: tuple[str, ...] = (
     "IOSICONS_KEY_ALIAS",
     "IOSICONS_KEY_PASSWORD",
     "IOSICONS_RELEASE_CERT_SHA256",
+)
+
+MAVEN_REPOSITORIES: tuple[dict[str, str], ...] = (
+    {
+        "id": "google",
+        "name": "Google Maven",
+        "url": "https://dl.google.com/dl/android/maven2",
+        "declaration": "google()",
+        "reason": "Android Gradle Plugin, AndroidX, Material, Play services, and Google Android artifacts.",
+    },
+    {
+        "id": "mavenCentral",
+        "name": "Maven Central",
+        "url": "https://repo.maven.apache.org/maven2",
+        "declaration": "mavenCentral()",
+        "reason": "Kotlin, Gradle plugin transitives, Blueprint direct artifact, and general OSS Java/Kotlin artifacts.",
+    },
+    {
+        "id": "jitpack",
+        "name": "JitPack",
+        "url": "https://jitpack.io",
+        "declaration": "https://jitpack.io",
+        "reason": "Blueprint 2.5.1 transitives still resolve GitHub-hosted artifacts such as TouchImageView, sectioned-recyclerview, RecyclerView-FastScroll, and AdaptiveIconBitmap.",
+    },
+)
+MAVEN_REPOSITORY_BY_ID = {repo["id"]: repo for repo in MAVEN_REPOSITORIES}
+JITPACK_HINT_PREFIXES = (
+    "com.github.",
+    "com.jahirfiquitiva",
 )
 
 # ---------------------------------------------------------------------------
@@ -1058,6 +1089,214 @@ def _gradle_env() -> dict[str, str]:
     return env
 
 
+def _declared_maven_repositories() -> tuple[list[dict[str, str]], list[str]]:
+    build_gradle = REPO_ROOT / "build.gradle"
+    text = _read(build_gradle)
+    declared: list[dict[str, str]] = []
+    errors: list[str] = []
+
+    for repo in MAVEN_REPOSITORIES:
+        if repo["declaration"] in text:
+            declared.append(repo)
+
+    known_urls = {repo["url"] for repo in MAVEN_REPOSITORIES}
+    known_urls.add("https://jitpack.io")
+    for match in re.finditer(r"maven\s*\{\s*url\s+['\"]([^'\"]+)['\"]", text, re.DOTALL):
+        url = match.group(1).rstrip("/")
+        if url not in known_urls:
+            errors.append(f"undocumented Maven repository in build.gradle: {url}")
+
+    return declared, errors
+
+
+def _gradle_dependency_report() -> tuple[int, str, str]:
+    gradle = _gradle_wrapper()
+    if not gradle.exists():
+        return 1, "", f"Gradle wrapper not found: {gradle}"
+
+    command = [
+        str(gradle),
+        "--console",
+        "plain",
+        ":app:dependencies",
+        "--configuration",
+        "releaseRuntimeClasspath",
+        "buildEnvironment",
+        "--no-daemon",
+    ]
+    result = subprocess.run(
+        command,
+        cwd=REPO_ROOT,
+        env=_gradle_env(),
+        capture_output=True,
+        text=True,
+    )
+    return result.returncode, result.stdout, result.stderr
+
+
+def _parse_gradle_artifacts(report: str) -> dict[tuple[str, str, str], set[str]]:
+    artifacts: dict[tuple[str, str, str], set[str]] = {}
+    current_scope = ""
+    coord_re = re.compile(r"^([A-Za-z0-9_.\-$]+):([A-Za-z0-9_.\-$]+):([^\s()]+)")
+
+    for raw_line in report.splitlines():
+        line = raw_line.strip()
+        if line.startswith("releaseRuntimeClasspath "):
+            current_scope = "releaseRuntimeClasspath"
+            continue
+        if line == "classpath":
+            current_scope = "buildscriptClasspath"
+            continue
+        if not current_scope or "(c)" in line:
+            continue
+
+        marker = re.search(r"(?:\+---|\\---)\s+(.+)", line)
+        if not marker:
+            continue
+        dep_text = marker.group(1)
+        dep_text = dep_text.split(" (*)", 1)[0].split(" (n)", 1)[0].strip()
+        original, _, resolved = dep_text.partition(" -> ")
+        original = original.strip()
+        if not original:
+            continue
+        if resolved:
+            resolved_parts = resolved.strip().split()
+            if not resolved_parts:
+                continue
+            target = resolved_parts[0]
+        else:
+            original_parts = original.split()
+            if not original_parts:
+                continue
+            target = original_parts[0]
+        if target.count(":") < 2:
+            target_match = coord_re.match(original)
+            if not target_match:
+                continue
+            group, name, _ = target_match.groups()
+            target = f"{group}:{name}:{target}"
+
+        match = coord_re.match(target)
+        if not match:
+            continue
+        version = match.group(3)
+        if "{" in version or "}" in version:
+            continue
+        artifact = (match.group(1), match.group(2), version)
+        artifacts.setdefault(artifact, set()).add(current_scope)
+
+    return artifacts
+
+
+def _maven_pom_url(repo: dict[str, str], group: str, artifact: str, version: str) -> str:
+    path = "/".join(group.split("."))
+    return f"{repo['url'].rstrip('/')}/{path}/{artifact}/{version}/{artifact}-{version}.pom"
+
+
+def _fetch_text(url: str, timeout: float) -> tuple[str | None, str | None]:
+    request = urllib.request.Request(
+        url,
+        headers={"User-Agent": "iOSIconPack-icontool"},
+    )
+    try:
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            if response.status != 200:
+                return None, f"HTTP {response.status}"
+            return response.read().decode("utf-8", errors="replace"), None
+    except urllib.error.HTTPError as exc:
+        return None, f"HTTP {exc.code}"
+    except urllib.error.URLError as exc:
+        return None, str(exc.reason)
+    except TimeoutError:
+        return None, "timed out"
+
+
+def _repo_probe_order(
+    group: str,
+    declared_repos: list[dict[str, str]],
+) -> list[dict[str, str]]:
+    allow_jitpack = group.startswith(JITPACK_HINT_PREFIXES)
+    if group.startswith("androidx.") or group.startswith("com.android.") or group.startswith("com.google.android."):
+        preferred = ("google", "mavenCentral")
+    elif allow_jitpack:
+        preferred = ("mavenCentral", "jitpack", "google")
+    else:
+        preferred = ("mavenCentral", "google")
+
+    declared_by_id = {repo["id"]: repo for repo in declared_repos}
+    ordered: list[dict[str, str]] = []
+    for repo_id in preferred:
+        repo = declared_by_id.get(repo_id)
+        if repo is not None:
+            ordered.append(repo)
+    for repo in declared_repos:
+        if repo["id"] == "jitpack" and not allow_jitpack:
+            continue
+        if repo not in ordered:
+            ordered.append(repo)
+    return ordered
+
+
+def _pom_metadata(pom_xml: str) -> tuple[str, str]:
+    try:
+        root = ET.fromstring(pom_xml)
+    except ET.ParseError:
+        return "missing", "missing"
+
+    def text_at(path: str) -> str:
+        node = root.find(path)
+        return (node.text or "").strip() if node is not None else ""
+
+    licenses = [
+        (node.text or "").strip()
+        for node in root.findall(".//{*}licenses/{*}license/{*}name")
+        if (node.text or "").strip()
+    ]
+    license_text = ", ".join(dict.fromkeys(licenses)) if licenses else "missing"
+    source_url = (
+        text_at(".//{*}scm/{*}url")
+        or text_at(".//{*}scm/{*}connection")
+        or text_at(".//{*}url")
+        or "missing"
+    )
+    return license_text, source_url
+
+
+def _resolve_maven_artifact(
+    artifact: tuple[str, str, str],
+    declared_repos: list[dict[str, str]],
+    timeout: float,
+) -> dict[str, str]:
+    group, name, version = artifact
+    misses: list[str] = []
+    for repo in _repo_probe_order(group, declared_repos):
+        url = _maven_pom_url(repo, group, name, version)
+        pom, error = _fetch_text(url, timeout)
+        if pom is None:
+            misses.append(f"{repo['id']}:{error}")
+            continue
+        license_text, source_url = _pom_metadata(pom)
+        return {
+            "coordinate": f"{group}:{name}:{version}",
+            "repository": repo["id"],
+            "repository_name": repo["name"],
+            "pom_url": url,
+            "license": license_text,
+            "source": source_url,
+            "status": "OK",
+        }
+
+    return {
+        "coordinate": f"{group}:{name}:{version}",
+        "repository": "unresolved",
+        "repository_name": "unresolved",
+        "pom_url": "missing",
+        "license": "missing",
+        "source": "missing",
+        "status": "; ".join(misses) if misses else "no declared repositories",
+    }
+
+
 def _manifest_filters(errors: list[str]) -> list[tuple[set[str], set[str]]]:
     manifest = REPO_ROOT / "app/src/main/AndroidManifest.xml"
     try:
@@ -1645,6 +1884,117 @@ def cmd_request_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_maven_provenance_check(args: argparse.Namespace) -> int:
+    declared_repos, errors = _declared_maven_repositories()
+    if not declared_repos:
+        errors.append("no documented Maven repositories found in build.gradle")
+
+    print("maven provenance check")
+    print("  declared repositories:")
+    for repo in declared_repos:
+        print(f"    - {repo['name']} ({repo['url']})")
+        print(f"      reason: {repo['reason']}")
+
+    if errors:
+        print("\nmaven provenance check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    rc, stdout, stderr = _gradle_dependency_report()
+    if rc != 0:
+        print("\nmaven provenance check: Gradle dependency report failed", file=sys.stderr)
+        if stderr.strip():
+            print(stderr.strip(), file=sys.stderr)
+        if stdout.strip():
+            print(stdout.strip(), file=sys.stderr)
+        return rc
+
+    artifacts = _parse_gradle_artifacts(stdout)
+    if not artifacts:
+        print("\nmaven provenance check: FAIL", file=sys.stderr)
+        print("  - no artifacts parsed from Gradle dependency report", file=sys.stderr)
+        return 1
+
+    resolved: list[dict[str, str]] = []
+    sorted_artifacts = sorted(artifacts)
+    workers = max(1, args.jobs)
+    with concurrent.futures.ThreadPoolExecutor(max_workers=workers) as executor:
+        futures = {
+            executor.submit(_resolve_maven_artifact, artifact, declared_repos, args.timeout): artifact
+            for artifact in sorted_artifacts
+        }
+        for future in concurrent.futures.as_completed(futures):
+            metadata = future.result()
+            scopes = sorted(artifacts[futures[future]])
+            metadata["scopes"] = ",".join(scopes)
+            resolved.append(metadata)
+
+    resolved.sort(key=lambda item: item["coordinate"])
+
+    repo_counts: dict[str, int] = {}
+    for item in resolved:
+        repo_counts[item["repository"]] = repo_counts.get(item["repository"], 0) + 1
+
+    print(f"  resolved artifacts: {len(resolved)}")
+    print("  repository usage:")
+    for repo_id, count in sorted(repo_counts.items()):
+        print(f"    - {repo_id}: {count}")
+
+    jitpack_used = any(item["repository"] == "jitpack" for item in resolved)
+    jitpack_declared = any(repo["id"] == "jitpack" for repo in declared_repos)
+    if jitpack_used:
+        print("  JitPack rationale: Blueprint 2.5.1 transitives require JitPack-hosted artifacts.")
+
+    print("\nArtifacts")
+    for item in resolved:
+        print(
+            f"  - {item['coordinate']} [{item['scopes']}] "
+            f"repo={item['repository']} license={item['license']} source={item['source']}"
+        )
+
+    missing_metadata = [
+        item["coordinate"]
+        for item in resolved
+        if item["repository"] != "unresolved"
+        and (item["license"] == "missing" or item["source"] == "missing")
+    ]
+    unresolved = [
+        f"{item['coordinate']} ({item['status']})"
+        for item in resolved
+        if item["repository"] == "unresolved"
+    ]
+
+    errors = []
+    if unresolved:
+        errors.append(f"{len(unresolved)} artifact POM(s) could not be resolved from declared repositories")
+    if jitpack_declared and not jitpack_used:
+        errors.append("JitPack is declared but no resolved artifact required it; remove the repository or update the documented rationale")
+
+    if missing_metadata:
+        print("\nMetadata warnings")
+        for coordinate in missing_metadata[: args.warning_limit]:
+            print(f"  - {coordinate}: missing license or source URL in POM")
+        if len(missing_metadata) > args.warning_limit:
+            print(f"  - ... {len(missing_metadata) - args.warning_limit} more")
+
+    if unresolved:
+        print("\nUnresolved artifacts")
+        for item in unresolved[: args.warning_limit]:
+            print(f"  - {item}")
+        if len(unresolved) > args.warning_limit:
+            print(f"  - ... {len(unresolved) - args.warning_limit} more")
+
+    if errors:
+        print("\nmaven provenance check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print("\nmaven provenance check: OK")
+    return 0
+
+
 def cmd_publish_check(args: argparse.Namespace) -> int:
     metadata_errors, version_name, expected_tag = _release_metadata_errors()
     apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
@@ -1991,6 +2341,31 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Read saved GitHub issue JSON from this file instead of fetching live issues",
     )
     request_audit_p.set_defaults(func=cmd_request_audit)
+
+    # --- maven-provenance-check ---
+    maven_provenance_p = sub.add_parser(
+        "maven-provenance-check",
+        help="List resolved Gradle artifacts with Maven repository, license, and source provenance",
+    )
+    maven_provenance_p.add_argument(
+        "--timeout",
+        type=float,
+        default=4.0,
+        help="Seconds to wait for each POM request (default: 4)",
+    )
+    maven_provenance_p.add_argument(
+        "--jobs",
+        type=int,
+        default=16,
+        help="Parallel POM fetch workers (default: 16)",
+    )
+    maven_provenance_p.add_argument(
+        "--warning-limit",
+        type=int,
+        default=25,
+        help="Maximum missing-metadata/unresolved rows to print per section (default: 25)",
+    )
+    maven_provenance_p.set_defaults(func=cmd_maven_provenance_check)
 
     # --- publish-check ---
     publish_p = sub.add_parser(

@@ -121,6 +121,9 @@ python3 scripts/icontool.py launcher-compat-check
 # Audit open icon requests without mutating GitHub:
 python3 scripts/icontool.py request-audit
 
+# Audit Gradle repository and artifact provenance for F-Droid review:
+python3 scripts/icontool.py maven-provenance-check
+
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight
 
