@@ -1,12 +1,12 @@
-iOS Icon Pack replaces your Android app icons with faithful iOS-style artwork spanning six design eras — iOS 14 through iOS 18 and the iOS 26 Liquid Glass aesthetic.
+iOS Icon Pack replaces your Android launcher icons with iOS-style artwork spanning six design eras: iOS 14 through iOS 18 and the iOS 26 Liquid Glass aesthetic.
 
 Works with any launcher that supports icon packs (Nova, Lawnchair, Niagara, Action, Smart Launcher, and more) via the standard Blueprint dashboard.
 
 Features:
 • Six distinct iOS design eras: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
 • 367 icons covering the most common apps; 671 appfilter component entries
-• Blueprint dashboard with per-era browsing, icon search, and apply-to-launcher shortcuts
+• Blueprint dashboard with per-era browsing, icon search, launcher apply shortcuts, and structured icon requests
 • Third-party icon set for popular apps without a direct iOS analogue (Spotify, Instagram, Reddit, and more)
 • AMOLED dark theme throughout
 
-Open source under MIT — contributions welcome.
+Open source under MIT. No ads, tracking, or in-app purchases.

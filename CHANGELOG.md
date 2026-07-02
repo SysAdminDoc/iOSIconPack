@@ -2,6 +2,18 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.2.2] - 2026-07-02
+
+### Changed
+- Polished the GitHub Pages icon gallery with visible result feedback, clearer
+  empty-state recovery, light/dark system colors, mobile layout checks, and
+  stronger keyboard/focus states.
+- Refined the live icon request dashboard with labelled controls, improved
+  loading/empty/error states, cached-data fallback messaging, and responsive
+  mobile layout.
+- Tightened dashboard home-card copy, launcher apply recovery messages, and
+  About credits.
+
 ## [v1.2.1] - 2026-07-02
 
 ### Added

@@ -9,23 +9,24 @@ IssueTracker: https://github.com/SysAdminDoc/iOSIconPack/issues
 
 AutoName: iOS Icon Pack
 
-Summary: iOS-style icon pack covering six Apple design eras (iOS 14–18 + iOS 26 Liquid Glass)
+Summary: iOS-style Android icon pack across iOS 14-18 and iOS 26 Liquid Glass
 
 Description: |-
-  iOS Icon Pack replaces your Android app icons with faithful iOS-style artwork
-  spanning six design eras — iOS 14 through iOS 18 and the iOS 26 Liquid Glass
+  iOS Icon Pack replaces your Android launcher icons with iOS-style artwork
+  spanning six design eras: iOS 14 through iOS 18 and the iOS 26 Liquid Glass
   aesthetic. It works with any launcher that supports icon packs (Nova, Lawnchair,
   Niagara, Action, Smart Launcher, and more) via the standard Blueprint dashboard.
 
   Features:
   * Six distinct iOS design eras: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
   * 367 icons covering the most common apps; 671 appfilter component entries
-  * Blueprint dashboard with per-era browsing, icon search, and apply-to-launcher
+  * Blueprint dashboard with per-era browsing, icon search, launcher apply shortcuts,
+    and structured icon requests
   * Third-party icon set (tp_*) for popular apps that don't have a direct iOS analogue
   * AMOLED dark theme throughout
 
-  This is an open-source project. Contributions welcome — see CONTRIBUTING.md for
-  how to add icons using the icontool CLI.
+  This is an open-source project under MIT. No ads, tracking, or in-app purchases.
+  See CONTRIBUTING.md for how to add icons using the icontool CLI.
 
 RepoType: git
 Repo: https://github.com/SysAdminDoc/iOSIconPack
@@ -80,7 +81,14 @@ Builds:
     gradle:
       - release
 
+  - versionName: '1.2.2'
+    versionCode: 14
+    commit: v1.2.2
+    subdir: app
+    gradle:
+      - release
+
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '1.2.1'
-CurrentversionCode: 13
+CurrentVersion: '1.2.2'
+CurrentversionCode: 14

@@ -1,5 +1,11 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.2" date="2026-07-02">
+        <text>Polished the icon gallery and request dashboard states</text>
+        <text>Improved mobile layout, keyboard focus, and light/dark web surfaces</text>
+        <text>Refined launcher apply recovery messages and dashboard home-card copy</text>
+    </version>
+
     <version title="1.2.1" date="2026-07-02">
         <text>Added local preview regression checks for common launcher masks</text>
         <text>Added local sharp, line, and filled themed-icon style prototypes</text>
