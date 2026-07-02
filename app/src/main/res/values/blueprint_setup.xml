@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
     <bool name="with_drawer_texts">true</bool>
-    <string name="icons_placeholder"></string>
-    <string name="static_icons_preview_picture"></string>
+    <string name="icons_placeholder" translatable="false"></string>
+    <string name="static_icons_preview_picture" translatable="false"></string>
     <bool name="static_icons_preview_picture_by_default">false</bool>
     <bool name="sort_icons_alphabetically">true</bool>
     <bool name="icon_name_in_grid_list">true</bool>
@@ -12,7 +12,7 @@
 
     <bool name="includes_adaptive_icons">true</bool>
 
-    <string name="email">sysadmindoc@gmail.com</string>
+    <string name="email" translatable="false">sysadmindoc@gmail.com</string>
     <string name="email_subject">iOS Icon Pack</string>
     <string name="request_title">iOS Icon Pack - Icon Request</string>
 

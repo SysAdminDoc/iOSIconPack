@@ -12,6 +12,7 @@ Commands
   rebuild  Sync drawable.xml with files on disk (batch-add missing entries)
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
+  localization-check  Verify Crowdin config and localizable Android resources
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
@@ -1651,7 +1652,7 @@ def cmd_launcher_compat_check(args: argparse.Namespace) -> int:  # noqa: ARG001
 
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
-    for script in ("validate_appfilter.py", "validate_drawables.py"):
+    for script in ("validate_appfilter.py", "validate_drawables.py", "validate_localization.py"):
         validator = REPO_ROOT / "scripts" / script
         if not validator.exists():
             print(f"warning: validator not found: {script}", file=sys.stderr)
@@ -1672,6 +1673,14 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     if launcher_rc != 0:
         rc = launcher_rc
     return rc
+
+
+def cmd_localization_check(args: argparse.Namespace) -> int:  # noqa: ARG001
+    validator = REPO_ROOT / "scripts" / "validate_localization.py"
+    if not validator.exists():
+        print("localization check: validator not found", file=sys.stderr)
+        return 1
+    return subprocess.run([sys.executable, str(validator)]).returncode
 
 
 def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
@@ -2287,6 +2296,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run drawable, appfilter, and release metadata validators",
     )
     check_p.set_defaults(func=cmd_check)
+
+    # --- localization-check ---
+    localization_p = sub.add_parser(
+        "localization-check",
+        help="Verify Crowdin config and localizable Android resources",
+    )
+    localization_p.set_defaults(func=cmd_localization_check)
 
     # --- launcher-compat-check ---
     launcher_p = sub.add_parser(

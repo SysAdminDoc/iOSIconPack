@@ -1,8 +1,8 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources xmlns:tools="http://schemas.android.com/tools" tools:ignore="MissingTranslation">
-    <string-array name="credits_photos">
+    <string-array name="credits_photos" translatable="false">
     </string-array>
-    <string-array name="credits_titles">
+    <string-array name="credits_titles" translatable="false">
         <item>SysAdminDoc</item>
         <item>Blueprint Dashboard</item>
     </string-array>
@@ -10,7 +10,7 @@
         <item>Icon Pack Creator</item>
         <item>Dashboard by Jahir Fiquitiva</item>
     </string-array>
-    <string-array name="credits_links">
+    <string-array name="credits_links" translatable="false">
         <item>https://github.com/SysAdminDoc</item>
         <item>https://github.com/jahirfiquitiva/Blueprint</item>
     </string-array>

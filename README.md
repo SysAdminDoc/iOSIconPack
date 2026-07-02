@@ -124,6 +124,13 @@ python3 scripts/icontool.py request-audit
 # Audit Gradle repository and artifact provenance for F-Droid review:
 python3 scripts/icontool.py maven-provenance-check
 
+# Validate Crowdin config and Android translatable resource boundaries:
+python3 scripts/icontool.py localization-check
+
+# Push/pull dashboard strings through Crowdin CLI when credentials are set:
+crowdin upload sources
+crowdin download
+
 # Regenerate transparent glyph-only dashboard variants from monochrome vectors:
 python3 scripts/gen_glyph_variants.py --force --prune
 python3 scripts/icontool.py rebuild
