@@ -14,6 +14,7 @@ Commands
   check    Run the full XML validator (validate_appfilter.py)
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
+  developer-verification-check  Report Android developer verification readiness
   publish-check  Verify official publish APK signing inputs and fingerprint
 
 Examples
@@ -75,6 +76,7 @@ DRAWABLE_XML_ASSET = ASSETS / "drawable.xml"
 APPMAP_XML = RES_XML / "appmap.xml"
 ICON_PACK_XML = REPO_ROOT / "app/src/main/res/values/icon_pack.xml"
 MYAPP_KT = REPO_ROOT / "buildSrc/src/main/java/MyApp.kt"
+VERSIONS_KT = REPO_ROOT / "buildSrc/src/main/java/Versions.kt"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
@@ -82,6 +84,21 @@ DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
+
+ANDROID_VERIFICATION_GUIDE = "https://developer.android.com/developer-verification/guides"
+ANDROID_VERIFICATION_FAQ = "https://developer.android.com/developer-verification/guides/faq"
+VERIFICATION_INITIAL_DATE = "2026-09-30"
+VERIFICATION_GLOBAL_ROLLOUT = "2027"
+VERIFICATION_INITIAL_COUNTRIES = ("Brazil", "Indonesia", "Singapore", "Thailand")
+VERIFICATION_INITIAL_STORES = (
+    "Google Play",
+    "HONOR App Market",
+    "OPPO App Market",
+    "Samsung Galaxy Store",
+    "Palm Store",
+    "V-Appstore",
+    "Xiaomi GetApps",
+)
 
 PUBLISH_SIGNING_ENV: tuple[str, ...] = (
     "IOSICONS_KEYSTORE_PATH",
@@ -649,7 +666,10 @@ def _apk_signer_sha256(apk: Path, errors: list[str]) -> str:
         errors.append(f"apksigner failed for {_display_path(apk)}: {result.stderr.strip()}")
         return ""
 
-    match = re.search(r"Signer #1 certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)", result.stdout)
+    match = re.search(
+        r"(?:Signer #1|V\d+ Signer):?\s+certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)",
+        result.stdout,
+    )
     if not match:
         errors.append("apksigner output did not include a signer SHA-256 digest")
         return ""
@@ -849,6 +869,64 @@ def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
                 errors.append(f"GitHub release {expected_tag}: asset {expected_asset} missing sha256 digest")
 
     return errors, version_name, expected_tag
+
+
+def _current_app_metadata(errors: list[str]) -> dict[str, str]:
+    return {
+        "app_id": _required_match(
+            "build appId",
+            MYAPP_KT,
+            r'const\s+val\s+appId\s*=\s*"([^"]+)"',
+            errors,
+        ),
+        "version_name": _required_match(
+            "build versionName",
+            MYAPP_KT,
+            r'const\s+val\s+versionName\s*=\s*"([^"]+)"',
+            errors,
+        ),
+        "version_code": _required_match(
+            "build versionCode",
+            MYAPP_KT,
+            r"const\s+val\s+version\s*=\s*(\d+)",
+            errors,
+        ),
+        "min_sdk": _required_match(
+            "minSdk",
+            VERSIONS_KT,
+            r"const\s+val\s+minSdk\s*=\s*(\d+)",
+            errors,
+        ),
+        "target_sdk": _required_match(
+            "targetSdk",
+            VERSIONS_KT,
+            r"const\s+val\s+targetSdk\s*=\s*(\d+)",
+            errors,
+        ),
+    }
+
+
+def _published_channel_summary(app_id: str) -> list[str]:
+    channels: list[str] = []
+    readme = _read(README_MD) if README_MD.exists() else ""
+    fdroid = _read(FDROID_METADATA) if FDROID_METADATA.exists() else ""
+    if "obtainium://" in readme.lower():
+        channels.append("GitHub Releases via Obtainium link in README")
+    if "releases/latest" in readme:
+        channels.append("Manual APK install from GitHub Releases latest link")
+    if FDROID_METADATA.exists() and (not app_id or app_id in FDROID_METADATA.name):
+        channels.append("F-Droid metadata present under fdroid/metadata/")
+    if "play.google.com" in readme.lower() or "Play Store" in fdroid:
+        channels.append("Google Play listing referenced")
+    if not channels:
+        channels.append("No install channel detected in README or F-Droid metadata")
+
+    return channels
+
+
+def _print_bullets(items: list[str] | tuple[str, ...], indent: str = "  - ") -> None:
+    for item in items:
+        print(f"{indent}{item}")
 
 
 # ---------------------------------------------------------------------------
@@ -1052,6 +1130,96 @@ def cmd_release_channel_check(args: argparse.Namespace) -> int:
         return 1
 
     print(f"release channel check: OK ({args.repo}, {version_name}, {expected_tag})")
+    return 0
+
+
+def cmd_developer_verification_check(args: argparse.Namespace) -> int:
+    errors: list[str] = []
+    metadata = _current_app_metadata(errors)
+    app_id = metadata["app_id"]
+    version_name = metadata["version_name"]
+    version_code = metadata["version_code"]
+    apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
+
+    signer_errors: list[str] = []
+    signer_sha = _apk_signer_sha256(apk, signer_errors) if apk.exists() else ""
+    if not apk.exists():
+        errors.append(f"release APK not found: {_display_path(apk)}")
+
+    expected_sha = _normalize_sha256(os.environ.get("IOSICONS_RELEASE_CERT_SHA256"))
+    if expected_sha and signer_sha and signer_sha != expected_sha:
+        errors.append(f"release APK signer SHA-256 mismatch: {signer_sha} != {expected_sha}")
+
+    missing_publish_env = [name for name in PUBLISH_SIGNING_ENV if not os.environ.get(name, "").strip()]
+    operator_actions: list[str] = []
+    if missing_publish_env:
+        operator_actions.append(
+            "Official signing/verification identity is not fully local: missing "
+            + ", ".join(missing_publish_env)
+        )
+    if not expected_sha:
+        operator_actions.append("Record the production signing certificate SHA-256 in IOSICONS_RELEASE_CERT_SHA256.")
+
+    print("Android developer verification readiness")
+    print(f"  package: {app_id or 'unknown'}")
+    print(f"  version: {version_name or 'unknown'} ({version_code or 'unknown'})")
+    print(f"  sdk: min {metadata['min_sdk'] or 'unknown'}, target {metadata['target_sdk'] or 'unknown'}")
+    print(f"  APK: {_display_path(apk)}")
+    print(f"  APK signer SHA-256: {signer_sha or 'unavailable'}")
+    if expected_sha:
+        print("  release certificate env: present")
+    else:
+        print("  release certificate env: missing")
+
+    print("\nDetected install channels")
+    _print_bullets(_published_channel_summary(app_id))
+
+    print("\nAndroid verification timeline")
+    print(
+        "  - Initial enforcement: "
+        f"{VERIFICATION_INITIAL_DATE} in {', '.join(VERIFICATION_INITIAL_COUNTRIES)}"
+    )
+    print(f"  - Global rollout target: {VERIFICATION_GLOBAL_ROLLOUT} and beyond")
+    print("  - ADB installs remain available for development and test devices")
+
+    print("\nStores in the initial Android verification rollout")
+    _print_bullets(VERIFICATION_INITIAL_STORES)
+
+    print("\nNext actions")
+    _print_bullets(
+        [
+            "Create or use an Android Developer Console account for non-Play distribution.",
+            f"Register package name {app_id or '<package>'} with the APK signed by the production key.",
+            "For Google Play distribution, confirm Play Console verification and app registration status.",
+            "For Samsung, Xiaomi, OPPO, vivo, Honor, or Transsion distribution, complete store account verification before the regional enforcement date.",
+            "For GitHub Releases, Obtainium, and F-Droid users, prepare registration before the 2027 global rollout even though GitHub/Obtainium are not in the initial listed stores.",
+        ]
+    )
+
+    print("\nSources")
+    _print_bullets([ANDROID_VERIFICATION_GUIDE, ANDROID_VERIFICATION_FAQ])
+
+    if operator_actions:
+        print("\nOperator actions required")
+        _print_bullets(operator_actions)
+
+    if signer_errors:
+        errors.extend(signer_errors)
+
+    if errors:
+        print("\ndeveloper verification check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    if args.strict and operator_actions:
+        print("\ndeveloper verification check: ACTION REQUIRED", file=sys.stderr)
+        for action in operator_actions:
+            print(f"  - {action}", file=sys.stderr)
+        return 1
+
+    status = "ACTION REQUIRED" if operator_actions else "OK"
+    print(f"\ndeveloper verification check: {status}")
     return 0
 
 
@@ -1318,6 +1486,23 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"GitHub owner/repo to inspect (default: {GITHUB_REPO})",
     )
     release_channel_p.set_defaults(func=cmd_release_channel_check)
+
+    # --- developer-verification-check ---
+    developer_verification_p = sub.add_parser(
+        "developer-verification-check",
+        help="Report Android developer verification readiness for sideload/store distribution",
+    )
+    developer_verification_p.add_argument(
+        "--apk",
+        default=None,
+        help="Release APK to inspect (default: app/build/outputs/apk/release/<applicationId>-<version>-release.apk)",
+    )
+    developer_verification_p.add_argument(
+        "--strict",
+        action="store_true",
+        help="Exit non-zero when operator verification/signing actions are still required",
+    )
+    developer_verification_p.set_defaults(func=cmd_developer_verification_check)
 
     # --- publish-check ---
     publish_p = sub.add_parser(

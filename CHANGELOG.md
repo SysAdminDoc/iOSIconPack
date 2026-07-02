@@ -13,6 +13,9 @@ All notable changes to iOSIconPack will be documented in this file.
   metadata, dashboard changelog, and git tag alignment.
 - Local GitHub release-channel check for latest release tag, APK asset name,
   asset digest, and non-app version release drift.
+- Local Android developer verification readiness report for package identity,
+  signing certificate hash, install channels, enforcement timeline, and
+  operator next actions.
 - Publish release signing guard that requires maintainer env signing inputs,
   rejects the committed dev keystore, and verifies the APK certificate SHA-256
   fingerprint before publication.

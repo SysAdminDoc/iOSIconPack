@@ -84,6 +84,7 @@ run:
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 python3 scripts/icontool.py publish-check
 python3 scripts/icontool.py release-channel-check
+python3 scripts/icontool.py developer-verification-check
 ```
 
 ## Backup Policy
@@ -114,6 +115,9 @@ python3 scripts/icontool.py release-check
 
 # Validate the public GitHub release channel before publishing/install docs:
 python3 scripts/icontool.py release-channel-check
+
+# Report Android developer verification readiness for sideload/store channels:
+python3 scripts/icontool.py developer-verification-check
 ```
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions, and PR checklist.
