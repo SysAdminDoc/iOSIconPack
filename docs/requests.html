@@ -10,16 +10,39 @@
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
 :root {
-    --bg:       #0d1117;
-    --surface:  #161b22;
-    --border:   #30363d;
-    --text:     #e6edf3;
-    --muted:    #8b949e;
-    --accent:   #58A6FF;
-    --green:    #3fb950;
-    --yellow:   #d29922;
-    --red:      #f85149;
-    --purple:   #bc8cff;
+    --bg: #0d1117;
+    --surface: #161b22;
+    --surface-elevated: #1c2431;
+    --border: #30363d;
+    --text: #e6edf3;
+    --muted: #8b949e;
+    --accent: #58A6FF;
+    --accent-soft: rgba(88, 166, 255, 0.14);
+    --green: #3fb950;
+    --green-text: #ffffff;
+    --yellow: #d29922;
+    --yellow-soft: #2d1f08;
+    --red: #f85149;
+    --shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+}
+
+@media (prefers-color-scheme: light) {
+    :root {
+        --bg: #f6f8fa;
+        --surface: #ffffff;
+        --surface-elevated: #f2f5f9;
+        --border: #d0d7de;
+        --text: #1f2328;
+        --muted: #57606a;
+        --accent: #0969da;
+        --accent-soft: rgba(9, 105, 218, 0.12);
+        --green: #1a7f37;
+        --green-text: #ffffff;
+        --yellow: #9a6700;
+        --yellow-soft: #fff8c5;
+        --red: #cf222e;
+        --shadow: 0 12px 30px rgba(31, 35, 40, 0.10);
+    }
 }
 
 html { scroll-behavior: smooth; }
@@ -28,14 +51,52 @@ body {
     background: var(--bg);
     color: var(--text);
     font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif;
+    line-height: 1.5;
     min-height: 100vh;
+}
+
+[hidden] { display: none !important; }
+
+.skip-link {
+    position: absolute;
+    left: 1rem;
+    top: 0.75rem;
+    z-index: 20;
+    background: var(--accent);
+    color: var(--bg);
+    border-radius: 8px;
+    font-weight: 700;
+    padding: 0.55rem 0.75rem;
+    transform: translateY(-160%);
+    transition: transform 0.15s ease;
+}
+.skip-link:focus-visible { transform: translateY(0); }
+
+.sr-only {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    padding: 0;
+    margin: -1px;
+    overflow: hidden;
+    clip: rect(0, 0, 0, 0);
+    white-space: nowrap;
+    border: 0;
+}
+
+a:focus-visible,
+button:focus-visible,
+input:focus-visible,
+select:focus-visible {
+    outline: 2px solid var(--accent);
+    outline-offset: 3px;
 }
 
 /* ── Header ──────────────────────────────────────────────────── */
 header {
     background: var(--surface);
     border-bottom: 1px solid var(--border);
-    padding: 1.25rem 1.5rem;
+    padding: 1.15rem 1.5rem 1.25rem;
     position: sticky;
     top: 0;
     z-index: 10;
@@ -58,6 +119,7 @@ h1 {
     display: flex;
     align-items: center;
     gap: 0.5rem;
+    line-height: 1.25;
 }
 
 .nav-links {
@@ -70,28 +132,31 @@ h1 {
     color: var(--muted);
     text-decoration: none;
     font-size: 0.8rem;
+    display: inline-flex;
+    align-items: center;
+    min-height: 34px;
     padding: 0.25rem 0.5rem;
-    border-radius: 6px;
-    transition: color 0.15s, background 0.15s;
+    border-radius: 8px;
+    transition: color 0.15s ease, background 0.15s ease;
 }
 .nav-links a:hover { color: var(--text); background: var(--border); }
-.nav-links a.active { color: var(--accent); }
+.nav-links a.active { color: var(--accent); background: var(--accent-soft); }
 
 .submit-btn {
     display: inline-flex;
     align-items: center;
     gap: 0.4rem;
     background: var(--green);
-    color: #fff;
+    color: var(--green-text) !important;
     font-size: 0.8rem;
     font-weight: 600;
     padding: 0.35rem 0.85rem;
-    border-radius: 6px;
+    border-radius: 8px;
     text-decoration: none;
-    transition: opacity 0.15s;
+    transition: filter 0.15s ease, transform 0.15s ease;
     white-space: nowrap;
 }
-.submit-btn:hover { opacity: 0.85; }
+.submit-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
 .controls {
     display: flex;
@@ -100,25 +165,34 @@ h1 {
     align-items: center;
 }
 
-#search {
+.control-field {
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+}
+.control-field:first-child {
     flex: 1;
     min-width: 180px;
+}
+
+#search {
+    width: 100%;
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 0.4rem 0.75rem;
     color: var(--text);
     font-size: 0.85rem;
     outline: none;
-    transition: border-color 0.15s;
+    transition: border-color 0.15s ease, background 0.15s ease;
 }
-#search:focus { border-color: var(--accent); }
+#search:focus-visible { border-color: var(--accent); }
 #search::placeholder { color: var(--muted); }
 
 select {
     background: var(--bg);
     border: 1px solid var(--border);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 0.4rem 0.65rem;
     color: var(--text);
     font-size: 0.8rem;
@@ -130,14 +204,20 @@ select {
     background-repeat: no-repeat;
     background-position: right 0.6rem center;
 }
-select:focus { border-color: var(--accent); }
+select:focus-visible { border-color: var(--accent); }
 
 .stats-bar {
     font-size: 0.78rem;
     color: var(--muted);
     display: flex;
-    gap: 1rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
+}
+.stats-bar span {
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 8px;
+    padding: 0.18rem 0.55rem;
 }
 
 /* ── Main ────────────────────────────────────────────────────── */
@@ -162,12 +242,14 @@ main {
     display: flex;
     gap: 1rem;
     align-items: flex-start;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s ease, background 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
     animation: fadeIn 0.2s ease both;
 }
 .issue-card:hover {
     border-color: var(--accent);
-    background: #1a2030;
+    background: var(--surface-elevated);
+    box-shadow: var(--shadow);
+    transform: translateY(-1px);
 }
 
 @keyframes fadeIn {
@@ -180,7 +262,7 @@ main {
     display: flex;
     flex-direction: column;
     align-items: center;
-    gap: 0.15rem;
+    gap: 0.2rem;
     min-width: 40px;
 }
 
@@ -220,7 +302,7 @@ main {
     font-size: 0.75rem;
     color: var(--muted);
     display: flex;
-    gap: 0.75rem;
+    gap: 0.5rem;
     flex-wrap: wrap;
     align-items: center;
     margin-bottom: 0.45rem;
@@ -235,8 +317,8 @@ main {
 
 .label-tag {
     display: inline-block;
-    padding: 0.15rem 0.55rem;
-    border-radius: 12px;
+    padding: 0.16rem 0.5rem;
+    border-radius: 6px;
     font-size: 0.7rem;
     font-weight: 600;
     letter-spacing: 0.02em;
@@ -254,7 +336,7 @@ main {
 }
 
 .skeleton-block {
-    background: var(--border);
+    background: var(--surface-elevated);
     border-radius: 4px;
     animation: shimmer 1.4s infinite;
 }
@@ -267,14 +349,23 @@ main {
 
 /* ── Empty / error states ────────────────────────────────────── */
 .state-msg {
+    background: var(--surface);
+    border: 1px solid var(--border);
+    border-radius: 10px;
     text-align: center;
-    padding: 3rem 1rem;
+    padding: 2.5rem 1rem;
     color: var(--muted);
     font-size: 0.9rem;
-    line-height: 1.7;
+    line-height: 1.6;
 }
 
-.state-msg .emoji { font-size: 2.5rem; display: block; margin-bottom: 0.75rem; }
+.state-title {
+    color: var(--text);
+    display: block;
+    font-size: 1rem;
+    font-weight: 700;
+    margin-bottom: 0.25rem;
+}
 .state-msg a { color: var(--accent); text-decoration: none; }
 .state-msg a:hover { text-decoration: underline; }
 
@@ -287,17 +378,18 @@ main {
     color: var(--text);
     font-size: 0.85rem;
     padding: 0.5rem 1.5rem;
-    border-radius: 6px;
+    border-radius: 8px;
     cursor: pointer;
-    transition: border-color 0.15s, background 0.15s;
+    transition: border-color 0.15s ease, background 0.15s ease, transform 0.15s ease;
 }
-#load-more:hover { border-color: var(--accent); background: #1a2030; }
+#load-more:hover { border-color: var(--accent); background: var(--surface-elevated); transform: translateY(-1px); }
+#load-more:disabled { cursor: wait; opacity: 0.7; transform: none; }
 
 /* ── Rate limit warning ──────────────────────────────────────── */
 .rate-warn {
-    background: #2d1a00;
+    background: var(--yellow-soft);
     border: 1px solid var(--yellow);
-    border-radius: 6px;
+    border-radius: 8px;
     padding: 0.6rem 1rem;
     font-size: 0.8rem;
     color: var(--yellow);
@@ -307,13 +399,27 @@ main {
 
 /* ── Responsive ──────────────────────────────────────────────── */
 @media (max-width: 540px) {
+    header { padding: 1rem; }
     .controls { flex-direction: column; align-items: stretch; }
     #search { min-width: 0; }
     .issue-meta { gap: 0.5rem; }
+    .nav-links { width: 100%; }
+    .submit-btn { justify-content: center; }
+    .issue-card { padding: 0.9rem; gap: 0.75rem; }
 }
-  </style>
+
+@media (prefers-reduced-motion: reduce) {
+    html { scroll-behavior: auto; }
+    *, *::before, *::after {
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+    }
+}
+</style>
 </head>
 <body>
+<a class="skip-link" href="#issue-list">Skip to request list</a>
 
 <header>
   <div class="header-top">
@@ -329,21 +435,30 @@ main {
       <a href="https://github.com/SysAdminDoc/iOSIconPack" target="_blank" rel="noopener">GitHub ↗</a>
       <a href="https://github.com/SysAdminDoc/iOSIconPack/issues/new?template=icon-request.yml&labels=icon-request"
          class="submit-btn" target="_blank" rel="noopener">
-        ＋ Request Icon
+        New Request
       </a>
     </div>
   </div>
   <div class="controls">
-    <input id="search" type="search" placeholder="Search requests…" autocomplete="off" spellcheck="false">
-    <select id="sort">
-      <option value="votes">Most voted</option>
-      <option value="newest">Newest</option>
-      <option value="oldest">Oldest</option>
-      <option value="comments">Most discussed</option>
-    </select>
-    <select id="label-filter">
-      <option value="">All labels</option>
-    </select>
+    <div class="control-field">
+      <label class="sr-only" for="search">Search requests by title or number</label>
+      <input id="search" type="search" placeholder="Search app requests..." autocomplete="off" spellcheck="false" aria-describedby="request-status">
+    </div>
+    <div class="control-field">
+      <label class="sr-only" for="sort">Sort icon requests</label>
+      <select id="sort" aria-label="Sort icon requests">
+        <option value="votes">Most voted</option>
+        <option value="newest">Newest</option>
+        <option value="oldest">Oldest</option>
+        <option value="comments">Most discussed</option>
+      </select>
+    </div>
+    <div class="control-field">
+      <label class="sr-only" for="label-filter">Filter requests by label</label>
+      <select id="label-filter" aria-label="Filter requests by label">
+        <option value="">All labels</option>
+      </select>
+    </div>
   </div>
   <div class="stats-bar" id="stats-bar">
     <span id="stat-open">— open requests</span>
@@ -355,8 +470,9 @@ main {
   <div class="rate-warn" id="rate-warn">
     GitHub API rate limit reached. Showing cached data. Resets in <span id="rate-reset">—</span>.
   </div>
-  <div id="issue-list" aria-live="polite" aria-label="Icon requests"></div>
-  <button id="load-more">Load more</button>
+  <p id="request-status" class="sr-only" role="status" aria-live="polite">Loading icon requests.</p>
+  <div id="issue-list" role="list" aria-live="polite" aria-busy="true" aria-label="Icon requests"></div>
+  <button id="load-more" type="button" aria-label="Load more icon requests">Load more</button>
 </main>
 
 <script>
@@ -382,6 +498,24 @@ main {
   const statOpen    = document.getElementById('stat-open');
   const statShown   = document.getElementById('stat-shown');
   const rateWarn    = document.getElementById('rate-warn');
+  const statusEl    = document.getElementById('request-status');
+
+  function setBusy(isBusy) {
+    listEl.setAttribute('aria-busy', String(isBusy));
+    loadMoreBtn.disabled = isBusy;
+  }
+
+  function setStatus(message) {
+    statusEl.textContent = message;
+  }
+
+  function renderState(title, message, linkHtml = '') {
+    listEl.innerHTML = `
+      <div class="state-msg" role="status">
+        <strong class="state-title">${title}</strong>
+        ${message}${linkHtml ? `<br>${linkHtml}` : ''}
+      </div>`;
+  }
 
   // ── Fetch with cache ──────────────────────────────────────────
   async function fetchAllIssues() {
@@ -403,9 +537,11 @@ main {
         showRateLimitWarn(reset);
         const cached2 = tryCache(true); // stale cache OK
         if (cached2) return cached2;
-        return issues;
+        throw new Error('GitHub rate limit reached and no cached requests are available.');
       }
-      if (!res.ok) break;
+      if (!res.ok) {
+        throw new Error(`GitHub returned ${res.status}.`);
+      }
 
       const page_data = await res.json();
       // GitHub issues endpoint returns PRs too — filter to real issues
@@ -418,7 +554,9 @@ main {
       page++;
     }
 
-    localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), issues }));
+    try {
+      localStorage.setItem(CACHE_KEY, JSON.stringify({ ts: Date.now(), issues }));
+    } catch (_) {}
     return issues;
   }
 
@@ -438,6 +576,7 @@ main {
       const mins = Math.ceil((resetTs * 1000 - Date.now()) / 60000);
       document.getElementById('rate-reset').textContent = `~${mins} min`;
     }
+    setStatus('GitHub rate limit reached. Showing cached request data when available.');
   }
 
   // ── Label colour ──────────────────────────────────────────────
@@ -448,7 +587,7 @@ main {
     const b     = parseInt(hex.slice(5, 7), 16);
     const lum   = 0.299 * r + 0.587 * g + 0.114 * b;
     const fg    = lum > 140 ? '#000' : '#fff';
-    return `background:${hex}28;color:${hex};border-color:${hex}60;`;
+    return `background:${hex};color:${fg};border-color:${hex};`;
   }
 
   // ── Render helpers ────────────────────────────────────────────
@@ -471,20 +610,21 @@ main {
       `<span class="label-tag" style="${labelStyle(l.color)}">${escHtml(l.name)}</span>`
     ).join('');
 
-    const card = document.createElement('div');
+    const card = document.createElement('article');
     card.className = 'issue-card';
+    card.setAttribute('role', 'listitem');
     card.setAttribute('data-id', issue.number);
     card.innerHTML = `
       <div class="vote-col" title="${v} upvote${v !== 1 ? 's' : ''}">
-        <span class="vote-count">&#x1F44D; ${v}</span>
+        <span class="vote-count">${v}</span>
         <span class="vote-label">votes</span>
       </div>
       <div class="issue-body">
-        <a class="issue-title" href="${issue.html_url}" target="_blank" rel="noopener">${escHtml(issue.title)}</a>
+        <a class="issue-title" href="${issue.html_url}" target="_blank" rel="noopener" aria-label="Open request #${issue.number}: ${escHtml(issue.title)}">${escHtml(issue.title)}</a>
         <div class="issue-meta">
           <span>#${issue.number}</span>
           <span>opened ${ago(issue.created_at)} by ${escHtml(issue.user?.login ?? '?')}</span>
-          ${issue.comments ? `<span>&#x1F4AC; ${issue.comments}</span>` : ''}
+          ${issue.comments ? `<span>${issue.comments} comment${issue.comments !== 1 ? 's' : ''}</span>` : ''}
         </div>
         ${labelTags ? `<div class="labels">${labelTags}</div>` : ''}
       </div>`;
@@ -496,6 +636,7 @@ main {
     for (let i = 0; i < n; i++) {
       const sk = document.createElement('div');
       sk.className = 'skeleton';
+      sk.setAttribute('aria-hidden', 'true');
       sk.innerHTML = `
         <div class="skeleton-block" style="width:40px;height:44px;border-radius:6px;flex-shrink:0"></div>
         <div style="flex:1;display:flex;flex-direction:column;gap:8px;padding-top:2px">
@@ -539,6 +680,7 @@ main {
     shownCount = 0;
     listEl.innerHTML = '';
     loadMoreBtn.style.display = 'none';
+    setBusy(false);
     showNextPage();
     updateStats();
   }
@@ -556,17 +698,15 @@ main {
     }
 
     if (filtered.length === 0) {
-      listEl.innerHTML = `
-        <div class="state-msg">
-          <span class="emoji">&#x1F50D;</span>
-          No matching requests found.${searchEl.value ? ' Try a different search.' : ''}
-        </div>`;
+      const queryHint = searchEl.value ? 'Try a different app name, issue number, or label.' : 'No open icon requests are currently available.';
+      renderState('No matching requests', queryHint);
     }
   }
 
   function updateStats() {
     statOpen.textContent  = `${allIssues.length} open request${allIssues.length !== 1 ? 's' : ''}`;
     statShown.textContent = `${Math.min(shownCount, filtered.length)} of ${filtered.length} shown`;
+    setStatus(`${Math.min(shownCount, filtered.length)} of ${filtered.length} requests shown.`);
   }
 
   function populateLabelFilter() {
@@ -583,6 +723,8 @@ main {
 
   // ── Init ──────────────────────────────────────────────────────
   async function init() {
+    setBusy(true);
+    setStatus('Loading icon requests from GitHub.');
     renderSkeletons();
     try {
       allIssues = await fetchAllIssues();
@@ -594,12 +736,26 @@ main {
       populateLabelFilter();
       applyFilters();
     } catch (err) {
-      listEl.innerHTML = `
-        <div class="state-msg">
-          <span class="emoji">&#x26A0;</span>
-          Failed to load issues from GitHub.<br>
-          <a href="https://github.com/${REPO}/issues" target="_blank" rel="noopener">View directly on GitHub ↗</a>
-        </div>`;
+      const cached = tryCache(true);
+      if (cached) {
+        rateWarn.style.display = 'block';
+        allIssues = cached;
+        for (const issue of allIssues) {
+          for (const l of issue.labels) allLabels.add(l.name);
+        }
+        populateLabelFilter();
+        applyFilters();
+        setStatus('Showing cached icon requests because GitHub could not be reached.');
+        return;
+      }
+      setBusy(false);
+      updateStats();
+      setStatus('Could not load icon requests from GitHub.');
+      renderState(
+        'Could not load requests',
+        'GitHub did not return request data. You can still open the issue queue directly.',
+        `<a href="https://github.com/${REPO}/issues" target="_blank" rel="noopener">Open GitHub Issues</a>`
+      );
     }
   }
 
@@ -612,8 +768,10 @@ main {
   sortEl.addEventListener('change', applyFilters);
   labelEl.addEventListener('change', applyFilters);
   loadMoreBtn.addEventListener('click', () => {
+    loadMoreBtn.disabled = true;
     showNextPage();
     updateStats();
+    loadMoreBtn.disabled = false;
   });
 
   init();

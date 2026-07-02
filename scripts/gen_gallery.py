@@ -139,12 +139,29 @@ def _css() -> str:
         *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
         :root {
-            --bg:       #0d1117;
-            --surface:  #161b22;
-            --border:   #30363d;
-            --text:     #e6edf3;
-            --muted:    #8b949e;
-            --accent:   #58A6FF;
+            --bg: #0d1117;
+            --surface: #161b22;
+            --surface-elevated: #1c2431;
+            --border: #30363d;
+            --text: #e6edf3;
+            --muted: #8b949e;
+            --accent: #58A6FF;
+            --accent-soft: rgba(88, 166, 255, 0.14);
+            --shadow: 0 14px 34px rgba(0, 0, 0, 0.22);
+        }
+
+        @media (prefers-color-scheme: light) {
+            :root {
+                --bg: #f6f8fa;
+                --surface: #ffffff;
+                --surface-elevated: #f2f5f9;
+                --border: #d0d7de;
+                --text: #1f2328;
+                --muted: #57606a;
+                --accent: #0969da;
+                --accent-soft: rgba(9, 105, 218, 0.12);
+                --shadow: 0 12px 30px rgba(31, 35, 40, 0.10);
+            }
         }
 
         html { scroll-behavior: smooth; }
@@ -156,11 +173,27 @@ def _css() -> str:
             min-height: 100vh;
         }
 
-        /* Header */
+        [hidden] { display: none !important; }
+
+        .skip-link {
+            position: absolute;
+            left: 1rem;
+            top: 0.75rem;
+            z-index: 20;
+            background: var(--accent);
+            color: var(--bg);
+            border-radius: 8px;
+            font-weight: 700;
+            padding: 0.55rem 0.75rem;
+            transform: translateY(-160%);
+            transition: transform 0.15s ease;
+        }
+        .skip-link:focus-visible { transform: translateY(0); }
+
         header {
             background: var(--surface);
             border-bottom: 1px solid var(--border);
-            padding: 1.25rem 1.5rem;
+            padding: 1.15rem 1.5rem 1.25rem;
             position: sticky;
             top: 0;
             z-index: 10;
@@ -183,6 +216,7 @@ def _css() -> str:
             display: flex;
             align-items: center;
             gap: 0.5rem;
+            line-height: 1.25;
         }
 
         .icon-count {
@@ -190,8 +224,9 @@ def _css() -> str:
             color: var(--muted);
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 12px;
+            border-radius: 8px;
             padding: 0.1rem 0.55rem;
+            white-space: nowrap;
         }
 
         a.gh-link {
@@ -203,6 +238,13 @@ def _css() -> str:
             gap: 0.3rem;
         }
         a.gh-link:hover { color: var(--accent); }
+
+        .header-copy {
+            color: var(--muted);
+            font-size: 0.82rem;
+            line-height: 1.45;
+            max-width: 62rem;
+        }
 
         .sr-only {
             position: absolute;
@@ -218,12 +260,12 @@ def _css() -> str:
 
         a:focus-visible,
         button:focus-visible,
-        input:focus-visible {
+        input:focus-visible,
+        table:focus-visible {
             outline: 2px solid var(--accent);
-            outline-offset: 2px;
+            outline-offset: 3px;
         }
 
-        /* Search */
         .search-wrap {
             display: flex;
             gap: 0.5rem;
@@ -244,41 +286,76 @@ def _css() -> str:
         #search:focus-visible { border-color: var(--accent); }
         #search::placeholder { color: var(--muted); }
 
-        /* Era filter */
+        .clear-btn {
+            background: var(--surface-elevated);
+            border: 1px solid var(--border);
+            border-radius: 8px;
+            color: var(--muted);
+            cursor: pointer;
+            font-size: 0.78rem;
+            min-height: 34px;
+            padding: 0.35rem 0.7rem;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease;
+        }
+        .clear-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+        }
+
+        .gallery-status {
+            color: var(--muted);
+            font-size: 0.78rem;
+            line-height: 1.35;
+            min-height: 1.1rem;
+        }
+
         .filter-bar {
             display: flex;
-            gap: 0.4rem;
+            gap: 0.45rem;
             flex-wrap: wrap;
         }
 
         .filter-btn {
             background: var(--bg);
             border: 1px solid var(--border);
-            border-radius: 6px;
+            border-radius: 8px;
             color: var(--muted);
             cursor: pointer;
+            display: inline-flex;
+            align-items: center;
+            gap: 0.45rem;
             font-size: 0.75rem;
-            padding: 0.25rem 0.65rem;
-            transition: all 0.15s;
+            min-height: 34px;
+            padding: 0.32rem 0.7rem;
+            transition: background 0.15s ease, border-color 0.15s ease, color 0.15s ease, transform 0.15s ease;
         }
-        .filter-btn:hover { border-color: var(--accent); color: var(--text); }
+        .filter-btn::before {
+            content: "";
+            width: 8px;
+            height: 8px;
+            border-radius: 4px;
+            background: var(--dot, var(--accent));
+            opacity: 0.78;
+        }
+        .filter-btn:hover {
+            border-color: var(--accent);
+            color: var(--text);
+            transform: translateY(-1px);
+        }
         .filter-btn.active,
         .filter-btn[aria-pressed="true"] {
             border-color: var(--accent);
             color: var(--accent);
-            background: rgba(88,166,255,0.1);
+            background: var(--accent-soft);
         }
 
-        /* Main */
         main {
             padding: 1.5rem;
             max-width: 1400px;
             margin: 0 auto;
         }
 
-        /* Era section */
         .era-section { margin-bottom: 2.5rem; }
-        .era-section[hidden] { display: none; }
 
         .era-heading {
             display: flex;
@@ -295,17 +372,15 @@ def _css() -> str:
         .era-dot {
             width: 8px;
             height: 8px;
-            border-radius: 50%;
+            border-radius: 4px;
         }
 
-        /* Icon grid */
         .icon-grid {
             display: grid;
             grid-template-columns: repeat(auto-fill, minmax(100px, 1fr));
             gap: 0.75rem;
         }
 
-        /* Icon card */
         .icon-card {
             background: var(--surface);
             border: 1px solid var(--border);
@@ -315,20 +390,21 @@ def _css() -> str:
             flex-direction: column;
             align-items: center;
             padding: 0.75rem 0.4rem 0.6rem;
-            transition: border-color 0.15s, transform 0.15s;
+            min-height: 118px;
+            transition: border-color 0.15s ease, box-shadow 0.15s ease, transform 0.15s ease;
             position: relative;
         }
         .icon-card:hover {
             border-color: var(--accent);
+            box-shadow: var(--shadow);
             transform: translateY(-2px);
         }
-        .icon-card[hidden] { display: none !important; }
 
         .icon-img {
             width: 56px;
             height: 56px;
             object-fit: contain;
-            border-radius: 12.5%;
+            border-radius: 12px;
             background: var(--bg);
             margin-bottom: 0.5rem;
         }
@@ -364,16 +440,34 @@ def _css() -> str:
             padding: 0.1rem 0.3rem;
         }
 
-        /* Empty state */
-        #empty-msg {
+        .empty-state {
             display: none;
+            background: var(--surface);
+            border: 1px solid var(--border);
+            border-radius: 10px;
             color: var(--muted);
             text-align: center;
-            padding: 3rem 0;
+            padding: 2.5rem 1rem;
             font-size: 0.9rem;
+            line-height: 1.6;
+        }
+        .empty-state strong {
+            color: var(--text);
+            display: block;
+            font-size: 1rem;
+            margin-bottom: 0.25rem;
+        }
+        .empty-state a {
+            color: var(--accent);
+            font-weight: 600;
+            text-decoration: none;
+        }
+        .empty-state a:hover { text-decoration: underline; }
+
+        #empty-msg {
+            display: none;
         }
 
-        /* Footer */
         footer {
             border-top: 1px solid var(--border);
             color: var(--muted);
@@ -383,14 +477,15 @@ def _css() -> str:
         }
         footer a { color: var(--accent); text-decoration: none; }
 
-        /* Tab nav */
         .tab-bar {
             display: flex;
             align-items: stretch;
+            justify-content: space-between;
             gap: 0.25rem;
             border-bottom: 1px solid var(--border);
             padding: 0 1.5rem;
             background: var(--surface);
+            overflow-x: auto;
         }
         .tab-list {
             display: flex;
@@ -405,7 +500,8 @@ def _css() -> str:
             font-size: 0.82rem;
             padding: 0.6rem 0.9rem;
             margin-bottom: -1px;
-            transition: color 0.15s, border-color 0.15s;
+            transition: color 0.15s ease, border-color 0.15s ease, background 0.15s ease;
+            white-space: nowrap;
         }
         .tab-btn:hover { color: var(--text); }
         .tab-btn.active,
@@ -413,8 +509,11 @@ def _css() -> str:
             color: var(--accent);
             border-bottom-color: var(--accent);
         }
+        .tab-link {
+            color: var(--muted);
+            text-decoration: none;
+        }
 
-        /* Compare grid */
         .compare-note {
             color: var(--muted);
             font-size: 0.8rem;
@@ -452,6 +551,7 @@ def _css() -> str:
         .cmp-label {
             text-align: left;
             font-size: 0.72rem;
+            font-weight: 500;
             color: var(--muted);
             white-space: nowrap;
             padding-right: 1rem;
@@ -459,16 +559,35 @@ def _css() -> str:
         .cmp-img {
             width: 44px;
             height: 44px;
-            border-radius: 11px;
+            border-radius: 10px;
             border: 1px solid transparent;
             object-fit: contain;
             display: block;
             margin: 0 auto;
-            transition: transform 0.15s;
+            transition: transform 0.15s ease;
         }
         .cmp-img:hover { transform: scale(1.15); }
         .cmp-missing { color: var(--border); font-size: 0.9rem; }
         #compare-view { padding-top: 0.5rem; }
+
+        @media (max-width: 640px) {
+            header { padding: 1rem; }
+            main { padding: 1rem; }
+            .search-wrap { align-items: stretch; }
+            #search { max-width: none; }
+            .clear-btn { flex-shrink: 0; }
+            .tab-bar { padding: 0 1rem; }
+            .icon-grid { grid-template-columns: repeat(auto-fill, minmax(88px, 1fr)); }
+        }
+
+        @media (prefers-reduced-motion: reduce) {
+            html { scroll-behavior: auto; }
+            *, *::before, *::after {
+                animation-duration: 0.01ms !important;
+                animation-iteration-count: 1 !important;
+                transition-duration: 0.01ms !important;
+            }
+        }
     """).strip()
 
 
@@ -483,6 +602,7 @@ def _js() -> str:
             const resultStatus = document.getElementById('gallery-result-status');
             const browseView = document.getElementById('browse-view');
             const compareView = document.getElementById('compare-view');
+            const clearSearch = document.getElementById('clear-search');
             const tabBtns = document.querySelectorAll('.tab-btn[data-tab]');
 
             let activeEra = 'all';
@@ -507,13 +627,26 @@ def _js() -> str:
                 });
 
                 emptyMsg.style.display = visible === 0 ? 'block' : 'none';
+                if (clearSearch) {
+                    clearSearch.hidden = q.length === 0;
+                }
                 if (resultStatus) {
                     const noun = visible === 1 ? 'icon' : 'icons';
-                    resultStatus.textContent = `Showing ${visible} ${noun}.`;
+                    const filter = activeEra === 'all'
+                        ? ''
+                        : ` in ${document.querySelector('.filter-btn.active')?.textContent ?? 'this era'}`;
+                    resultStatus.textContent = `Showing ${visible} ${noun}${filter}.`;
                 }
             }
 
             search.addEventListener('input', update);
+            if (clearSearch) {
+                clearSearch.addEventListener('click', () => {
+                    search.value = '';
+                    search.focus();
+                    update();
+                });
+            }
 
             function moveFocus(items, current, delta) {
                 const list = Array.from(items);
@@ -618,12 +751,16 @@ def _card_html(
     badge_label = short if era != "Third Party" else "TP"
     badge_style = f"background:{colour}22;color:{colour}"
 
-    comp_html = f'<span class="comp-badge">{comp_str}</span>' if comp_str else ""
+    comp_html = (
+        f'<span class="comp-badge" aria-label="{comp_count} launcher mappings">{comp_str}</span>'
+        if comp_str else ""
+    )
 
     return (
-        f'<div class="icon-card" data-name="{name.lower()}" data-era="{era_slug}">\n'
-        f'  <span class="era-badge" style="{badge_style}">{badge_label}</span>\n'
-        f'  <img class="icon-img" src="{img_url}" alt="{name}" loading="lazy">\n'
+        f'<div class="icon-card" role="listitem" aria-label="{label} icon, {era}" '
+        f'data-name="{name.lower()}" data-era="{era_slug}">\n'
+        f'  <span class="era-badge" style="{badge_style}" aria-label="{era}">{badge_label}</span>\n'
+        f'  <img class="icon-img" src="{img_url}" alt="" aria-hidden="true" loading="lazy">\n'
         f'  <span class="icon-name">{label}</span>\n'
         f'  {comp_html}\n'
         f'</div>'
@@ -643,7 +780,7 @@ def _comparison_html() -> str:
     bases = _base_app_names()
 
     col_headers = "".join(
-        f'<th style="color:{ERA_COLOURS.get(label, "#9CA3AF")}40;'
+        f'<th scope="col" style="color:{ERA_COLOURS.get(label, "#9CA3AF")}40;'
         f'background:{ERA_COLOURS.get(label, "#9CA3AF")}15;'
         f'border-bottom:2px solid {ERA_COLOURS.get(label, "#9CA3AF")};">'
         f'{short}</th>'
@@ -669,7 +806,7 @@ def _comparison_html() -> str:
             else:
                 cells += '<td><span class="cmp-missing">—</span></td>'
         rows.append(
-            f'<tr><td class="cmp-label">{base}</td>{cells}</tr>'
+            f'<tr><th class="cmp-label" scope="row">{base}</th>{cells}</tr>'
         )
 
     rows_html = "\n".join(rows)
@@ -678,8 +815,9 @@ def _comparison_html() -> str:
   <p class="compare-note">Icons with era variants shown across all 6 design eras.</p>
   <div class="cmp-scroll">
     <table class="cmp-table">
+      <caption class="sr-only">Icon artwork comparison by iOS era</caption>
       <thead>
-        <tr><th class="cmp-label-th">App</th>{col_headers}</tr>
+        <tr><th class="cmp-label-th" scope="col">App</th>{col_headers}</tr>
       </thead>
       <tbody>
 {rows_html}
@@ -718,7 +856,7 @@ def _generate_html() -> str:
             f'  <h2 class="era-heading">'
             f'<span class="era-dot" style="background:{colour}"></span>{cat}'
             f'<span class="icon-count">{len(icons)}</span></h2>\n'
-            f'  <div class="icon-grid">\n{cards}\n</div>\n</section>'
+            f'  <div class="icon-grid" role="list">\n{cards}\n</div>\n</section>'
         )
 
     sections_joined = "\n\n".join(sections_html)
@@ -738,6 +876,7 @@ def _generate_html() -> str:
           </style>
         </head>
         <body>
+        <a class="skip-link" href="#browse-view">Skip to icon gallery</a>
 
         <header>
           <div class="header-top">
@@ -749,11 +888,13 @@ def _generate_html() -> str:
               ↗ GitHub
             </a>
           </div>
+          <p class="header-copy">Browse shipped Android launcher icons by iOS era, compare artwork across generations, and jump to structured icon requests when coverage is missing.</p>
           <div class="search-wrap">
             <label class="sr-only" for="search">Search icons by drawable name</label>
             <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false" aria-controls="browse-view" aria-describedby="gallery-result-status">
+            <button id="clear-search" class="clear-btn" type="button" hidden>Clear</button>
           </div>
-          <p id="gallery-result-status" class="sr-only" aria-live="polite">{total_icons} icons available.</p>
+          <p id="gallery-result-status" class="gallery-status" aria-live="polite">{total_icons} icons available.</p>
           <div class="filter-bar" role="group" aria-label="Filter icons by era">
             {filters_joined}
           </div>
@@ -764,13 +905,16 @@ def _generate_html() -> str:
             <button id="tab-browse" class="tab-btn active" type="button" role="tab" data-tab="browse" aria-selected="true" aria-controls="browse-view" tabindex="0">Browse</button>
             <button id="tab-compare" class="tab-btn" type="button" role="tab" data-tab="compare" aria-selected="false" aria-controls="compare-view" tabindex="-1">Compare Eras</button>
           </div>
-          <a class="tab-btn" href="requests.html" style="text-decoration:none">Requests ↗</a>
+          <a class="tab-btn tab-link" href="requests.html">Requests ↗</a>
         </nav>
 
         <main>
           <div id="browse-view" role="tabpanel" aria-labelledby="tab-browse">
             {sections_joined}
-            <p id="empty-msg" role="status">No icons match your search.</p>
+            <div id="empty-msg" class="empty-state" role="status">
+              <strong>No matching icons</strong>
+              Try another app name or <a href="requests.html">open the request queue</a>.
+            </div>
           </div>
           {_comparison_html()}
         </main>
@@ -796,7 +940,9 @@ def _accessibility_errors(html: str) -> list[str]:
         ("search input has an explicit label", '<label class="sr-only" for="search">'),
         ("search input references browse results", 'aria-controls="browse-view"'),
         ("search input references live result status", 'aria-describedby="gallery-result-status"'),
-        ("result count status is a polite live region", 'id="gallery-result-status" class="sr-only" aria-live="polite"'),
+        ("result count status is visible and polite", 'id="gallery-result-status" class="gallery-status" aria-live="polite"'),
+        ("clear search action is available", 'id="clear-search" class="clear-btn" type="button" hidden'),
+        ("skip link is available", 'class="skip-link" href="#browse-view"'),
         ("era filters are grouped", 'class="filter-bar" role="group" aria-label="Filter icons by era"'),
         ("active era filter exposes pressed state", 'class="filter-btn active" type="button" data-era="all" aria-pressed="true"'),
         ("inactive era filters expose pressed state", 'aria-pressed="false"'),
@@ -805,7 +951,12 @@ def _accessibility_errors(html: str) -> list[str]:
         ("compare tab controls compare panel", 'id="tab-compare" class="tab-btn" type="button" role="tab" data-tab="compare" aria-selected="false" aria-controls="compare-view"'),
         ("browse panel references selected tab", 'id="browse-view" role="tabpanel" aria-labelledby="tab-browse"'),
         ("compare panel references selected tab", 'id="compare-view" role="tabpanel" aria-labelledby="tab-compare" hidden'),
+        ("icon grid exposes list semantics", 'class="icon-grid" role="list"'),
+        ("empty state has recovery path", 'Try another app name or <a href="requests.html">open the request queue</a>.'),
+        ("comparison table has a screen-reader caption", '<caption class="sr-only">Icon artwork comparison by iOS era</caption>'),
+        ("reduced motion preference is respected", '@media (prefers-reduced-motion: reduce)'),
         ("visible keyboard focus style is present", ':focus-visible'),
+        ("clear search script updates the query", "clearSearch.addEventListener('click'"),
         ("filter script syncs aria-pressed", "setAttribute('aria-pressed'"),
         ("tab script syncs aria-selected", "setAttribute('aria-selected'"),
         ("keyboard roving focus handles arrow keys", "event.key === 'ArrowRight'"),
