@@ -26,9 +26,9 @@ ASSET_DIR = REPO_ROOT / "app/src/main/assets/wallpapers"
 THUMB_DIR = ASSET_DIR / "thumbs"
 CATALOG = ASSET_DIR / "wallpapers.json"
 REMOTE_BASE = "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers"
-FULL_SIZE = (1440, 3200)
+FULL_SIZE = (720, 1600)
 BASE_SIZE = (360, 800)
-THUMB_SIZE = (360, 800)
+THUMB_SIZE = (180, 400)
 COPYRIGHT = "MIT - original procedural artwork by SysAdminDoc"
 
 
