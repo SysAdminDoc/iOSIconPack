@@ -111,6 +111,9 @@ python3 scripts/icontool.py add tp_appname \
 # Validate appfilter, drawables, and release metadata:
 python3 scripts/icontool.py check
 
+# Validate launcher intent filters and icon-pack resource signals:
+python3 scripts/icontool.py launcher-compat-check
+
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight
 

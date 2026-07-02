@@ -12,6 +12,7 @@ Commands
   rebuild  Sync drawable.xml with files on disk (batch-add missing entries)
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
+  launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
   developer-verification-check  Report Android developer verification readiness
@@ -58,6 +59,7 @@ import sys
 import tempfile
 import urllib.error
 import urllib.request
+import xml.etree.ElementTree as ET
 from pathlib import Path
 
 # ---------------------------------------------------------------------------
@@ -85,6 +87,7 @@ DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
+ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 
 ANDROID_VERIFICATION_GUIDE = "https://developer.android.com/developer-verification/guides"
 ANDROID_VERIFICATION_FAQ = "https://developer.android.com/developer-verification/guides/faq"
@@ -954,6 +957,65 @@ def _gradle_env() -> dict[str, str]:
     return env
 
 
+def _manifest_filters(errors: list[str]) -> list[tuple[set[str], set[str]]]:
+    manifest = REPO_ROOT / "app/src/main/AndroidManifest.xml"
+    try:
+        root = ET.parse(manifest).getroot()
+    except ET.ParseError as exc:
+        errors.append(f"AndroidManifest.xml is malformed: {exc}")
+        return []
+
+    filters: list[tuple[set[str], set[str]]] = []
+    for intent_filter in root.iter("intent-filter"):
+        actions = {
+            child.get(f"{ANDROID_NS}name", "")
+            for child in intent_filter.findall("action")
+            if child.get(f"{ANDROID_NS}name")
+        }
+        categories = {
+            child.get(f"{ANDROID_NS}name", "")
+            for child in intent_filter.findall("category")
+            if child.get(f"{ANDROID_NS}name")
+        }
+        filters.append((actions, categories))
+    return filters
+
+
+def _has_intent_filter(
+    filters: list[tuple[set[str], set[str]]],
+    actions: set[str] | None = None,
+    categories: set[str] | None = None,
+) -> bool:
+    required_actions = actions or set()
+    required_categories = categories or set()
+    return any(
+        required_actions.issubset(filter_actions)
+        and required_categories.issubset(filter_categories)
+        for filter_actions, filter_categories in filters
+    )
+
+
+def _theme_resources_has_label() -> bool:
+    theme_resources = RES_XML / "theme_resources.xml"
+    if not theme_resources.exists():
+        return False
+    try:
+        root = ET.parse(theme_resources).getroot()
+    except ET.ParseError:
+        return False
+    return any((node.get("value") or "").strip() for node in root.iter("Label"))
+
+
+def _launcher_core_resources_present() -> list[str]:
+    missing: list[str] = []
+    for path in (APPFILTER_RES, DRAWABLE_XML_RES, APPMAP_XML, ICON_PACK_XML, RES_XML / "theme_resources.xml"):
+        if not path.exists():
+            missing.append(_display_path(path))
+    if not _theme_resources_has_label():
+        missing.append("app/src/main/res/xml/theme_resources.xml Label")
+    return missing
+
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
@@ -1118,6 +1180,129 @@ def cmd_sync(args: argparse.Namespace) -> int:  # noqa: ARG001
     return 0
 
 
+def cmd_launcher_compat_check(args: argparse.Namespace) -> int:  # noqa: ARG001
+    errors: list[str] = []
+    filters = _manifest_filters(errors)
+    core_missing = _launcher_core_resources_present()
+    if core_missing:
+        errors.extend(f"launcher core resource missing: {item}" for item in core_missing)
+
+    checks: list[tuple[str, bool, str]] = [
+        (
+            "ADW/generic theme",
+            _has_intent_filter(
+                filters,
+                {"org.adw.launcher.THEMES"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "org.adw.launcher.THEMES + DEFAULT",
+        ),
+        (
+            "ADW icon picker",
+            _has_intent_filter(
+                filters,
+                {"org.adw.launcher.icons.ACTION_PICK_ICON"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "org.adw.launcher.icons.ACTION_PICK_ICON + DEFAULT",
+        ),
+        (
+            "Nova Launcher",
+            _has_intent_filter(filters, {"android.intent.action.MAIN"}, {"com.teslacoilsw.launcher.THEME"})
+            and _has_intent_filter(
+                filters,
+                {"com.novalauncher.THEME"},
+                {"com.novalauncher.category.CUSTOM_ICON_PICKER"},
+            ),
+            "MAIN + com.teslacoilsw.launcher.THEME and Nova custom picker",
+        ),
+        (
+            "Lawnchair",
+            _has_intent_filter(
+                filters,
+                {"ch.deletescape.lawnchair.ICONPACK"},
+                {"ch.deletescape.lawnchair.PICK_ICON"},
+            ),
+            "ch.deletescape.lawnchair.ICONPACK + PICK_ICON",
+        ),
+        (
+            "Smart Launcher",
+            _has_intent_filter(
+                filters,
+                {
+                    "ginlemon.smartlauncher.THEMES",
+                    "ginlemon.smartlauncher.BUBBLESTYLE",
+                    "ginlemon.smartlauncher.BUBBLEICONS",
+                },
+                {"android.intent.category.DEFAULT"},
+            ),
+            "Smart Launcher theme/bubble actions + DEFAULT",
+        ),
+        (
+            "OnePlus Launcher",
+            _has_intent_filter(
+                filters,
+                {"net.oneplus.launcher.icons.ACTION_PICK_ICON"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "net.oneplus.launcher.icons.ACTION_PICK_ICON + DEFAULT",
+        ),
+        (
+            "Samsung One UI",
+            not core_missing
+            and _has_intent_filter(
+                filters,
+                {"org.adw.launcher.THEMES"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "generic icon-pack resources + ADW theme compatibility channel",
+        ),
+        (
+            "Niagara Launcher",
+            not core_missing
+            and _has_intent_filter(
+                filters,
+                {"org.adw.launcher.THEMES"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "generic ADW theme compatibility channel",
+        ),
+        (
+            "Pixel Launcher",
+            _has_intent_filter(
+                filters,
+                {"com.google.android.apps.nexuslauncher.ACTION_ICON_PACK"},
+                {"android.intent.category.DEFAULT"},
+            ),
+            "com.google.android.apps.nexuslauncher.ACTION_ICON_PACK + DEFAULT",
+        ),
+        (
+            "Holo/LauncherPro generic",
+            _has_intent_filter(
+                filters,
+                {"android.intent.action.MAIN"},
+                {"com.fede.launcher.THEME_ICONPACK"},
+            ),
+            "MAIN + com.fede.launcher.THEME_ICONPACK",
+        ),
+    ]
+
+    print("launcher compatibility smoke matrix")
+    for name, ok, evidence in checks:
+        print(f"  {'OK' if ok else 'FAIL'}  {name}: {evidence}")
+        if not ok:
+            errors.append(f"{name}: missing {evidence}")
+
+    if errors:
+        print("launcher compatibility check: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    print("launcher compatibility check: OK")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
     for script in ("validate_appfilter.py", "validate_drawables.py"):
@@ -1131,6 +1316,9 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     release_rc = cmd_release_check(args)
     if release_rc != 0:
         rc = release_rc
+    launcher_rc = cmd_launcher_compat_check(args)
+    if launcher_rc != 0:
+        rc = launcher_rc
     return rc
 
 
@@ -1534,6 +1722,13 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run drawable, appfilter, and release metadata validators",
     )
     check_p.set_defaults(func=cmd_check)
+
+    # --- launcher-compat-check ---
+    launcher_p = sub.add_parser(
+        "launcher-compat-check",
+        help="Verify launcher intent filters and core icon-pack XML resources",
+    )
+    launcher_p.set_defaults(func=cmd_launcher_compat_check)
 
     # --- release-check ---
     release_p = sub.add_parser(
