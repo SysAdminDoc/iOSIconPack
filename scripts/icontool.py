@@ -14,6 +14,7 @@ Commands
   check    Run the full XML validator (validate_appfilter.py)
   placeholder  Generate a ph_* letter-tile placeholder and optional mapping
   widget-export  Export KWGT/Kustom and Rainmeter icon catalog assets
+  wallpaper-generate  Generate or check bundled original wallpaper assets
   localization-check  Verify Crowdin config and localizable Android resources
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
@@ -1766,6 +1767,11 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
             result = subprocess.run([sys.executable, str(gallery), flag])
             if result.returncode != 0:
                 rc = result.returncode
+    wallpapers = REPO_ROOT / "scripts" / "gen_wallpapers.py"
+    if wallpapers.exists():
+        result = subprocess.run([sys.executable, str(wallpapers), "--check"])
+        if result.returncode != 0:
+            rc = result.returncode
     release_rc = cmd_release_check(args)
     if release_rc != 0:
         rc = release_rc
@@ -2287,6 +2293,16 @@ def cmd_widget_export(args: argparse.Namespace) -> int:
     return subprocess.run(command, cwd=REPO_ROOT).returncode
 
 
+def cmd_wallpaper_generate(args: argparse.Namespace) -> int:
+    """Generate or validate bundled wallpaper assets."""
+    command = [sys.executable, str(REPO_ROOT / "scripts" / "gen_wallpapers.py")]
+    if args.force:
+        command.append("--force")
+    if args.check:
+        command.append("--check")
+    return subprocess.run(command, cwd=REPO_ROOT).returncode
+
+
 def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
     """Print icon pack statistics: counts by era, top apps by mapping count."""
     # ── per-era PNG counts from disk ──────────────────────────────────────────
@@ -2517,6 +2533,23 @@ def _build_parser() -> argparse.ArgumentParser:
     )
     widget_export_p.set_defaults(func=cmd_widget_export)
 
+    # --- wallpaper-generate ---
+    wallpaper_p = sub.add_parser(
+        "wallpaper-generate",
+        help="Generate or check bundled original wallpaper assets",
+    )
+    wallpaper_p.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite existing generated wallpaper assets.",
+    )
+    wallpaper_p.add_argument(
+        "--check",
+        action="store_true",
+        help="Validate generated wallpaper assets and JSON.",
+    )
+    wallpaper_p.set_defaults(func=cmd_wallpaper_generate)
+
     # --- localization-check ---
     localization_p = sub.add_parser(
         "localization-check",
@@ -2634,8 +2667,8 @@ def _build_parser() -> argparse.ArgumentParser:
     preflight_p.add_argument(
         "--max-apk-mb",
         type=float,
-        default=12.0,
-        help="Maximum release APK size in MiB (default: 12.0)",
+        default=13.0,
+        help="Maximum release APK size in MiB (default: 13.0)",
     )
     preflight_p.add_argument(
         "--gradle-task",

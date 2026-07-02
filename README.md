@@ -38,6 +38,7 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **Mix & Match** — Apply different generations to different apps
 - **367 raster icons + 367 transparent glyph variants + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
 - **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era
+- **6 Original Wallpapers** - bundled WebP backgrounds inspired by each shipped iOS era
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **Per-launcher apply cards** — Home-screen actions for Nova, Action, Smart,
   OnePlus, Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park
@@ -147,6 +148,10 @@ python3 scripts/icontool.py rebuild
 
 # Export PNG icon assets for Kustom/KWGT and Rainmeter widget workflows:
 python3 scripts/icontool.py widget-export
+
+# Regenerate and validate bundled original wallpapers:
+python3 scripts/icontool.py wallpaper-generate --force
+python3 scripts/icontool.py wallpaper-generate --check
 
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight

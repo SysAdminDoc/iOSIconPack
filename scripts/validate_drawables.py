@@ -14,6 +14,7 @@ Exit 0 on success, 1 on any failure.
 """
 from __future__ import annotations
 
+import json
 import os
 import struct
 import sys
@@ -22,12 +23,15 @@ from pathlib import Path
 
 REPO_ROOT     = Path(__file__).resolve().parents[1]
 RES_ROOT      = REPO_ROOT / "app/src/main/res"
+ASSETS_DIR    = REPO_ROOT / "app/src/main/assets"
 HDPI_DIR      = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 VEC_DIR       = REPO_ROOT / "app/src/main/res/drawable"
 DRAWABLE_XML  = REPO_ROOT / "app/src/main/res/xml/drawable.xml"
 THEME_RESOURCES_XML = REPO_ROOT / "app/src/main/res/xml/theme_resources.xml"
 ANDROID_MANIFEST = REPO_ROOT / "app/src/main/AndroidManifest.xml"
 WALLPAPERS_XML = REPO_ROOT / "app/src/main/res/values/wallpapers.xml"
+FRAMES_SETUP_XML = REPO_ROOT / "app/src/main/res/values/frames_setup.xml"
+RAW_GITHUB_PREFIX = "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/"
 
 EXPECTED_SIZE = 192          # px
 MAX_FILE_KB   = 200          # KB
@@ -263,6 +267,98 @@ def _wallpaper_item_count() -> int:
     return count
 
 
+def _wallpaper_json_urls() -> list[str]:
+    if not WALLPAPERS_XML.exists():
+        return []
+    try:
+        root = ET.parse(WALLPAPERS_XML).getroot()
+    except ET.ParseError:
+        return []
+    urls: list[str] = []
+    for array in root.iter("string-array"):
+        if array.get("name") == "wallpapers_json_urls":
+            urls.extend((item.text or "").strip() for item in array.iter("item") if (item.text or "").strip())
+    return urls
+
+
+def _wallpapers_section_enabled() -> bool:
+    if not FRAMES_SETUP_XML.exists():
+        return False
+    try:
+        root = ET.parse(FRAMES_SETUP_XML).getroot()
+    except ET.ParseError:
+        return False
+    for item in root.iter("bool"):
+        if item.get("name") == "show_wallpapers_section":
+            return (item.text or "").strip().lower() == "true"
+    return False
+
+
+def _asset_path_from_url(url: str) -> Path | None:
+    prefix = "file:///android_asset/"
+    if url.startswith(prefix):
+        return ASSETS_DIR / url.removeprefix(prefix)
+    if url.startswith(RAW_GITHUB_PREFIX):
+        return REPO_ROOT / url.removeprefix(RAW_GITHUB_PREFIX)
+    return None
+
+
+def check_wallpaper_assets() -> list[str]:
+    errors: list[str] = []
+    urls = _wallpaper_json_urls()
+    if _wallpapers_section_enabled() and not urls:
+        errors.append("  EMPTY WALLPAPER SURFACE  wallpapers section is enabled but wallpapers_json_urls is empty")
+        return errors
+
+    for url in urls:
+        path = _asset_path_from_url(url)
+        if path is None:
+            continue
+        if not path.exists():
+            errors.append(f"  MISSING WALLPAPER JSON  {url}")
+            continue
+        try:
+            entries = json.loads(path.read_text(encoding="utf-8"))
+        except json.JSONDecodeError as exc:
+            errors.append(f"  MALFORMED WALLPAPER JSON  {path.relative_to(REPO_ROOT)}: {exc}")
+            continue
+        if not isinstance(entries, list) or not entries:
+            errors.append(f"  EMPTY WALLPAPER JSON  {path.relative_to(REPO_ROOT)}")
+            continue
+        for entry in entries:
+            if not isinstance(entry, dict):
+                errors.append(f"  MALFORMED WALLPAPER ENTRY  {path.relative_to(REPO_ROOT)} contains a non-object entry")
+                continue
+            name = str(entry.get("name") or "<unnamed>")
+            for field in ("url", "thumbnail", "size", "dimensions", "copyright"):
+                if field not in entry:
+                    errors.append(f"  WALLPAPER METADATA  {name}: missing {field}")
+            full_path = _asset_path_from_url(str(entry.get("url", "")))
+            thumb_path = _asset_path_from_url(str(entry.get("thumbnail", "")))
+            for label, asset in (("url", full_path), ("thumbnail", thumb_path)):
+                if asset is None:
+                    errors.append(f"  WALLPAPER ASSET  {name}: {label} is not a supported asset URL")
+                    continue
+                if not asset.exists():
+                    errors.append(f"  WALLPAPER ASSET  {name}: missing {asset.relative_to(REPO_ROOT)}")
+            if full_path and full_path.exists() and entry.get("size") != full_path.stat().st_size:
+                errors.append(f"  WALLPAPER METADATA  {name}: size does not match file")
+            if full_path and full_path.exists() and thumb_path and thumb_path.exists():
+                try:
+                    from PIL import Image  # type: ignore
+
+                    with Image.open(full_path) as full_image:
+                        expected = f"{full_image.size[0]} x {full_image.size[1]} px"
+                        if entry.get("dimensions") != expected:
+                            errors.append(f"  WALLPAPER METADATA  {name}: dimensions should be '{expected}'")
+                    with Image.open(thumb_path) as thumb_image:
+                        if thumb_image.size[0] > 480 or thumb_image.size[1] > 960:
+                            errors.append(f"  WALLPAPER THUMBNAIL  {name}: thumbnail is too large at {thumb_image.size}")
+                except Exception as exc:
+                    errors.append(f"  WALLPAPER ASSET  {name}: cannot inspect image dimensions ({exc})")
+    return errors
+
+
 def check_launcher_resources() -> list[str]:
     errors: list[str] = []
     if THEME_RESOURCES_XML.exists():
@@ -374,6 +470,7 @@ def main() -> int:
     file_errors = check_drawable_files()
     themed_errors, themed_background_count = check_themed_backgrounds()
     glyph_errors, glyph_count = check_glyph_variants()
+    wallpaper_errors = check_wallpaper_assets()
     launcher_errors = check_launcher_resources()
     liquid_glass_errors = check_liquid_glass_masks()
     squircle_warnings, squircle_note = check_squircle_corners()
@@ -393,6 +490,7 @@ def main() -> int:
     all_errors.extend(file_errors)
     all_errors.extend(themed_errors)
     all_errors.extend(glyph_errors)
+    all_errors.extend(wallpaper_errors)
     all_errors.extend(launcher_errors)
     all_errors.extend(liquid_glass_errors)
 

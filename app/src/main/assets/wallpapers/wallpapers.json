@@ -1,0 +1,80 @@
+[
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 14|Original|Gradient",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios14_flow.webp",
+    "local_url": "file:///android_asset/wallpapers/ios14_flow.webp",
+    "name": "iOS 14 Flow",
+    "size": 98288,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios14_flow.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios14_flow.webp"
+  },
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 15|Original|Gradient",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios15_bloom.webp",
+    "local_url": "file:///android_asset/wallpapers/ios15_bloom.webp",
+    "name": "iOS 15 Bloom",
+    "size": 28156,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios15_bloom.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios15_bloom.webp"
+  },
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 16|Original|Abstract",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios16_orbit.webp",
+    "local_url": "file:///android_asset/wallpapers/ios16_orbit.webp",
+    "name": "iOS 16 Orbit",
+    "size": 132212,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios16_orbit.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios16_orbit.webp"
+  },
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 17|Original|Soft",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios17_mist.webp",
+    "local_url": "file:///android_asset/wallpapers/ios17_mist.webp",
+    "name": "iOS 17 Mist",
+    "size": 25972,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios17_mist.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios17_mist.webp"
+  },
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 18|Original|Tinted",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios18_tint.webp",
+    "local_url": "file:///android_asset/wallpapers/ios18_tint.webp",
+    "name": "iOS 18 Tint",
+    "size": 106138,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios18_tint.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios18_tint.webp"
+  },
+  {
+    "author": "SysAdminDoc",
+    "collections": "iOS 26|Original|Glass",
+    "copyright": "MIT - original procedural artwork by SysAdminDoc",
+    "dimensions": "1440 x 3200 px",
+    "downloadable": true,
+    "local_thumbnail": "file:///android_asset/wallpapers/thumbs/ios26_glass.webp",
+    "local_url": "file:///android_asset/wallpapers/ios26_glass.webp",
+    "name": "iOS 26 Liquid Glass",
+    "size": 95970,
+    "thumbnail": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/thumbs/ios26_glass.webp",
+    "url": "https://raw.githubusercontent.com/SysAdminDoc/iOSIconPack/master/app/src/main/assets/wallpapers/ios26_glass.webp"
+  }
+]

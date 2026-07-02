@@ -39,6 +39,8 @@ All notable changes to iOSIconPack will be documented in this file.
   uncovered app components without adding them to the dashboard catalog.
 - `icontool widget-export` builds a local zip with Kustom/KWGT image assets,
   JSON/CSV catalog metadata, and a Rainmeter skin/resource layout.
+- Six committed, original WebP wallpapers cover iOS 14, 15, 16, 17, 18, and iOS
+  26 Liquid Glass eras through Blueprint's raw GitHub wallpaper JSON feed.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.
@@ -60,9 +62,11 @@ All notable changes to iOSIconPack will be documented in this file.
 - Release lint is fail-closed again, and release builds now enable resource
   shrinking with an explicit icon-pack keep file for dynamically referenced
   launcher/dashboard resources.
-- Wallpaper, theme-preview, and Muzei entry points are hidden until original
-  wallpaper assets exist; drawable validation now fails on missing launcher
-  resource references or empty advertised wallpaper surfaces.
+- The local release APK size gate is now 13 MiB to cover the bundled wallpaper
+  pack while still failing on unexpected asset growth.
+- Wallpaper entry points are backed by committed original assets; drawable
+  validation now fails on missing launcher resource references, empty advertised
+  wallpaper surfaces, or stale local wallpaper JSON metadata.
 - Contributor, gallery, and distribution docs now describe local validation and
   release commands only; stale current-process CI/GitHub Actions claims were
   removed.
