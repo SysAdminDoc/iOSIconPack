@@ -12,6 +12,7 @@ Commands
   rebuild  Sync drawable.xml with files on disk (batch-add missing entries)
   sync     Sync assets/ copies to match res/xml/ (fixes drift)
   check    Run the full XML validator (validate_appfilter.py)
+  placeholder  Generate a ph_* letter-tile placeholder and optional mapping
   localization-check  Verify Crowdin config and localizable Android resources
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
@@ -197,8 +198,10 @@ CATEGORY_ORDER: list[str] = [
     "Glyph",
 ]
 
-# tp_ icons live only in appfilter.xml + on disk, never in drawable.xml.
+# tp_ and ph_ icons live only in appfilter.xml + on disk, never in drawable.xml.
 TP_PREFIX = "tp_"
+PLACEHOLDER_PREFIX = "ph_"
+APPFILTER_ONLY_PREFIXES = (TP_PREFIX, PLACEHOLDER_PREFIX)
 GLYPH_PREFIX = "glyph_"
 GLYPH_CATEGORY = "Glyph"
 
@@ -1491,14 +1494,16 @@ def cmd_add(args: argparse.Namespace) -> int:
         added += 1
         print(f"  + appfilter/appmap: {norm} -> {drawable}")
 
-    # tp_ icons exist only in appfilter + on disk — never in drawable.xml.
-    if not drawable.startswith(TP_PREFIX):
+    # Appfilter-only icons exist on disk and in mappings, never in drawable.xml.
+    if not drawable.startswith(APPFILTER_ONLY_PREFIXES):
         if not _dw_has(dw, drawable):
             dw = _dw_insert(dw, drawable)
             cat = _category_title(drawable) or "unknown era"
             print(f"  + drawable.xml [{cat}]: {drawable}")
         else:
             print(f"  = drawable.xml: {drawable} already listed")
+    else:
+        print(f"  = drawable.xml: skipped appfilter-only drawable {drawable}")
 
     _write_pair(APPFILTER_RES, APPFILTER_ASSET, af)
     _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
@@ -2166,7 +2171,7 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
 
     Scans drawable-xxxhdpi/ for PNG files and drawable/ for vector XMLs,
     then adds any that are missing from drawable.xml to the correct era
-    category section.  tp_* icons are always excluded (they live only in
+    category section.  tp_* and ph_* icons are always excluded (they live only in
     appfilter.xml by design).
 
     With --prune, also removes drawable.xml entries whose file no longer
@@ -2180,15 +2185,15 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     # Drawables currently listed in drawable.xml
     in_xml: set[str] = set(re.findall(r'<item\s+drawable="([^"]+)"', dw))
 
-    # Drawables that exist on disk (PNGs + vector drawables, non-tp_, non-launcher)
+    # Drawables that exist on disk (PNGs + vector drawables, non-appfilter-only, non-launcher)
     on_disk: set[str] = set()
     for f in DRAWABLE_HDPI.glob("*.png"):
         name = f.stem
-        if not name.startswith(TP_PREFIX) and _era_prefix(name):
+        if not name.startswith(APPFILTER_ONLY_PREFIXES) and _era_prefix(name):
             on_disk.add(name)
     for f in DRAWABLE_VEC.glob("*.xml"):
         name = f.stem
-        skip_prefixes = ("ic_launcher", "ic_", "tp_", "background", "foreground")
+        skip_prefixes = ("ic_launcher", "ic_", TP_PREFIX, PLACEHOLDER_PREFIX, "background", "foreground")
         skip_suffixes = ("_mono", "_themed")
         if (
             not any(name.startswith(p) for p in skip_prefixes)
@@ -2237,6 +2242,29 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     _sync_icon_pack_xml(dw)
     print(f"\nDone — {len(missing)} added, {len(stale)} removed.")
     return 0
+
+
+def cmd_placeholder(args: argparse.Namespace) -> int:
+    """Generate a deterministic ph_* placeholder and optional component mapping."""
+    command = [
+        sys.executable,
+        str(REPO_ROOT / "scripts" / "gen_placeholders.py"),
+        "--drawable",
+        args.drawable,
+        "--label",
+        args.label,
+    ]
+    for component in args.component:
+        command.extend(["--component", component])
+    if args.color:
+        command.extend(["--color", args.color])
+    if args.output:
+        command.extend(["--output", args.output])
+    if args.force:
+        command.append("--force")
+    if args.dry_run:
+        command.append("--dry-run")
+    return subprocess.run(command, cwd=REPO_ROOT).returncode
 
 
 def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
@@ -2390,6 +2418,50 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Run drawable, appfilter, and release metadata validators",
     )
     check_p.set_defaults(func=cmd_check)
+
+    # --- placeholder ---
+    placeholder_p = sub.add_parser(
+        "placeholder",
+        help="Generate a deterministic ph_* letter-tile placeholder and optional mapping",
+    )
+    placeholder_p.add_argument(
+        "--drawable",
+        required=True,
+        help="Drawable name; ph_ is added when omitted.",
+    )
+    placeholder_p.add_argument(
+        "--label",
+        required=True,
+        help="App label used for placeholder initials and color.",
+    )
+    placeholder_p.add_argument(
+        "--component", "-c",
+        action="append",
+        default=[],
+        metavar="PKG/ACTIVITY",
+        help="ComponentInfo to map through icontool add (repeatable).",
+    )
+    placeholder_p.add_argument(
+        "--color",
+        default=None,
+        help="Optional #RRGGBB background base color.",
+    )
+    placeholder_p.add_argument(
+        "--output",
+        default=None,
+        help="Write a preview PNG to this path instead of the app catalog.",
+    )
+    placeholder_p.add_argument(
+        "--force",
+        action="store_true",
+        help="Overwrite an existing placeholder PNG.",
+    )
+    placeholder_p.add_argument(
+        "--dry-run", "-n",
+        action="store_true",
+        help="Print planned output without writing files.",
+    )
+    placeholder_p.set_defaults(func=cmd_placeholder)
 
     # --- localization-check ---
     localization_p = sub.add_parser(

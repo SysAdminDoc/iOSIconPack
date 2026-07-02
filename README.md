@@ -110,6 +110,11 @@ python3 scripts/icontool.py add ios18_appname \
 python3 scripts/icontool.py add tp_appname \
     -c "com.example.app/com.example.app.MainActivity"
 
+# Generate a temporary letter-tile placeholder for an uncovered app:
+python3 scripts/icontool.py placeholder --drawable ph_example_app \
+    --label "Example App" \
+    -c "com.example.app/com.example.app.MainActivity"
+
 # Validate appfilter, drawables, and release metadata:
 python3 scripts/icontool.py check
 
