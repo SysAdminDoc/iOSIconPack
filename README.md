@@ -129,6 +129,9 @@ python3 scripts/icontool.py launcher-compat-check
 # Audit open icon requests without mutating GitHub:
 python3 scripts/icontool.py request-audit
 
+# Rank missing packages from icon requests and public icon-pack coverage:
+python3 scripts/icontool.py coverage-gap
+
 # Audit Gradle repository and artifact provenance for F-Droid review:
 python3 scripts/icontool.py maven-provenance-check
 

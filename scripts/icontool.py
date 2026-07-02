@@ -21,6 +21,7 @@ Commands
   release-channel-check  Verify GitHub Releases latest tag/assets
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
+  coverage-gap  Score high-value missing package coverage from requests and public icon packs
   maven-provenance-check  Verify Maven repository/artifact provenance
   publish-check  Verify official publish APK signing inputs and fingerprint
   preflight  Run local release validators, Gradle checks, and APK size gate
@@ -161,6 +162,21 @@ MAVEN_REPOSITORY_BY_ID = {repo["id"]: repo for repo in MAVEN_REPOSITORIES}
 JITPACK_HINT_PREFIXES = (
     "com.github.",
     "com.jahirfiquitiva",
+)
+
+COVERAGE_GAP_PUBLIC_SOURCES: tuple[dict[str, str], ...] = (
+    {
+        "name": "Arcticons",
+        "url": "https://raw.githubusercontent.com/Arcticons-Team/Arcticons/HEAD/newicons/appfilter.xml",
+    },
+    {
+        "name": "Delta Icons",
+        "url": "https://raw.githubusercontent.com/Delta-Icons/android/HEAD/app/src/main/res/xml/appfilter.xml",
+    },
+    {
+        "name": "Lawnicons",
+        "url": "https://raw.githubusercontent.com/LawnchairLauncher/lawnicons/HEAD/app/assets/appfilter.xml",
+    },
 )
 
 # ---------------------------------------------------------------------------
@@ -1002,14 +1018,22 @@ def _published_channel_summary(app_id: str) -> list[str]:
 
 
 def _issue_field(body: str, label: str) -> str:
-    pattern = re.compile(
-        r"###\s+" + re.escape(label) + r"\s*\n+(.*?)(?=\n###\s+|\Z)",
-        re.DOTALL | re.IGNORECASE,
-    )
-    match = pattern.search(body or "")
-    if not match:
+    lines = (body or "").splitlines()
+    start: int | None = None
+    label_lower = label.lower()
+    for index, line in enumerate(lines):
+        if line.strip().lower() == f"### {label_lower}":
+            start = index + 1
+            break
+    if start is None:
         return ""
-    value = re.sub(r"\n{3,}", "\n\n", match.group(1)).strip()
+
+    values: list[str] = []
+    for line in lines[start:]:
+        if line.startswith("### "):
+            break
+        values.append(line)
+    value = re.sub(r"\n{3,}", "\n\n", "\n".join(values)).strip()
     if value.lower() in {"_no response_", "no response", "none", "n/a"}:
         return ""
     return value
@@ -1085,6 +1109,300 @@ def _fetch_icon_request_issues(repo: str, errors: list[str]) -> list[dict[str, o
             break
         page += 1
     return issues
+
+
+def _coverage_drawable_base(drawable: str) -> str:
+    name = drawable.strip().removesuffix(".xml").removesuffix(".png").removesuffix(".webp")
+    if name.startswith(GLYPH_PREFIX):
+        name = name.removeprefix(GLYPH_PREFIX)
+    for prefix in ERA_PREFIXES:
+        if name.startswith(prefix):
+            return name.removeprefix(prefix)
+    if name.startswith(PLACEHOLDER_PREFIX):
+        return name.removeprefix(PLACEHOLDER_PREFIX)
+    return name
+
+
+def _coverage_humanize(value: str) -> str:
+    cleaned = re.sub(r"[_\-.]+", " ", _coverage_drawable_base(value)).strip()
+    return " ".join(part.capitalize() for part in cleaned.split())
+
+
+def _coverage_drawable_priority(drawable: str) -> tuple[int, str]:
+    if drawable.startswith("ios18_"):
+        return (0, drawable)
+    if drawable.startswith(TP_PREFIX):
+        return (1, drawable)
+    if drawable.startswith("ios26_lg_"):
+        return (2, drawable)
+    if drawable.startswith("ios17_"):
+        return (3, drawable)
+    if drawable.startswith("ios16_"):
+        return (4, drawable)
+    if drawable.startswith("ios15_"):
+        return (5, drawable)
+    if drawable.startswith("ios14_"):
+        return (6, drawable)
+    if drawable.startswith(PLACEHOLDER_PREFIX):
+        return (7, drawable)
+    return (8, drawable)
+
+
+def _coverage_existing_drawables_by_base() -> dict[str, str]:
+    drawables: set[str] = set()
+    for path in DRAWABLE_HDPI.glob("*.png"):
+        drawables.add(path.stem)
+    for path in DRAWABLE_VEC.glob("*.xml"):
+        drawables.add(path.stem)
+
+    by_base: dict[str, str] = {}
+    for drawable in sorted(drawables):
+        if drawable.startswith(GLYPH_PREFIX) or drawable.endswith(("_mono", "_themed")):
+            continue
+        base = _coverage_drawable_base(drawable)
+        if not base:
+            continue
+        current = by_base.get(base)
+        if current is None or _coverage_drawable_priority(drawable) < _coverage_drawable_priority(current):
+            by_base[base] = drawable
+    return by_base
+
+
+def _coverage_slug(value: str) -> str:
+    value = value.lower()
+    value = re.sub(r"[^a-z0-9]+", "_", value).strip("_")
+    return re.sub(r"_+", "_", value)
+
+
+def _coverage_candidate_keys(candidate: dict[str, object]) -> list[str]:
+    keys: list[str] = []
+    for drawable in sorted(candidate["drawables"]):  # type: ignore[index]
+        keys.append(_coverage_drawable_base(str(drawable)))
+    for title in sorted(candidate["titles"]):  # type: ignore[index]
+        keys.append(_coverage_slug(str(title)))
+    package_name = str(candidate["package"])
+    package_parts = [part for part in package_name.split(".") if part]
+    keys.extend(_coverage_slug(part) for part in reversed(package_parts[-3:]))
+    return [key for key in dict.fromkeys(keys) if key]
+
+
+def _coverage_parse_source_spec(spec: str) -> tuple[str, str]:
+    if "=" in spec:
+        name, locator = spec.split("=", 1)
+        return name.strip() or locator.strip(), locator.strip()
+    path = _repo_relative_path(spec)
+    return path.stem or spec, spec
+
+
+def _coverage_read_source(locator: str, timeout: float) -> str:
+    if re.match(r"https?://", locator, re.IGNORECASE):
+        request = urllib.request.Request(
+            locator,
+            headers={
+                "Accept": "application/xml,text/xml,*/*",
+                "User-Agent": "iOSIconPack-coverage-gap",
+            },
+        )
+        with urllib.request.urlopen(request, timeout=timeout) as response:
+            return response.read().decode("utf-8-sig")
+    return _repo_relative_path(locator).read_text(encoding="utf-8-sig")
+
+
+def _coverage_parse_appfilter_source(name: str, locator: str, content: str) -> list[dict[str, object]]:
+    try:
+        root = ET.fromstring(content)
+    except ET.ParseError as exc:
+        raise ValueError(f"{name}: XML parse error: {exc}") from exc
+
+    signals: list[dict[str, object]] = []
+    for element in root.iter():
+        component = (element.get("component") or "").strip()
+        if not component:
+            continue
+        try:
+            normalized = _norm_component(component)
+            package_name, _ = _parse_component(normalized)
+        except ValueError:
+            continue
+
+        drawable = (
+            element.get("drawable")
+            or element.get("name")
+            or element.get("prefix")
+            or ""
+        ).strip()
+        title = (element.get("name") or _coverage_humanize(drawable)).strip()
+        if not title:
+            title = package_name.split(".")[-1]
+        signals.append(
+            {
+                "source": name,
+                "kind": "public",
+                "package": package_name,
+                "component": normalized,
+                "drawable": _coverage_drawable_base(drawable),
+                "title": title,
+            }
+        )
+    return signals
+
+
+def _coverage_issue_signals(raw_issues: list[dict[str, object]], include_all: bool) -> list[dict[str, object]]:
+    signals: list[dict[str, object]] = []
+    for issue in raw_issues:
+        if not include_all and "icon-request" not in _issue_labels(issue):
+            continue
+        normalized = _normalize_issue(issue)
+        package_name = str(normalized.get("package") or "")
+        component = str(normalized.get("component") or "")
+        if component:
+            try:
+                package_name, _ = _parse_component(component)
+            except ValueError:
+                pass
+        if not package_name:
+            continue
+        app_name = str(normalized.get("app_name") or normalized.get("title") or package_name)
+        signals.append(
+            {
+                "source": "request",
+                "kind": "request",
+                "package": package_name,
+                "component": component,
+                "drawable": "",
+                "title": app_name,
+                "number": int(normalized.get("number") or 0),
+                "url": str(normalized.get("url") or ""),
+            }
+        )
+    return signals
+
+
+def _coverage_local_evidence(
+    package_name: str,
+    components: set[str],
+    by_component: dict[str, str],
+    by_package: dict[str, list[tuple[str, str]]],
+) -> str:
+    for component in sorted(components):
+        drawable = by_component.get(component)
+        if drawable:
+            return f"{component} -> {drawable}"
+    mappings = by_package.get(package_name) or []
+    if mappings:
+        component, drawable = mappings[0]
+        return f"{component} -> {drawable}"
+    return ""
+
+
+def _coverage_score(candidate: dict[str, object]) -> int:
+    requests = candidate["requests"]  # type: ignore[index]
+    source_counts = candidate["source_counts"]  # type: ignore[index]
+    components = candidate["components"]  # type: ignore[index]
+    request_count = len(requests)
+    public_source_count = len(source_counts)
+    public_component_count = sum(int(count) for count in source_counts.values())  # type: ignore[union-attr]
+    score = request_count * 50
+    score += public_source_count * 18
+    score += min(public_component_count, 20) * 2
+    if request_count and public_source_count:
+        score += 15
+    if candidate.get("existing_drawable"):
+        score += 6
+    if len(components) > 1:
+        score += min(len(components) - 1, 10)
+    return score
+
+
+def _coverage_component_guess(candidate: dict[str, object]) -> str:
+    components = sorted(candidate["components"])  # type: ignore[index]
+    if components:
+        suffix = f" (+{len(components) - 1} more)" if len(components) > 1 else ""
+        return components[0] + suffix
+    return "needs ComponentInfo"
+
+
+def _coverage_signal_summary(candidate: dict[str, object]) -> str:
+    parts: list[str] = []
+    requests = sorted(int(number) for number in candidate["requests"])  # type: ignore[index]
+    if requests:
+        parts.append("requests " + ",".join(f"#{number}" for number in requests))
+    source_counts = candidate["source_counts"]  # type: ignore[index]
+    for source, count in sorted(source_counts.items()):  # type: ignore[union-attr]
+        parts.append(f"{source} x{count}")
+    return "; ".join(parts) or "none"
+
+
+def _coverage_build_candidates(
+    signals: list[dict[str, object]],
+    by_component: dict[str, str],
+    by_package: dict[str, list[tuple[str, str]]],
+) -> tuple[list[dict[str, object]], int]:
+    existing_by_base = _coverage_existing_drawables_by_base()
+    candidates: dict[str, dict[str, object]] = {}
+
+    for signal in signals:
+        package_name = str(signal.get("package") or "")
+        if not package_name:
+            continue
+        candidate = candidates.setdefault(
+            package_name,
+            {
+                "package": package_name,
+                "titles": set(),
+                "components": set(),
+                "drawables": set(),
+                "requests": set(),
+                "request_urls": [],
+                "source_counts": {},
+                "covered_by": "",
+                "existing_drawable": "",
+                "score": 0,
+            },
+        )
+        title = str(signal.get("title") or "")
+        component = str(signal.get("component") or "")
+        drawable = str(signal.get("drawable") or "")
+        if title:
+            candidate["titles"].add(title)  # type: ignore[union-attr]
+        if component:
+            candidate["components"].add(component)  # type: ignore[union-attr]
+        if drawable:
+            candidate["drawables"].add(drawable)  # type: ignore[union-attr]
+
+        if signal.get("kind") == "request":
+            number = int(signal.get("number") or 0)
+            if number:
+                candidate["requests"].add(number)  # type: ignore[union-attr]
+            url = str(signal.get("url") or "")
+            if url:
+                candidate["request_urls"].append(url)  # type: ignore[union-attr]
+        else:
+            source = str(signal.get("source") or "public")
+            source_counts = candidate["source_counts"]  # type: ignore[index]
+            source_counts[source] = int(source_counts.get(source, 0)) + 1  # type: ignore[union-attr]
+
+    covered_count = 0
+    for candidate in candidates.values():
+        package_name = str(candidate["package"])
+        components = candidate["components"]  # type: ignore[index]
+        covered_by = _coverage_local_evidence(package_name, components, by_component, by_package)  # type: ignore[arg-type]
+        candidate["covered_by"] = covered_by
+        if covered_by:
+            covered_count += 1
+
+        for key in _coverage_candidate_keys(candidate):
+            existing = existing_by_base.get(key)
+            if existing:
+                candidate["existing_drawable"] = existing
+                break
+        candidate["score"] = _coverage_score(candidate)
+
+    ordered = sorted(
+        candidates.values(),
+        key=lambda item: (-int(item["score"]), str(item["package"])),
+    )
+    return ordered, covered_count
 
 
 def _print_bullets(items: list[str] | tuple[str, ...], indent: str = "  - ") -> None:
@@ -2005,6 +2323,124 @@ def cmd_request_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_coverage_gap(args: argparse.Namespace) -> int:
+    errors: list[str] = []
+    warnings: list[str] = []
+    signals: list[dict[str, object]] = []
+
+    if args.input:
+        try:
+            raw_issues = _load_issues_from_file(_repo_relative_path(args.input))
+        except (OSError, ValueError, json.JSONDecodeError) as exc:
+            print(f"coverage gap: cannot read issue input: {exc}", file=sys.stderr)
+            return 1
+        issue_source = args.input
+    elif args.no_requests:
+        raw_issues = []
+        issue_source = "disabled"
+    else:
+        raw_issues = _fetch_icon_request_issues(args.repo, errors)
+        issue_source = f"GitHub {args.repo} open icon-request issues"
+
+    if errors:
+        print("coverage gap: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    signals.extend(_coverage_issue_signals(raw_issues, include_all=bool(args.input)))
+
+    source_specs: list[tuple[str, str]] = []
+    if not args.no_public_sources:
+        source_specs.extend((item["name"], item["url"]) for item in COVERAGE_GAP_PUBLIC_SOURCES)
+    for spec in args.source:
+        source_specs.append(_coverage_parse_source_spec(spec))
+
+    loaded_sources: list[str] = []
+    for name, locator in source_specs:
+        try:
+            content = _coverage_read_source(locator, args.timeout)
+            parsed = _coverage_parse_appfilter_source(name, locator, content)
+        except (OSError, urllib.error.URLError, urllib.error.HTTPError, TimeoutError, ValueError) as exc:
+            message = f"{name}: {exc}"
+            if args.strict_sources:
+                print(f"coverage gap: source failed: {message}", file=sys.stderr)
+                return 1
+            warnings.append(message)
+            continue
+        signals.extend(parsed)
+        loaded_sources.append(f"{name} ({len(parsed)} signal{'s' if len(parsed) != 1 else ''})")
+
+    appfilter = _read(APPFILTER_RES)
+    by_component, by_package = _af_component_index(appfilter)
+    candidates, covered_count = _coverage_build_candidates(signals, by_component, by_package)
+    missing = [candidate for candidate in candidates if not candidate.get("covered_by")]
+    rows = candidates if args.include_covered else missing
+    rows = rows[: max(1, args.top)]
+
+    if args.json:
+        payload = {
+            "issue_source": issue_source,
+            "loaded_sources": loaded_sources,
+            "warnings": warnings,
+            "local_covered_packages": len(by_package),
+            "signals": len(signals),
+            "candidate_count": len(candidates),
+            "covered_candidate_count": covered_count,
+            "missing_candidate_count": len(missing),
+            "candidates": [
+                {
+                    "rank": index,
+                    "score": int(candidate["score"]),
+                    "package": candidate["package"],
+                    "app_names": sorted(candidate["titles"]),  # type: ignore[arg-type]
+                    "component_guess": _coverage_component_guess(candidate),
+                    "existing_drawable": candidate.get("existing_drawable") or None,
+                    "covered_by": candidate.get("covered_by") or None,
+                    "signals": _coverage_signal_summary(candidate),
+                    "request_urls": candidate["request_urls"],
+                }
+                for index, candidate in enumerate(rows, start=1)
+            ],
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 0
+
+    print("coverage gap score")
+    print(f"  issue source: {issue_source}")
+    print(f"  public sources loaded: {len(loaded_sources)} of {len(source_specs)}")
+    for source in loaded_sources:
+        print(f"    - {source}")
+    print(f"  local packages covered: {len(by_package)}")
+    print(f"  raw signals: {len(signals)}")
+    print(f"  candidates: {len(candidates)} total, {len(missing)} missing, {covered_count} already covered")
+    if warnings:
+        print("  source warnings:")
+        for warning in warnings:
+            print(f"    - {warning}")
+
+    if not rows:
+        print("\nNo coverage gaps found from the selected sources.")
+        return 0
+
+    heading = "Top packages" if args.include_covered else "Top missing packages"
+    print(f"\n{heading}")
+    for index, candidate in enumerate(rows, start=1):
+        titles = sorted(candidate["titles"])  # type: ignore[arg-type]
+        title = titles[0] if titles else str(candidate["package"]).split(".")[-1]
+        existing = str(candidate.get("existing_drawable") or "none")
+        covered = str(candidate.get("covered_by") or "")
+        print(f"  {index:>2}. score {int(candidate['score']):>3}  {candidate['package']}")
+        print(f"      app: {title}")
+        print(f"      component: {_coverage_component_guess(candidate)}")
+        print(f"      existing drawable: {existing}")
+        if covered:
+            print(f"      covered by: {covered}")
+        print(f"      signals: {_coverage_signal_summary(candidate)}")
+
+    return 0
+
+
 def cmd_maven_provenance_check(args: argparse.Namespace) -> int:
     declared_repos, errors = _declared_maven_repositories()
     if not declared_repos:
@@ -2616,6 +3052,67 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Read saved GitHub issue JSON from this file instead of fetching live issues",
     )
     request_audit_p.set_defaults(func=cmd_request_audit)
+
+    # --- coverage-gap ---
+    coverage_gap_p = sub.add_parser(
+        "coverage-gap",
+        help="Score high-value missing package coverage from requests and public icon packs",
+    )
+    coverage_gap_p.add_argument(
+        "--repo",
+        default=GITHUB_REPO,
+        help=f"GitHub owner/repo to fetch requests from when --input is omitted (default: {GITHUB_REPO})",
+    )
+    coverage_gap_p.add_argument(
+        "--input",
+        default=None,
+        help="Read saved GitHub issue JSON from this file instead of fetching live request issues",
+    )
+    coverage_gap_p.add_argument(
+        "--source",
+        action="append",
+        default=[],
+        metavar="NAME=URL_OR_PATH",
+        help="Add a public package source to score; accepts icon-pack appfilter XML (repeatable).",
+    )
+    coverage_gap_p.add_argument(
+        "--no-public-sources",
+        action="store_true",
+        help="Skip the built-in Arcticons, Delta Icons, and Lawnicons appfilter sources.",
+    )
+    coverage_gap_p.add_argument(
+        "--no-requests",
+        action="store_true",
+        help="Skip live GitHub request issues when --input is omitted.",
+    )
+    coverage_gap_p.add_argument(
+        "--include-covered",
+        action="store_true",
+        help="Include packages that are already covered locally.",
+    )
+    coverage_gap_p.add_argument(
+        "--strict-sources",
+        action="store_true",
+        help="Fail instead of warning when a public package source cannot be read.",
+    )
+    coverage_gap_p.add_argument(
+        "--timeout",
+        type=float,
+        default=15.0,
+        help="Seconds to wait for each remote package source (default: 15).",
+    )
+    coverage_gap_p.add_argument(
+        "--top",
+        type=int,
+        default=25,
+        help="Number of ranked packages to print (default: 25).",
+    )
+    coverage_gap_p.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit machine-readable JSON instead of text.",
+    )
+    coverage_gap_p.set_defaults(func=cmd_coverage_gap)
 
     # --- maven-provenance-check ---
     maven_provenance_p = sub.add_parser(

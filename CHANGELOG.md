@@ -15,6 +15,9 @@ All notable changes to iOSIconPack will be documented in this file.
   against `appfilter.xml`, reporting already-covered, duplicate,
   needs-ComponentInfo, ready-to-map, and malformed request buckets without
   mutating GitHub.
+- `icontool coverage-gap` ranks missing app packages from icon requests plus
+  Arcticons, Delta Icons, Lawnicons, or supplied appfilter XML sources, with
+  component guesses and existing-drawable reuse hints.
 - Generated gallery accessibility smoke checks now validate search labels,
   filter pressed states, tab semantics, focus-visible support, and keyboard
   activation through the local validator path.
