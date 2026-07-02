@@ -1,6 +1,21 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
 
+    <queries>
+        <package android:name="app.lawnchair" />
+        <package android:name="bitpit.launcher" />
+        <package android:name="ch.deletescape.lawnchair" />
+        <package android:name="com.actionlauncher.playstore" />
+        <package android:name="com.anddoes.launcher" />
+        <package android:name="com.samsung.android.goodlock" />
+        <package android:name="com.samsung.android.themedesigner" />
+        <package android:name="com.spocky.projengmenu" />
+        <package android:name="com.teslacoilsw.launcher" />
+        <package android:name="ginlemon.flowerfree" />
+        <package android:name="net.oneplus.launcher" />
+        <package android:name="org.adw.launcher" />
+    </queries>
+
     <application
         android:name=".MyApplication"
         android:allowBackup="true"
@@ -128,6 +143,22 @@
             </intent-filter>
             <intent-filter>
                 <category android:name="android.intent.category.INFO" />
+            </intent-filter>
+        </activity>
+
+        <activity
+            android:name=".LauncherApplyActivity"
+            android:exported="true"
+            android:theme="@android:style/Theme.NoDisplay">
+            <intent-filter>
+                <action android:name="android.intent.action.VIEW" />
+
+                <category android:name="android.intent.category.DEFAULT" />
+                <category android:name="android.intent.category.BROWSABLE" />
+
+                <data
+                    android:host="apply"
+                    android:scheme="iosiconpack" />
             </intent-filter>
         </activity>
 

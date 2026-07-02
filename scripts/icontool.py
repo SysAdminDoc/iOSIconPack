@@ -87,11 +87,26 @@ VERSIONS_KT = REPO_ROOT / "buildSrc/src/main/java/Versions.kt"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
+HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
+LAUNCHER_APPLY_SCHEME = "iosiconpack"
+LAUNCHER_APPLY_HOST = "apply"
+LAUNCHER_APPLY_SLUGS: tuple[str, ...] = (
+    "nova",
+    "action",
+    "smart",
+    "oneplus",
+    "lawnchair",
+    "niagara",
+    "projectivy",
+    "adw",
+    "apex",
+    "samsung",
+)
 
 ANDROID_VERIFICATION_GUIDE = "https://developer.android.com/developer-verification/guides"
 ANDROID_VERIFICATION_FAQ = "https://developer.android.com/developer-verification/guides/faq"
@@ -1363,6 +1378,83 @@ def _launcher_core_resources_present() -> list[str]:
     return missing
 
 
+def _values_string_array(root: ET.Element, name: str) -> list[str]:
+    for node in root.findall("string-array"):
+        if node.get("name") == name:
+            return [(item.text or "").strip() for item in node.findall("item")]
+    return []
+
+
+def _home_apply_card_errors() -> list[str]:
+    errors: list[str] = []
+    if not HOME_SETUP_XML.exists():
+        return [f"missing {_display_path(HOME_SETUP_XML)}"]
+    try:
+        root = ET.parse(HOME_SETUP_XML).getroot()
+    except ET.ParseError as exc:
+        return [f"{_display_path(HOME_SETUP_XML)} is malformed: {exc}"]
+
+    arrays = {
+        name: _values_string_array(root, name)
+        for name in (
+            "home_list_titles",
+            "home_list_descriptions",
+            "home_list_icons",
+            "home_list_links",
+        )
+    }
+    lengths = {name: len(values) for name, values in arrays.items()}
+    if len(set(lengths.values())) != 1:
+        errors.append(f"home list arrays must have equal lengths: {lengths}")
+
+    links = set(arrays["home_list_links"])
+    for slug in LAUNCHER_APPLY_SLUGS:
+        link = f"{LAUNCHER_APPLY_SCHEME}://{LAUNCHER_APPLY_HOST}/{slug}"
+        if link not in links:
+            errors.append(f"missing launcher apply home card link: {link}")
+    return errors
+
+
+def _launcher_apply_deep_link_errors() -> list[str]:
+    manifest = REPO_ROOT / "app/src/main/AndroidManifest.xml"
+    try:
+        root = ET.parse(manifest).getroot()
+    except ET.ParseError as exc:
+        return [f"AndroidManifest.xml is malformed: {exc}"]
+
+    for activity in root.iter("activity"):
+        name = activity.get(f"{ANDROID_NS}name", "")
+        if name not in {".LauncherApplyActivity", "com.sysadmindoc.iosicons.LauncherApplyActivity"}:
+            continue
+        if activity.get(f"{ANDROID_NS}exported") != "true":
+            return ["LauncherApplyActivity must be exported for browsable apply links"]
+        for intent_filter in activity.findall("intent-filter"):
+            actions = {
+                child.get(f"{ANDROID_NS}name", "")
+                for child in intent_filter.findall("action")
+            }
+            categories = {
+                child.get(f"{ANDROID_NS}name", "")
+                for child in intent_filter.findall("category")
+            }
+            data = [
+                (
+                    child.get(f"{ANDROID_NS}scheme", ""),
+                    child.get(f"{ANDROID_NS}host", ""),
+                )
+                for child in intent_filter.findall("data")
+            ]
+            if (
+                "android.intent.action.VIEW" in actions
+                and "android.intent.category.DEFAULT" in categories
+                and "android.intent.category.BROWSABLE" in categories
+                and (LAUNCHER_APPLY_SCHEME, LAUNCHER_APPLY_HOST) in data
+            ):
+                return []
+        return ["LauncherApplyActivity is missing iosiconpack://apply VIEW deep-link filter"]
+    return ["LauncherApplyActivity is missing from AndroidManifest.xml"]
+
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
@@ -1533,6 +1625,8 @@ def cmd_launcher_compat_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     core_missing = _launcher_core_resources_present()
     if core_missing:
         errors.extend(f"launcher core resource missing: {item}" for item in core_missing)
+    errors.extend(_home_apply_card_errors())
+    errors.extend(_launcher_apply_deep_link_errors())
 
     checks: list[tuple[str, bool, str]] = [
         (

@@ -9,17 +9,57 @@
     <string-array name="home_list_titles">
         <item>GitHub</item>
         <item>Icon Requests</item>
+        <item>Nova Launcher</item>
+        <item>Action Launcher</item>
+        <item>Smart Launcher</item>
+        <item>OnePlus Launcher</item>
+        <item>Lawnchair</item>
+        <item>Niagara Launcher</item>
+        <item>Projectivy Launcher</item>
+        <item>ADW Launcher</item>
+        <item>Apex Launcher</item>
+        <item>Samsung One UI</item>
     </string-array>
     <string-array name="home_list_descriptions">
         <item>View source code and contribute icons</item>
         <item>Request icons for your favorite apps</item>
+        <item>Apply directly with the Nova icon theme intent</item>
+        <item>Apply directly with the Action Launcher theme handoff</item>
+        <item>Apply directly with the Smart Launcher theme handoff</item>
+        <item>Open OnePlus icon pack selector</item>
+        <item>Apply directly with the Lawnchair icon pack intent</item>
+        <item>Apply directly with the Niagara icon pack intent</item>
+        <item>Apply directly with the Projectivy icon pack intent</item>
+        <item>Apply directly with the ADW theme intent</item>
+        <item>Apply directly with the Apex theme intent</item>
+        <item>Open Theme Park or instructions for One UI icons</item>
     </string-array>
     <string-array name="home_list_icons" translatable="false">
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
+        <item>ic_na_launcher</item>
         <item>ic_na_launcher</item>
         <item>ic_na_launcher</item>
     </string-array>
     <string-array name="home_list_links" translatable="false">
         <item>https://github.com/SysAdminDoc/iOSIconPack</item>
         <item>mailto:sysadmindoc@gmail.com</item>
+        <item>iosiconpack://apply/nova</item>
+        <item>iosiconpack://apply/action</item>
+        <item>iosiconpack://apply/smart</item>
+        <item>iosiconpack://apply/oneplus</item>
+        <item>iosiconpack://apply/lawnchair</item>
+        <item>iosiconpack://apply/niagara</item>
+        <item>iosiconpack://apply/projectivy</item>
+        <item>iosiconpack://apply/adw</item>
+        <item>iosiconpack://apply/apex</item>
+        <item>iosiconpack://apply/samsung</item>
     </string-array>
 </resources>

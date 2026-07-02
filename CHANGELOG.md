@@ -32,6 +32,9 @@ All notable changes to iOSIconPack will be documented in this file.
   `app/src/main/svg` into generated Android vector drawables at build time.
 - `crowdin.yml` and `icontool localization-check` wire dashboard strings to a
   local Crowdin CLI workflow without committing credentials or GitHub Actions.
+- Home-screen launcher apply cards route Nova, Action, Smart, OnePlus,
+  Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park through
+  app-owned deep links and local launcher compatibility validation.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.

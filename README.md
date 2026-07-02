@@ -39,6 +39,8 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **367 raster icons + 367 transparent glyph variants + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
 - **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
+- **Per-launcher apply cards** — Home-screen actions for Nova, Action, Smart,
+  OnePlus, Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park
 - **AMOLED Dark Theme** — Native dark mode dashboard
 - **Icon Requests** — Request icons for apps not yet covered
 - **Free & Open Source** — No ads, no tracking, no IAP
