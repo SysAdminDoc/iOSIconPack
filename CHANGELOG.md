@@ -28,6 +28,8 @@ All notable changes to iOSIconPack will be documented in this file.
 - `scripts/gen_glyph_variants.py` generates 367 transparent glyph-only vector
   variants with a squircle border, exposed through the dashboard `Glyph`
   category and validated by the local drawable checks.
+- `convertSvgSources` Gradle task converts raw SVG sources from
+  `app/src/main/svg` into generated Android vector drawables at build time.
 - 232 new per-era app variants for popular third-party and Google apps.
 - iOS 26 Liquid Glass coverage expanded to 57 icons.
 - 367 hand-crafted monochrome vector layers for Android 13+ themed icons.

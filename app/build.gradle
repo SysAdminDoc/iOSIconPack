@@ -35,6 +35,8 @@ def normalizeSha256 = { value ->
     value?.replace(':', '')?.replace(' ', '')?.trim()?.toUpperCase(Locale.US)
 }
 
+def generatedSvgResDir = layout.buildDirectory.dir('generated/res/svgProcessor/main')
+
 def findApksigner = {
     def buildToolsDir = new File(android.sdkDirectory, 'build-tools')
     if (!buildToolsDir.exists()) return null
@@ -127,6 +129,7 @@ android {
 
     sourceSets {
         main.java.srcDirs += 'src/main/kotlin'
+        main.res.srcDir generatedSvgResDir
     }
 
     packagingOptions {
@@ -152,6 +155,19 @@ android {
     buildFeatures {
         buildConfig = true
     }
+}
+
+tasks.register('convertSvgSources', SvgToVectorDrawableTask) {
+    group = 'asset generation'
+    description = 'Converts app/src/main/svg SVG files into generated Android vector drawables.'
+    sourceFiles.from(fileTree('src/main/svg') {
+        include '**/*.svg'
+    })
+    outputDir.set(layout.buildDirectory.dir('generated/res/svgProcessor/main/drawable'))
+}
+
+tasks.named('preBuild').configure {
+    dependsOn 'convertSvgSources'
 }
 
 tasks.register('verifyPublishReleaseSigning') {

@@ -128,6 +128,9 @@ python3 scripts/icontool.py maven-provenance-check
 python3 scripts/gen_glyph_variants.py --force --prune
 python3 scripts/icontool.py rebuild
 
+# Convert raw SVG sources in app/src/main/svg into generated vector drawables:
+./gradlew :app:convertSvgSources
+
 # Run the full local release preflight with lint, packaging, and APK size gate:
 python3 scripts/icontool.py preflight
 
@@ -140,6 +143,12 @@ python3 scripts/icontool.py release-channel-check
 # Report Android developer verification readiness for sideload/store channels:
 python3 scripts/icontool.py developer-verification-check
 ```
+
+`convertSvgSources` accepts simple SVG paths and shapes (`path`, `rect`,
+`circle`, `ellipse`, `line`, `polygon`, `polyline`) and writes generated Android
+vectors under `app/build/generated/res/svgProcessor/main/drawable`. Gradients,
+paint servers, and transforms fail fast so source art is corrected before it
+enters the icon catalog.
 
 See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions, and PR checklist.
 
