@@ -59,7 +59,7 @@ The pack applies **iOS 18** by default. Contributors can switch the active era a
 ```bash
 python3 scripts/set_era.py --list        # see active era
 python3 scripts/set_era.py ios17         # switch to iOS 17
-python3 scripts/set_era.py ios26         # iOS 26 Liquid Glass (partial)
+python3 scripts/set_era.py ios26         # iOS 26 Liquid Glass
 python3 scripts/set_era.py ios18         # reset to default
 ```
 

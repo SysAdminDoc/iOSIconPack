@@ -7,6 +7,7 @@ Checks:
   3. Every PNG is under the size budget (200 KB).
   4. Every vector drawable in drawable/ parses as valid XML.
   5. Every item in drawable.xml has a corresponding file on disk.
+  6. iOS 26 Liquid Glass PNGs use clipped squircle corners and opaque centers.
 
 Exit 0 on success, 1 on any failure.
 """
@@ -234,6 +235,35 @@ def check_launcher_resources() -> list[str]:
     return errors
 
 
+def check_liquid_glass_masks() -> list[str]:
+    errors: list[str] = []
+    for path in sorted(HDPI_DIR.glob("ios26_lg_*.png")):
+        try:
+            from PIL import Image  # type: ignore
+
+            img = Image.open(path).convert("RGBA")
+        except Exception as exc:
+            errors.append(f"  LIQUID GLASS MASK  {path.name}: cannot inspect alpha ({exc})")
+            continue
+
+        w, h = img.size
+        corners = (
+            img.getpixel((0, 0))[3],
+            img.getpixel((w - 1, 0))[3],
+            img.getpixel((0, h - 1))[3],
+            img.getpixel((w - 1, h - 1))[3],
+        )
+        if any(alpha > 12 for alpha in corners):
+            errors.append(
+                f"  LIQUID GLASS MASK  {path.name}: corners are not clipped transparent"
+            )
+        if img.getpixel((w // 2, h // 2))[3] < 220:
+            errors.append(
+                f"  LIQUID GLASS MASK  {path.name}: center is not opaque enough"
+            )
+    return errors
+
+
 def check_squircle_corners() -> tuple[list[str], str | None]:
     """Warn if any PNG has too many opaque pixels in its four corner regions."""
     try:
@@ -283,6 +313,7 @@ def main() -> int:
     file_errors = check_drawable_files()
     themed_errors, themed_background_count = check_themed_backgrounds()
     launcher_errors = check_launcher_resources()
+    liquid_glass_errors = check_liquid_glass_masks()
     squircle_warnings, squircle_note = check_squircle_corners()
 
     png_count = len(list(HDPI_DIR.glob("*.png")))
@@ -300,6 +331,7 @@ def main() -> int:
     all_errors.extend(file_errors)
     all_errors.extend(themed_errors)
     all_errors.extend(launcher_errors)
+    all_errors.extend(liquid_glass_errors)
 
     if all_errors:
         print(f"validate_drawables.py: FAILED ({len(all_errors)} error(s))", file=sys.stderr)

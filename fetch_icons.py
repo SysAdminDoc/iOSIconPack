@@ -2,7 +2,8 @@
 """Fetch real iOS app icons from Apple's iTunes Search API and store as PNGs.
 
 Downloads 1024x1024 originals into `icons_raw/`, resizes to 192x192 for the
-xxxhdpi bucket, applies a per-era color grade, and writes them under
+xxxhdpi bucket, applies a per-era color grade or Liquid Glass material pass,
+and writes them under
 `app/src/main/res/drawable-xxxhdpi/` using the canonical
 `ios{ver}_{name}` / `tp_{name}` naming convention.
 
@@ -41,7 +42,7 @@ from urllib.request import Request, urlopen
 from xml.etree import ElementTree as ET
 
 try:
-    from PIL import Image, ImageEnhance
+    from PIL import Image, ImageChops, ImageDraw, ImageEnhance, ImageFilter, ImageOps
 except ImportError:
     sys.stderr.write(
         "fetch_icons.py: Pillow is required. Install with:\n"
@@ -151,7 +152,7 @@ ERA_GRADES: dict[str, tuple[float, float, float]] = {
     "ios16":    (0.95, 1.00, 1.00),   # clean, slightly muted
     "ios15":    (1.08, 1.05, 0.98),   # warm, vibrant
     "ios14":    (1.12, 1.05, 0.97),   # richest saturation, warm shadows
-    "ios26_lg": (0.88, 0.95, 1.05),   # frosted / cool, reduced saturation
+    "ios26_lg": (0.88, 0.95, 1.05),   # pre-grade before Liquid Glass material
     "tp":       (1.00, 1.00, 1.00),   # no grade — preserve brand colors
 }
 
@@ -271,11 +272,131 @@ def _apply_era_grade(img: Image.Image, era: str) -> Image.Image:
     return img
 
 
+def _squircle_mask(size: int) -> Image.Image:
+    """Return an antialiased iOS-style rounded-square alpha mask."""
+    scale = 4
+    hi_size = size * scale
+    radius = int(size * 0.235 * scale)
+    mask = Image.new("L", (hi_size, hi_size), 0)
+    draw = ImageDraw.Draw(mask)
+    draw.rounded_rectangle(
+        (0, 0, hi_size - 1, hi_size - 1),
+        radius=radius,
+        fill=255,
+    )
+    return mask.resize((size, size), Image.Resampling.LANCZOS)
+
+
+def _alpha_scaled(mask: Image.Image, opacity: float) -> Image.Image:
+    return mask.point(lambda value: int(value * opacity))
+
+
+def _vertical_gradient(
+    size: int,
+    top: tuple[int, int, int, int],
+    bottom: tuple[int, int, int, int],
+) -> Image.Image:
+    img = Image.new("RGBA", (size, size))
+    px = img.load()
+    for y in range(size):
+        t = y / max(1, size - 1)
+        row = tuple(int(top[i] * (1 - t) + bottom[i] * t) for i in range(4))
+        for x in range(size):
+            px[x, y] = row
+    return img
+
+
+def _diagonal_gloss(size: int) -> Image.Image:
+    layer = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    px = layer.load()
+    for y in range(size):
+        for x in range(size):
+            diagonal = (x + y) / (2 * max(1, size - 1))
+            band = max(0.0, 1.0 - abs(diagonal - 0.32) / 0.28)
+            corner = max(0.0, 1.0 - diagonal)
+            alpha = int(88 * band + 42 * corner)
+            if alpha:
+                px[x, y] = (255, 255, 255, min(alpha, 118))
+    return layer
+
+
+def _edge_shadow(size: int) -> Image.Image:
+    shadow = _vertical_gradient(
+        size,
+        (0, 0, 0, 0),
+        (16, 42, 64, 58),
+    )
+    shadow.putalpha(ImageChops.multiply(shadow.getchannel("A"), _squircle_mask(size)))
+    return shadow
+
+
+def _liquid_glass_transform(img: Image.Image, size: int) -> Image.Image:
+    """Apply the iOS 26 Liquid Glass material treatment."""
+    base = img.convert("RGBA").resize((size, size), Image.Resampling.LANCZOS)
+    mask = _squircle_mask(size)
+
+    backdrop = base.resize((max(1, size // 3), max(1, size // 3)), Image.Resampling.BICUBIC)
+    backdrop = backdrop.resize((size, size), Image.Resampling.BICUBIC)
+    backdrop = backdrop.filter(ImageFilter.GaussianBlur(radius=size * 0.075))
+    backdrop = ImageEnhance.Color(backdrop).enhance(0.58)
+    backdrop = ImageEnhance.Contrast(backdrop).enhance(0.82)
+    backdrop = ImageEnhance.Brightness(backdrop).enhance(1.25)
+    backdrop = Image.blend(
+        backdrop,
+        Image.new("RGBA", (size, size), (210, 240, 255, 255)),
+        0.14,
+    )
+
+    material = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    backdrop.putalpha(mask)
+    material.alpha_composite(backdrop)
+
+    detail = _apply_era_grade(base, "ios26_lg")
+    detail = ImageEnhance.Contrast(detail).enhance(0.96)
+    detail.putalpha(_alpha_scaled(mask, 0.70))
+    material.alpha_composite(detail)
+
+    frost = Image.new("RGBA", (size, size), (255, 255, 255, 46))
+    frost.putalpha(_alpha_scaled(mask, 0.12))
+    material.alpha_composite(frost)
+
+    gloss = _diagonal_gloss(size)
+    gloss.putalpha(ImageChops.multiply(gloss.getchannel("A"), mask))
+    material.alpha_composite(gloss)
+
+    material.alpha_composite(_edge_shadow(size))
+
+    rim = Image.new("RGBA", (size, size), (0, 0, 0, 0))
+    draw = ImageDraw.Draw(rim)
+    radius = int(size * 0.235)
+    draw.rounded_rectangle(
+        (2, 2, size - 3, size - 3),
+        radius=radius,
+        outline=(255, 255, 255, 118),
+        width=max(1, size // 96),
+    )
+    draw.rounded_rectangle(
+        (5, 5, size - 6, size - 6),
+        radius=max(1, radius - 3),
+        outline=(16, 54, 82, 40),
+        width=1,
+    )
+    material.alpha_composite(rim)
+    material.putalpha(mask)
+    alpha = material.getchannel("A")
+    material = ImageOps.posterize(material.convert("RGB"), 6).convert("RGBA")
+    material.putalpha(alpha)
+    return material
+
+
 def _resize(src: Path, dst: Path, size: int = 192, era: str = "tp") -> bool:
     try:
         img = Image.open(src).convert("RGBA")
-        img = img.resize((size, size), Image.Resampling.LANCZOS)
-        img = _apply_era_grade(img, era)
+        if era == "ios26_lg":
+            img = _liquid_glass_transform(img, size)
+        else:
+            img = img.resize((size, size), Image.Resampling.LANCZOS)
+            img = _apply_era_grade(img, era)
         img.save(dst, "PNG", optimize=True)
         return True
     except (OSError, ValueError) as exc:
@@ -387,7 +508,7 @@ def main(argv: list[str] | None = None) -> int:
             print(f"  tp_{name}")
         return 0
 
-    eras = tuple(args.era) if args.era else ERAS
+    eras = tuple(era for era in args.era if era != "ios26_lg") if args.era else ERAS
     include_lg = args.era is None or "ios26_lg" in args.era
 
     cache = _load_cache() if not args.dry_run else None
@@ -441,29 +562,30 @@ def main(argv: list[str] | None = None) -> int:
             )
             time.sleep(0.3)
 
-    print("\n--- Third-Party Apps ---")
-    for name, term in THIRD_PARTY.items():
-        if only_names and name not in only_names:
-            continue
-        print(f"[{name}] search='{term}'")
-        icon_url = _icon_by_search(term)
-        if not icon_url:
-            failed.append(f"tp_{name}")
-            print(f"    SKIPPED")
-            continue
-        raw = RAW_DIR / f"tp_{name}_1024.png"
-        pack = PACK_DIR / f"tp_{name}.png"
-        if args.dry_run:
-            print(f"    [dry-run] would write {pack.relative_to(SCRIPT_DIR)}")
-            success += 1
-        else:
-            if not raw.exists():
-                _download(icon_url, raw, cache)
-            if raw.exists() and _resize(raw, pack, era="tp"):
+    if args.tp_only or not args.era:
+        print("\n--- Third-Party Apps ---")
+        for name, term in THIRD_PARTY.items():
+            if only_names and name not in only_names:
+                continue
+            print(f"[{name}] search='{term}'")
+            icon_url = _icon_by_search(term)
+            if not icon_url:
+                failed.append(f"tp_{name}")
+                print(f"    SKIPPED")
+                continue
+            raw = RAW_DIR / f"tp_{name}_1024.png"
+            pack = PACK_DIR / f"tp_{name}.png"
+            if args.dry_run:
+                print(f"    [dry-run] would write {pack.relative_to(SCRIPT_DIR)}")
                 success += 1
             else:
-                failed.append(f"tp_{name}")
-        time.sleep(0.3)
+                if not raw.exists():
+                    _download(icon_url, raw, cache)
+                if raw.exists() and _resize(raw, pack, era="tp"):
+                    success += 1
+                else:
+                    failed.append(f"tp_{name}")
+            time.sleep(0.3)
 
     if cache is not None:
         _save_cache(cache)
