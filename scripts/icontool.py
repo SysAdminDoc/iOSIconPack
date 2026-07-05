@@ -21,6 +21,7 @@ Commands
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
   preview-regression  Diff icon renders under common launcher masks
+  icon-quality-audit  Rank shipped icons that need maintainer review
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
   coverage-gap  Score high-value missing package coverage from requests and public icon packs
@@ -110,6 +111,14 @@ PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.j
 PREVIEW_ICON_SIZE = 192
 PREVIEW_MASKS: tuple[str, ...] = ("full-square", "circle", "rounded-square", "squircle")
 PREVIEW_SCHEMA_VERSION = 1
+ICON_QUALITY_ERAS: tuple[str, ...] = ("ios14", "ios15", "ios16", "ios17", "ios18", "ios26_lg")
+ICON_QUALITY_SOURCE_MIN_PX = 512
+ICON_QUALITY_WEAK_CONTRAST_RATIO = 1.35
+ICON_QUALITY_LOW_ALPHA_COVERAGE = 0.28
+ICON_QUALITY_CORNER_REGION = 15
+ICON_QUALITY_CORNER_OPAQUE_PX = 80
+ICON_QUALITY_SQUIRCLE_LEAK_RATIO = 0.08
+ICON_QUALITY_SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
@@ -848,6 +857,293 @@ def _preview_render(image, mask_name: str):
 
 def _preview_pixel_hash(image) -> str:
     return hashlib.sha256(image.tobytes()).hexdigest()
+
+
+class IconQualityFinding:
+    def __init__(
+        self,
+        *,
+        drawable: str,
+        severity: str,
+        score: int = 0,
+        reasons: list[str] | None = None,
+    ) -> None:
+        self.drawable = drawable
+        self.severity = severity
+        self.score = score
+        self.reasons = reasons or []
+
+    def add(self, severity: str, points: int, reason: str) -> None:
+        if ICON_QUALITY_SEVERITY_RANK[severity] > ICON_QUALITY_SEVERITY_RANK[self.severity]:
+            self.severity = severity
+        self.score += points
+        self.reasons.append(reason)
+
+    def to_json(self) -> dict[str, object]:
+        return {
+            "drawable": self.drawable,
+            "severity": self.severity,
+            "score": self.score,
+            "reasons": self.reasons,
+        }
+
+
+def _quality_add(
+    findings: dict[str, IconQualityFinding],
+    drawable: str,
+    severity: str,
+    points: int,
+    reason: str,
+) -> None:
+    finding = findings.get(drawable)
+    if finding is None:
+        findings[drawable] = IconQualityFinding(drawable=drawable, severity=severity, score=points, reasons=[reason])
+        return
+    finding.add(severity, points, reason)
+
+
+def _quality_percentile(values: list[float], ratio: float) -> float:
+    if not values:
+        return 0.0
+    if len(values) == 1:
+        return values[0]
+    index = min(len(values) - 1, max(0, int(round((len(values) - 1) * ratio))))
+    return values[index]
+
+
+def _quality_linear_channel(value: int) -> float:
+    channel = value / 255
+    if channel <= 0.04045:
+        return channel / 12.92
+    return ((channel + 0.055) / 1.055) ** 2.4
+
+
+def _quality_luminance(red: int, green: int, blue: int) -> float:
+    return (
+        0.2126 * _quality_linear_channel(red)
+        + 0.7152 * _quality_linear_channel(green)
+        + 0.0722 * _quality_linear_channel(blue)
+    )
+
+
+def _quality_pixels(image):
+    flattened = getattr(image, "get_flattened_data", None)
+    if callable(flattened):
+        return flattened()
+    return image.getdata()
+
+
+def _quality_corner_opaque_counts(icon) -> dict[str, int]:
+    size = ICON_QUALITY_CORNER_REGION
+    width, height = icon.size
+    regions = {
+        "top-left": (0, 0, size, size),
+        "top-right": (width - size, 0, width, size),
+        "bottom-left": (0, height - size, size, height),
+        "bottom-right": (width - size, height - size, width, height),
+    }
+    counts: dict[str, int] = {}
+    for name, box in regions.items():
+        region = icon.crop(box)
+        counts[name] = sum(1 for pixel in _quality_pixels(region) if pixel[3] > 10)
+    return counts
+
+
+def _quality_png_metrics(icon) -> dict[str, object]:
+    rgba = icon.convert("RGBA")
+    width, height = rgba.size
+    alpha = rgba.getchannel("A")
+    alpha_bounds = alpha.getbbox()
+    visible_pixels = [pixel for pixel in _quality_pixels(rgba) if pixel[3] > 30]
+    total_pixels = max(1, width * height)
+    coverage = len(visible_pixels) / total_pixels
+
+    luminance = sorted(_quality_luminance(pixel[0], pixel[1], pixel[2]) for pixel in visible_pixels)
+    low_luma = _quality_percentile(luminance, 0.10)
+    high_luma = _quality_percentile(luminance, 0.90)
+    contrast_ratio = (high_luma + 0.05) / (low_luma + 0.05) if luminance else 0.0
+
+    leak_ratio = 0.0
+    if rgba.size == (PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE) and visible_pixels:
+        squircle_mask = _preview_mask("squircle", PREVIEW_ICON_SIZE)
+        leaked = 0
+        for alpha_pixel, mask_pixel in zip(_quality_pixels(alpha), _quality_pixels(squircle_mask)):
+            if alpha_pixel > 10 and mask_pixel < 128:
+                leaked += 1
+        leak_ratio = leaked / len(visible_pixels)
+
+    return {
+        "alpha_bounds": alpha_bounds,
+        "coverage": coverage,
+        "contrast_ratio": contrast_ratio,
+        "corner_opaque": _quality_corner_opaque_counts(rgba),
+        "squircle_leak_ratio": leak_ratio,
+    }
+
+
+def _quality_load_provenance(path: Path) -> dict[str, object]:
+    try:
+        manifest = json.loads(path.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return {}
+    entries = manifest.get("entries")
+    return entries if isinstance(entries, dict) else {}
+
+
+def _quality_era_base(name: str) -> tuple[str, str]:
+    if name.startswith("ios26_lg_"):
+        return "ios26_lg", name.removeprefix("ios26_lg_")
+    for era in ICON_QUALITY_ERAS:
+        prefix = f"{era}_"
+        if name.startswith(prefix):
+            return era, name.removeprefix(prefix)
+    return "", name
+
+
+def _quality_drawable_for_era(era: str, base: str) -> str:
+    return f"{era}_{base}" if era != "ios26_lg" else f"ios26_lg_{base}"
+
+
+def _quality_findings(
+    *,
+    drawable_dir: Path = DRAWABLE_HDPI,
+    vector_dir: Path = DRAWABLE_VEC,
+    provenance_path: Path = ASSETS / "icon_provenance.json",
+    repo_root: Path = REPO_ROOT,
+    source_min_px: int = ICON_QUALITY_SOURCE_MIN_PX,
+    weak_contrast_ratio: float = ICON_QUALITY_WEAK_CONTRAST_RATIO,
+    low_alpha_coverage: float = ICON_QUALITY_LOW_ALPHA_COVERAGE,
+    corner_opaque_px: int = ICON_QUALITY_CORNER_OPAQUE_PX,
+    squircle_leak_ratio: float = ICON_QUALITY_SQUIRCLE_LEAK_RATIO,
+) -> list[IconQualityFinding]:
+    Image, _, _ = _preview_pillow_modules()
+    findings: dict[str, IconQualityFinding] = {}
+    provenance_entries = _quality_load_provenance(provenance_path)
+    png_paths = [path for path in _preview_png_paths(drawable_dir) if path.stem.startswith(("ios", "tp_"))]
+    png_names = {path.stem for path in png_paths}
+
+    era_groups: dict[str, set[str]] = {}
+    for name in png_names:
+        era, base = _quality_era_base(name)
+        if era:
+            era_groups.setdefault(base, set()).add(era)
+
+    for path in png_paths:
+        name = path.stem
+        try:
+            with Image.open(path) as raw_icon:
+                icon = raw_icon.convert("RGBA")
+        except (OSError, ValueError) as exc:
+            _quality_add(findings, name, "critical", 100, f"cannot read shipped PNG: {exc}")
+            continue
+
+        if icon.size != (PREVIEW_ICON_SIZE, PREVIEW_ICON_SIZE):
+            _quality_add(
+                findings,
+                name,
+                "critical",
+                100,
+                f"shipped PNG is {icon.size[0]}x{icon.size[1]}px; expected {PREVIEW_ICON_SIZE}x{PREVIEW_ICON_SIZE}px",
+            )
+            continue
+
+        entry = provenance_entries.get(name)
+        if not isinstance(entry, dict):
+            _quality_add(findings, name, "critical", 100, "missing icon provenance entry")
+        else:
+            raw_artifact = str(entry.get("raw_artifact") or "").strip()
+            if not raw_artifact:
+                _quality_add(findings, name, "high", 70, "provenance has no raw_artifact")
+            else:
+                raw_path = repo_root / raw_artifact
+                if not raw_path.exists():
+                    _quality_add(findings, name, "high", 70, f"raw source artifact missing: {raw_artifact}")
+                else:
+                    try:
+                        with Image.open(raw_path) as raw_source:
+                            raw_width, raw_height = raw_source.size
+                    except (OSError, ValueError) as exc:
+                        _quality_add(findings, name, "high", 70, f"cannot inspect raw source artifact: {exc}")
+                    else:
+                        if min(raw_width, raw_height) < source_min_px:
+                            _quality_add(
+                                findings,
+                                name,
+                                "high",
+                                75,
+                                f"low-resolution source {raw_width}x{raw_height}px below {source_min_px}px",
+                            )
+
+        metrics = _quality_png_metrics(icon)
+        coverage = float(metrics["coverage"])
+        if coverage < low_alpha_coverage:
+            _quality_add(
+                findings,
+                name,
+                "medium",
+                45,
+                f"low visible coverage {coverage:.1%} below {low_alpha_coverage:.0%}",
+            )
+
+        contrast_ratio = float(metrics["contrast_ratio"])
+        if contrast_ratio and contrast_ratio < weak_contrast_ratio:
+            _quality_add(
+                findings,
+                name,
+                "medium",
+                45,
+                f"weak internal luminance contrast {contrast_ratio:.2f}:1 below {weak_contrast_ratio:.2f}:1",
+            )
+
+        corner_counts = metrics["corner_opaque"]
+        if isinstance(corner_counts, dict):
+            max_corner = max((int(value) for value in corner_counts.values()), default=0)
+            if max_corner > corner_opaque_px:
+                worst = ", ".join(f"{corner}={count}" for corner, count in corner_counts.items() if count == max_corner)
+                _quality_add(
+                    findings,
+                    name,
+                    "low",
+                    20,
+                    f"opaque corner pixels exceed review threshold ({worst}; limit {corner_opaque_px})",
+                )
+
+        leak_ratio = float(metrics["squircle_leak_ratio"])
+        if leak_ratio > squircle_leak_ratio:
+            _quality_add(
+                findings,
+                name,
+                "medium",
+                50,
+                f"{leak_ratio:.1%} of visible pixels sit outside the squircle mask threshold {squircle_leak_ratio:.0%}",
+            )
+
+        for suffix, label in (("_mono.xml", "monochrome vector"), ("_themed.xml", "themed wrapper")):
+            if not (vector_dir / f"{name}{suffix}").exists():
+                _quality_add(findings, name, "high", 70, f"missing {label}: {name}{suffix}")
+        if not (vector_dir / f"glyph_{name}.xml").exists():
+            _quality_add(findings, name, "high", 70, f"missing transparent glyph variant: glyph_{name}.xml")
+
+    for base, eras in era_groups.items():
+        missing = [era for era in ICON_QUALITY_ERAS if era not in eras]
+        if not missing:
+            continue
+        representative = next(
+            (candidate for candidate in (_quality_drawable_for_era(era, base) for era in ICON_QUALITY_ERAS) if candidate in png_names),
+            _quality_drawable_for_era(sorted(eras)[0], base),
+        )
+        _quality_add(
+            findings,
+            representative,
+            "high",
+            70,
+            "variant gap: missing " + ", ".join(_quality_drawable_for_era(era, base) for era in missing),
+        )
+
+    return sorted(
+        findings.values(),
+        key=lambda item: (-ICON_QUALITY_SEVERITY_RANK[item.severity], -item.score, item.drawable),
+    )
 
 
 def _preview_regression_manifest(drawable_dir: Path = DRAWABLE_HDPI) -> dict[str, object]:
@@ -2773,6 +3069,81 @@ def cmd_preview_regression(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_icon_quality_audit(args: argparse.Namespace) -> int:
+    limit = int(getattr(args, "limit", 25) or 25)
+    fail_on = str(getattr(args, "fail_on", "critical") or "critical")
+    max_findings = getattr(args, "max_findings", None)
+
+    try:
+        findings = _quality_findings(
+            source_min_px=int(getattr(args, "source_min_px", ICON_QUALITY_SOURCE_MIN_PX)),
+            weak_contrast_ratio=float(getattr(args, "weak_contrast_ratio", ICON_QUALITY_WEAK_CONTRAST_RATIO)),
+            low_alpha_coverage=float(getattr(args, "low_alpha_coverage", ICON_QUALITY_LOW_ALPHA_COVERAGE)),
+            corner_opaque_px=int(getattr(args, "corner_opaque_px", ICON_QUALITY_CORNER_OPAQUE_PX)),
+            squircle_leak_ratio=float(getattr(args, "squircle_leak_ratio", ICON_QUALITY_SQUIRCLE_LEAK_RATIO)),
+        )
+    except (RuntimeError, OSError, ValueError) as exc:
+        print(f"icon quality audit: FAIL ({exc})", file=sys.stderr)
+        return 1
+
+    severity_counts = {severity: 0 for severity in ICON_QUALITY_SEVERITY_RANK}
+    for finding in findings:
+        severity_counts[finding.severity] += 1
+
+    output = {
+        "schema": 1,
+        "source": "app/src/main/res/drawable-xxxhdpi",
+        "findings": [finding.to_json() for finding in findings],
+        "severity_counts": severity_counts,
+        "thresholds": {
+            "source_min_px": int(getattr(args, "source_min_px", ICON_QUALITY_SOURCE_MIN_PX)),
+            "weak_contrast_ratio": float(getattr(args, "weak_contrast_ratio", ICON_QUALITY_WEAK_CONTRAST_RATIO)),
+            "low_alpha_coverage": float(getattr(args, "low_alpha_coverage", ICON_QUALITY_LOW_ALPHA_COVERAGE)),
+            "corner_opaque_px": int(getattr(args, "corner_opaque_px", ICON_QUALITY_CORNER_OPAQUE_PX)),
+            "squircle_leak_ratio": float(getattr(args, "squircle_leak_ratio", ICON_QUALITY_SQUIRCLE_LEAK_RATIO)),
+            "fail_on": fail_on,
+            "max_findings": max_findings,
+        },
+    }
+
+    json_output = getattr(args, "json_output", None)
+    if json_output:
+        output_path = _repo_relative_path(json_output)
+        _write(output_path, json.dumps(output, indent=2, sort_keys=True) + "\n")
+        print(f"icon quality audit: wrote {_display_path(output_path)}")
+
+    print("icon quality audit")
+    print(
+        "  findings: "
+        f"{severity_counts['critical']} critical, {severity_counts['high']} high, "
+        f"{severity_counts['medium']} medium, {severity_counts['low']} low"
+    )
+
+    if findings:
+        for finding in findings[:limit]:
+            print(f"  - [{finding.severity} score={finding.score}] {finding.drawable}")
+            for reason in finding.reasons:
+                print(f"      {reason}")
+        if len(findings) > limit:
+            print(f"  ... {len(findings) - limit} more finding(s); rerun with --limit {len(findings)} for all")
+    else:
+        print("  no review findings")
+
+    should_fail = False
+    if fail_on != "off":
+        threshold_rank = ICON_QUALITY_SEVERITY_RANK[fail_on]
+        should_fail = any(ICON_QUALITY_SEVERITY_RANK[finding.severity] >= threshold_rank for finding in findings)
+    if max_findings is not None and len(findings) > int(max_findings):
+        should_fail = True
+
+    if should_fail:
+        print("icon quality audit: FAIL", file=sys.stderr)
+        return 1
+
+    print("icon quality audit: OK")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
     for script in ("validate_appfilter.py", "validate_drawables.py", "validate_localization.py"):
@@ -4033,6 +4404,66 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Overwrite the baseline with the current accepted renders.",
     )
     preview_p.set_defaults(func=cmd_preview_regression)
+
+    # --- icon-quality-audit ---
+    icon_quality_p = sub.add_parser(
+        "icon-quality-audit",
+        help="Rank shipped icons that need maintainer review before release",
+    )
+    icon_quality_p.add_argument(
+        "--limit",
+        type=int,
+        default=25,
+        help="Maximum findings to print (default: 25).",
+    )
+    icon_quality_p.add_argument(
+        "--json-output",
+        default=None,
+        help="Optional path to write the full ranked queue as JSON.",
+    )
+    icon_quality_p.add_argument(
+        "--fail-on",
+        choices=("critical", "high", "medium", "low", "off"),
+        default="critical",
+        help="Lowest severity that should make the command fail (default: critical).",
+    )
+    icon_quality_p.add_argument(
+        "--max-findings",
+        type=int,
+        default=None,
+        help="Fail when total findings exceed this count.",
+    )
+    icon_quality_p.add_argument(
+        "--source-min-px",
+        type=int,
+        default=ICON_QUALITY_SOURCE_MIN_PX,
+        help=f"Minimum accepted raw source dimension in px (default: {ICON_QUALITY_SOURCE_MIN_PX}).",
+    )
+    icon_quality_p.add_argument(
+        "--weak-contrast-ratio",
+        type=float,
+        default=ICON_QUALITY_WEAK_CONTRAST_RATIO,
+        help=f"Internal luminance contrast review threshold (default: {ICON_QUALITY_WEAK_CONTRAST_RATIO}).",
+    )
+    icon_quality_p.add_argument(
+        "--low-alpha-coverage",
+        type=float,
+        default=ICON_QUALITY_LOW_ALPHA_COVERAGE,
+        help=f"Visible alpha coverage review threshold (default: {ICON_QUALITY_LOW_ALPHA_COVERAGE}).",
+    )
+    icon_quality_p.add_argument(
+        "--corner-opaque-px",
+        type=int,
+        default=ICON_QUALITY_CORNER_OPAQUE_PX,
+        help=f"Opaque pixels per corner before review (default: {ICON_QUALITY_CORNER_OPAQUE_PX}).",
+    )
+    icon_quality_p.add_argument(
+        "--squircle-leak-ratio",
+        type=float,
+        default=ICON_QUALITY_SQUIRCLE_LEAK_RATIO,
+        help=f"Visible pixels outside squircle mask before review (default: {ICON_QUALITY_SQUIRCLE_LEAK_RATIO}).",
+    )
+    icon_quality_p.set_defaults(func=cmd_icon_quality_audit)
 
     # --- developer-verification-check ---
     developer_verification_p = sub.add_parser(

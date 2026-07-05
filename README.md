@@ -159,6 +159,9 @@ python3 scripts/icontool.py dependency-audit
 # Diff rendered icon previews under common launcher masks:
 python3 scripts/icontool.py preview-regression
 
+# Rank icons that need maintainer review without blocking on low-priority polish:
+python3 scripts/icontool.py icon-quality-audit --limit 25
+
 # Validate Crowdin config and Android translatable resource boundaries:
 python3 scripts/icontool.py localization-check
 

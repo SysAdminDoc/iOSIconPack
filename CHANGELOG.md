@@ -13,6 +13,9 @@ All notable changes to iOSIconPack will be documented in this file.
   buildscript metadata exceptions.
 - Added telemetry-free launcher apply diagnostics that copy local failure
   context for GitHub bug reports.
+- Added `icon-quality-audit` to rank low-resolution sources, contrast risks,
+  mask/corner review candidates, and variant gaps with configurable release
+  thresholds.
 
 ## [v1.2.2] - 2026-07-02
 
