@@ -24,6 +24,8 @@ All notable changes to iOSIconPack will be documented in this file.
   You and Android auto-theming dark/light palette simulations.
 - Added temporary expanded/RTL pseudo-locale checks for Android resources and
   docs copy, including protected-token validation and clipping-risk reporting.
+- Added `toolchain-upgrade-rehearsal` to plan AGP/Kotlin/KSP/Pillow/Gradle
+  updates and optionally test them in a temporary detached git worktree.
 
 ## [v1.2.2] - 2026-07-02
 

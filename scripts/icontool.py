@@ -30,6 +30,7 @@ Commands
   coverage-gap  Score high-value missing package coverage from requests and public icon packs
   maven-provenance-check  Verify Maven repository/artifact provenance
   dependency-audit  Check core dependency versions and OSV advisories
+  toolchain-upgrade-rehearsal  Rehearse version bumps in a temporary worktree
   publish-check  Verify official publish APK signing inputs and fingerprint
   preflight  Run local release validators, Gradle checks, and APK size gate
 
@@ -101,6 +102,7 @@ ICON_PACK_XML = REPO_ROOT / "app/src/main/res/values/icon_pack.xml"
 MYAPP_KT = REPO_ROOT / "buildSrc/src/main/java/MyApp.kt"
 VERSIONS_KT = REPO_ROOT / "buildSrc/src/main/java/Versions.kt"
 REQUIREMENTS_TXT = REPO_ROOT / "requirements.txt"
+GRADLE_WRAPPER_PROPERTIES = REPO_ROOT / "gradle/wrapper/gradle-wrapper.properties"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
@@ -220,6 +222,7 @@ PSEUDO_ACCENT_MAP = str.maketrans(
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
+GRADLE_SERVICES_VERSIONS_URL = "https://services.gradle.org/versions/all"
 VERSION_TAG_RE = re.compile(r"^v([0-9]+(?:\.[0-9]+){2})$")
 ANDROID_NS = "{http://schemas.android.com/apk/res/android}"
 LAUNCHER_APPLY_SCHEME = "iosiconpack"
@@ -3245,7 +3248,7 @@ def _resolve_maven_artifact(
 
 
 _PRERELEASE_VERSION_RE = re.compile(
-    r"(?:^|[.\-+_])(?:alpha|beta|rc|dev|preview|eap|snapshot|m\d|canary)",
+    r"(?:^|[.\-+_])(?:alpha|beta|rc|dev|preview|eap|snapshot|milestone|m\d|canary)",
     re.IGNORECASE,
 )
 
@@ -3438,6 +3441,191 @@ def _dependency_latest(dep: dict[str, str], timeout: float) -> tuple[str, str, s
         timeout,
     )
     return latest, source, error
+
+
+def _is_newer_version(latest: str, current: str) -> bool:
+    if not latest or not current:
+        return False
+    return _version_sort_key(latest) > _version_sort_key(current)
+
+
+def _gradle_wrapper_version(properties_path: Path = GRADLE_WRAPPER_PROPERTIES) -> str:
+    if not properties_path.exists():
+        return ""
+    match = re.search(
+        r"gradle-([0-9]+(?:\.[0-9]+){1,3})-(?:bin|all)\.zip",
+        properties_path.read_text(encoding="utf-8"),
+    )
+    return match.group(1) if match else ""
+
+
+def _gradle_latest_version(timeout: float) -> tuple[str, str, str]:
+    content, error = _fetch_text(GRADLE_SERVICES_VERSIONS_URL, timeout)
+    if content is None:
+        return "", "", error or "unavailable"
+    try:
+        data = json.loads(content)
+    except json.JSONDecodeError as exc:
+        return "", "", f"invalid Gradle versions JSON: {exc}"
+    if not isinstance(data, list):
+        return "", "", "Gradle versions response was not a list"
+    versions = [
+        str(item.get("version") or "")
+        for item in data
+        if isinstance(item, dict)
+        and item.get("version")
+        and not item.get("snapshot")
+        and not item.get("nightly")
+        and not item.get("releaseNightly")
+    ]
+    latest = _latest_stable_version(versions)
+    return (latest, GRADLE_SERVICES_VERSIONS_URL, "") if latest else ("", "", "no stable Gradle versions")
+
+
+def _toolchain_update_records(timeout: float) -> tuple[list[dict[str, object]], list[str]]:
+    deps, errors = _dependency_specs()
+    records: list[dict[str, object]] = []
+    metadata_errors: list[str] = []
+
+    for dep in deps:
+        latest, source, error = _dependency_latest(dep, timeout)
+        if error:
+            metadata_errors.append(f"{dep['name']}: {error}")
+        current = dep.get("current", "")
+        status = "unknown"
+        if latest and current:
+            status = "update available" if _is_newer_version(latest, current) else "current"
+        records.append(
+            {
+                **dep,
+                "latest": latest,
+                "latest_source": source,
+                "status": status,
+                "target_file": (
+                    "requirements.txt" if dep["id"] == "pillow"
+                    else "buildSrc/src/main/java/Versions.kt"
+                ),
+            }
+        )
+
+    current_gradle = _gradle_wrapper_version()
+    latest_gradle, gradle_source, gradle_error = _gradle_latest_version(timeout)
+    if gradle_error:
+        metadata_errors.append(f"Gradle wrapper: {gradle_error}")
+    gradle_status = "unknown"
+    if latest_gradle and current_gradle:
+        gradle_status = "update available" if _is_newer_version(latest_gradle, current_gradle) else "current"
+    records.append(
+        {
+            "id": "gradle-wrapper",
+            "name": "Gradle wrapper",
+            "ecosystem": "Gradle",
+            "package": "gradle-wrapper",
+            "current": current_gradle,
+            "latest": latest_gradle,
+            "latest_source": gradle_source,
+            "status": gradle_status,
+            "scope": "local build",
+            "target_file": "gradle/wrapper/gradle-wrapper.properties",
+        }
+    )
+    return records, errors + metadata_errors
+
+
+def _toolchain_planned_updates(records: list[dict[str, object]]) -> list[dict[str, object]]:
+    return [record for record in records if record.get("status") == "update available"]
+
+
+def _toolchain_replace_version_constant(workspace: Path, name: str, version: str) -> None:
+    path = workspace / VERSIONS_KT.relative_to(REPO_ROOT)
+    content = path.read_text(encoding="utf-8")
+    pattern = rf'(const\s+val\s+{re.escape(name)}\s*=\s*")([^"]+)(")'
+    updated, count = re.subn(pattern, rf"\g<1>{version}\3", content)
+    if count != 1:
+        raise ValueError(f"{_display_path(path)}: could not update Versions.{name}")
+    path.write_text(updated, encoding="utf-8")
+
+
+def _toolchain_replace_requirement(workspace: Path, package: str, version: str) -> None:
+    path = workspace / REQUIREMENTS_TXT.relative_to(REPO_ROOT)
+    content = path.read_text(encoding="utf-8")
+    pattern = re.compile(rf"(?im)^(\s*{re.escape(package)}\s*)([<>=!~]=?)([A-Za-z0-9_.!+\-]+)(.*)$")
+
+    def replace(match: re.Match[str]) -> str:
+        return f"{match.group(1)}>= {version}{match.group(4)}".replace(">= ", ">=")
+
+    updated, count = pattern.subn(replace, content)
+    if count != 1:
+        raise ValueError(f"{_display_path(path)}: could not update {package} requirement")
+    path.write_text(updated, encoding="utf-8")
+
+
+def _toolchain_replace_gradle_wrapper(workspace: Path, version: str) -> None:
+    path = workspace / GRADLE_WRAPPER_PROPERTIES.relative_to(REPO_ROOT)
+    content = path.read_text(encoding="utf-8")
+    updated, count = re.subn(
+        r"gradle-[0-9]+(?:\.[0-9]+){1,3}-(bin|all)\.zip",
+        f"gradle-{version}-\\1.zip",
+        content,
+    )
+    if count != 1:
+        raise ValueError(f"{_display_path(path)}: could not update Gradle wrapper distributionUrl")
+    path.write_text(updated, encoding="utf-8")
+
+
+def _toolchain_apply_updates(workspace: Path, updates: list[dict[str, object]]) -> list[str]:
+    errors: list[str] = []
+    version_constants = {
+        "agp": "gradle",
+        "kotlin": "kotlin",
+        "ksp": "ksp",
+        "blueprint": "blueprint",
+    }
+    for record in updates:
+        dep_id = str(record["id"])
+        latest = str(record.get("latest") or "")
+        if not latest:
+            errors.append(f"{record['name']}: latest version unavailable")
+            continue
+        try:
+            if dep_id in version_constants:
+                _toolchain_replace_version_constant(workspace, version_constants[dep_id], latest)
+            elif dep_id == "pillow":
+                _toolchain_replace_requirement(workspace, "Pillow", latest)
+            elif dep_id == "gradle-wrapper":
+                _toolchain_replace_gradle_wrapper(workspace, latest)
+        except (OSError, ValueError) as exc:
+            errors.append(str(exc))
+    return errors
+
+
+def _toolchain_worktree_add(workspace: Path) -> tuple[int, str, str]:
+    result = subprocess.run(
+        ["git", "worktree", "add", "--detach", str(workspace), "HEAD"],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+    )
+    return result.returncode, result.stdout, result.stderr
+
+
+def _toolchain_worktree_remove(workspace: Path) -> None:
+    subprocess.run(
+        ["git", "worktree", "remove", "--force", str(workspace)],
+        cwd=REPO_ROOT,
+        text=True,
+        capture_output=True,
+    )
+
+
+def _toolchain_run_step(label: str, command: list[str], workspace: Path) -> int:
+    print(f"\nrehearsal: {label}")
+    print("  " + " ".join(command))
+    env = _gradle_env() if command and Path(command[0]).name.lower().startswith("gradlew") else None
+    result = subprocess.run(command, cwd=workspace, env=env)
+    if result.returncode != 0:
+        print(f"  blocker: {label} exited {result.returncode}", file=sys.stderr)
+    return result.returncode
 
 
 def _osv_vuln_ids(result: object) -> list[str]:
@@ -5175,6 +5363,104 @@ def cmd_dependency_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_toolchain_upgrade_rehearsal(args: argparse.Namespace) -> int:
+    records, errors = _toolchain_update_records(float(args.timeout))
+    updates = _toolchain_planned_updates(records)
+
+    if args.json:
+        payload = {
+            "execute": bool(args.execute),
+            "dependencies": records,
+            "metadata_errors": errors,
+            "planned_updates": updates,
+        }
+        print(json.dumps(payload, indent=2, sort_keys=True))
+        return 1 if errors else 0
+
+    print("toolchain upgrade rehearsal")
+    print(f"  metadata timeout: {float(args.timeout):.1f}s")
+    print(f"  mode: {'execute in temporary worktree' if args.execute else 'dry-run'}")
+    print("\nCore toolchain")
+    for record in records:
+        current = str(record.get("current") or "missing")
+        latest = str(record.get("latest") or "unavailable")
+        status = str(record.get("status") or "unknown")
+        print(f"  - {record['name']}: {current} -> {latest} ({status})")
+        if record.get("latest_source"):
+            print(f"    source: {record['latest_source']}")
+        print(f"    target: {record.get('target_file')}")
+
+    if errors:
+        print("\nMetadata blockers", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+
+    if not updates:
+        print("\nNo stable updates available; rehearsal complete.")
+        return 0
+
+    print("\nPlanned temporary updates")
+    for record in updates:
+        print(f"  - {record['name']}: {record['current']} -> {record['latest']}")
+
+    if not args.execute:
+        print("\nDry run only; no files were modified. Add --execute to test in a temporary worktree.")
+        return 0
+
+    parent = Path(tempfile.mkdtemp(prefix="iosicons-toolchain-rehearsal-"))
+    workspace = parent / "repo"
+    keep_workspace = bool(args.keep_workspace)
+    rc = 0
+    try:
+        add_rc, add_stdout, add_stderr = _toolchain_worktree_add(workspace)
+        if add_rc != 0:
+            print("\nworktree blocker", file=sys.stderr)
+            detail = (add_stderr or add_stdout).strip()
+            print(f"  - {detail or 'git worktree add failed'}", file=sys.stderr)
+            return add_rc or 1
+
+        apply_errors = _toolchain_apply_updates(workspace, updates)
+        if apply_errors:
+            print("\napply blockers", file=sys.stderr)
+            for error in apply_errors:
+                print(f"  - {error}", file=sys.stderr)
+            return 1
+
+        print(f"\nTemporary workspace: {workspace}")
+        if not args.skip_check:
+            check_rc = _toolchain_run_step(
+                "repository check after temporary upgrades",
+                [sys.executable, "scripts/icontool.py", "check"],
+                workspace,
+            )
+            if check_rc != 0:
+                rc = check_rc
+
+        if not args.skip_gradle:
+            gradle = "gradlew.bat" if os.name == "nt" else "./gradlew"
+            gradle_tasks = list(args.gradle_task or ["test", "lintRelease", "assembleRelease"])
+            gradle_rc = _toolchain_run_step(
+                "Gradle build/lint after temporary upgrades",
+                [str(workspace / gradle), *gradle_tasks, "--no-daemon"],
+                workspace,
+            )
+            if gradle_rc != 0 and rc == 0:
+                rc = gradle_rc
+
+        if rc == 0:
+            print("\ntoolchain upgrade rehearsal: OK")
+        else:
+            print("\ntoolchain upgrade rehearsal: blockers found", file=sys.stderr)
+        return rc
+    finally:
+        if keep_workspace:
+            print(f"\nKept temporary workspace: {workspace}")
+        else:
+            _toolchain_worktree_remove(workspace)
+            shutil.rmtree(parent, ignore_errors=True)
+
+
 def cmd_publish_check(args: argparse.Namespace) -> int:
     metadata_errors, version_name, expected_tag = _release_metadata_errors()
     apk = _repo_relative_path(args.apk) if args.apk else _default_release_apk(version_name)
@@ -6025,6 +6311,50 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Emit machine-readable JSON instead of text.",
     )
     dependency_audit_p.set_defaults(func=cmd_dependency_audit)
+
+    # --- toolchain-upgrade-rehearsal ---
+    rehearsal_p = sub.add_parser(
+        "toolchain-upgrade-rehearsal",
+        help="Dry-run or execute core toolchain upgrades in a temporary git worktree",
+    )
+    rehearsal_p.add_argument(
+        "--timeout",
+        type=float,
+        default=15.0,
+        help="Seconds to wait for Maven, PyPI, and Gradle metadata (default: 15).",
+    )
+    rehearsal_p.add_argument(
+        "--execute",
+        action="store_true",
+        help="Apply available updates in a temporary detached worktree and run checks.",
+    )
+    rehearsal_p.add_argument(
+        "--keep-workspace",
+        action="store_true",
+        help="Keep the temporary worktree after --execute for manual inspection.",
+    )
+    rehearsal_p.add_argument(
+        "--gradle-task",
+        action="append",
+        default=None,
+        help="Gradle task to run in execute mode (repeatable; default: test, lintRelease, assembleRelease).",
+    )
+    rehearsal_p.add_argument(
+        "--skip-check",
+        action="store_true",
+        help="Skip scripts/icontool.py check in execute mode.",
+    )
+    rehearsal_p.add_argument(
+        "--skip-gradle",
+        action="store_true",
+        help="Skip Gradle tasks in execute mode.",
+    )
+    rehearsal_p.add_argument(
+        "--json",
+        action="store_true",
+        help="Emit the update plan as JSON instead of text.",
+    )
+    rehearsal_p.set_defaults(func=cmd_toolchain_upgrade_rehearsal)
 
     # --- publish-check ---
     publish_p = sub.add_parser(

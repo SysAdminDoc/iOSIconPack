@@ -164,6 +164,10 @@ python3 scripts/icontool.py maven-provenance-check --strict-fdroid
 # Check current vs latest core dependency versions and OSV advisories:
 python3 scripts/icontool.py dependency-audit
 
+# Rehearse core toolchain upgrades without touching tracked files:
+python3 scripts/icontool.py toolchain-upgrade-rehearsal
+python3 scripts/icontool.py toolchain-upgrade-rehearsal --execute
+
 # Diff rendered icon previews and themed-icon tint contrast:
 python3 scripts/icontool.py preview-regression
 
