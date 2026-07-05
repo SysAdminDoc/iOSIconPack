@@ -98,6 +98,8 @@ REQUIREMENTS_TXT = REPO_ROOT / "requirements.txt"
 README_MD = REPO_ROOT / "README.md"
 FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
+CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
+ROADMAP_BLOCKED_MD = REPO_ROOT / "Roadmap_Blocked.md"
 HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.json"
@@ -1043,9 +1045,71 @@ def _release_metadata_errors() -> tuple[list[str], str, str]:
             errors.append(f"git tag missing: {expected_tag}")
         if version_code:
             errors.extend(_git_version_tag_errors(expected, version_code))
+        errors.extend(_ignored_release_state_errors(expected))
         return errors, expected, expected_tag
 
     return errors, "", ""
+
+
+def _ignored_release_state_errors(version_name: str) -> list[str]:
+    """Guard local-only release/blocker notes that steer future operators."""
+    if not version_name:
+        return []
+
+    checks: tuple[tuple[Path, str, str, bool], ...] = (
+        (
+            CLAUDE_MD,
+            "CLAUDE Current State",
+            r"^## Current State \(v([0-9]+(?:\.[0-9]+){2})\b",
+            True,
+        ),
+        (
+            CLAUDE_MD,
+            "CLAUDE Continuation current version",
+            r"^\*\*v([0-9]+(?:\.[0-9]+){2}) (?:current|in progress)\.\*\*",
+            False,
+        ),
+        (
+            ROADMAP_BLOCKED_MD,
+            "Roadmap_Blocked heading",
+            r"^# Roadmap Blocked - v([0-9]+(?:\.[0-9]+){2})\b",
+            True,
+        ),
+        (
+            ROADMAP_BLOCKED_MD,
+            "Roadmap_Blocked GitHub Release target",
+            r"^### Publish advertised v([0-9]+(?:\.[0-9]+){2}) GitHub Release asset\b",
+            False,
+        ),
+        (
+            ROADMAP_BLOCKED_MD,
+            "Roadmap_Blocked APK asset",
+            r"`iOSIconPack-v([0-9]+(?:\.[0-9]+){2})-release\.apk`",
+            False,
+        ),
+        (
+            ROADMAP_BLOCKED_MD,
+            "Roadmap_Blocked missing release target",
+            r"release `v([0-9]+(?:\.[0-9]+){2})` is absent",
+            False,
+        ),
+    )
+
+    errors: list[str] = []
+    for path, label, pattern, required in checks:
+        if not path.exists():
+            continue
+        content = _read(path)
+        match = re.search(pattern, content, re.MULTILINE)
+        if not match:
+            if required:
+                errors.append(f"{label}: pattern not found in {path.relative_to(REPO_ROOT)}")
+            continue
+        actual = match.group(1)
+        if actual != version_name:
+            errors.append(f"{label}: {actual} != {version_name}")
+
+    return errors
 
 
 def _publish_signing_errors(apk: Path) -> list[str]:

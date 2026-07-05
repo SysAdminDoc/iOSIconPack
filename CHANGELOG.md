@@ -2,6 +2,12 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## Unreleased
+
+### Added
+- Added a local release metadata guard that keeps ignored working notes and
+  blocked release targets aligned with the current app version.
+
 ## [v1.2.2] - 2026-07-02
 
 ### Changed
