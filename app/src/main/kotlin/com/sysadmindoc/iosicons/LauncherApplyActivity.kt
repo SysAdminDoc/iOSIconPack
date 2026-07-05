@@ -2,10 +2,13 @@ package com.sysadmindoc.iosicons
 
 import android.app.Activity
 import android.content.ActivityNotFoundException
+import android.content.ClipData
+import android.content.ClipboardManager
 import android.content.ComponentName
 import android.content.Context
 import android.content.Intent
 import android.net.Uri
+import android.os.Build
 import android.os.Bundle
 import android.widget.Toast
 import java.util.Locale
@@ -29,7 +32,17 @@ class LauncherApplyActivity : Activity() {
         val slug = sourceIntent?.data?.lastPathSegment?.lowercase(Locale.US)
         val target = APPLY_TARGETS[slug]
         if (target == null) {
-            Toast.makeText(this, R.string.launcher_apply_unknown, Toast.LENGTH_SHORT).show()
+            copyDiagnostics(
+                ApplyFailureDiagnostic(
+                    slug = slug ?: "missing",
+                    targetLabel = "Unknown launcher",
+                    targetPackage = "unknown",
+                    resolvedFallback = "none",
+                    failure = "unknown launcher shortcut",
+                    applyIntentSummary = "none",
+                ),
+            )
+            Toast.makeText(this, R.string.launcher_apply_unknown_report, Toast.LENGTH_SHORT).show()
             return
         }
 
@@ -40,50 +53,130 @@ class LauncherApplyActivity : Activity() {
         val applyIntent = target.intentFactory(this)
         try {
             startActivity(applyIntent)
-        } catch (_: ActivityNotFoundException) {
-            openFallback(target)
-        } catch (_: SecurityException) {
-            openFallback(target)
+        } catch (error: ActivityNotFoundException) {
+            handleApplyFailure(slug, target, applyIntent, error::class.java.simpleName)
+        } catch (error: SecurityException) {
+            handleApplyFailure(slug, target, applyIntent, error::class.java.simpleName)
         }
     }
 
-    private fun openFallback(target: ApplyTarget) {
+    private fun handleApplyFailure(
+        slug: String?,
+        target: ApplyTarget,
+        applyIntent: Intent,
+        failure: String,
+    ) {
+        copyDiagnostics(
+            ApplyFailureDiagnostic(
+                slug = slug ?: "missing",
+                targetLabel = target.label,
+                targetPackage = target.targetPackage ?: "unknown",
+                resolvedFallback = target.fallbackDescription(),
+                failure = failure,
+                applyIntentSummary = applyIntent.diagnosticSummary(),
+            ),
+        )
+        openFallback(target, copiedDiagnostics = true)
+    }
+
+    private fun openFallback(target: ApplyTarget, copiedDiagnostics: Boolean) {
         Toast.makeText(
             this,
-            getString(R.string.launcher_apply_unavailable, target.label),
+            getString(
+                if (copiedDiagnostics) {
+                    R.string.launcher_apply_unavailable_report
+                } else {
+                    R.string.launcher_apply_unavailable
+                },
+                target.label,
+            ),
             Toast.LENGTH_LONG,
         ).show()
 
-        val fallbackIntent = when {
-            target.fallbackPackage != null -> Intent(
-                Intent.ACTION_VIEW,
-                Uri.parse("market://details?id=${target.fallbackPackage}"),
-            )
-            target.fallbackUrl != null -> Intent(Intent.ACTION_VIEW, Uri.parse(target.fallbackUrl))
-            else -> null
-        } ?: return
-
-        try {
-            startActivity(fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
-        } catch (_: ActivityNotFoundException) {
-            if (target.fallbackPackage != null) {
-                startActivity(
-                    Intent(
-                        Intent.ACTION_VIEW,
-                        Uri.parse("https://play.google.com/store/apps/details?id=${target.fallbackPackage}"),
-                    ).addFlags(Intent.FLAG_ACTIVITY_NEW_TASK),
-                )
+        for (fallbackIntent in target.fallbackIntents()) {
+            try {
+                startActivity(fallbackIntent.addFlags(Intent.FLAG_ACTIVITY_NEW_TASK))
+                return
+            } catch (_: ActivityNotFoundException) {
+                continue
+            } catch (_: SecurityException) {
+                continue
             }
         }
+    }
+
+    private fun copyDiagnostics(report: ApplyFailureDiagnostic) {
+        val clipboard = getSystemService(Context.CLIPBOARD_SERVICE) as? ClipboardManager ?: return
+        clipboard.setPrimaryClip(
+            ClipData.newPlainText(
+                getString(R.string.launcher_apply_diagnostics_clip_label),
+                report.toClipboardText(this),
+            ),
+        )
     }
 
     private data class ApplyTarget(
         val label: String,
         val fallbackPackage: String? = null,
         val fallbackUrl: String? = null,
+        val targetPackage: String? = fallbackPackage,
         val noticeResId: Int? = null,
         val intentFactory: (Context) -> Intent,
     )
+
+    private data class ApplyFailureDiagnostic(
+        val slug: String,
+        val targetLabel: String,
+        val targetPackage: String,
+        val resolvedFallback: String,
+        val failure: String,
+        val applyIntentSummary: String,
+    ) {
+        fun toClipboardText(context: Context): String = buildString {
+            appendLine("iOS Icon Pack launcher apply diagnostics")
+            appendLine("App version: ${BuildConfig.VERSION_NAME} (${BuildConfig.VERSION_CODE})")
+            appendLine(
+                "Android: ${Build.VERSION.RELEASE} (API ${Build.VERSION.SDK_INT}); " +
+                    "${Build.MANUFACTURER} ${Build.MODEL}",
+            )
+            appendLine("App package: ${context.packageName}")
+            appendLine("Launcher slug: $slug")
+            appendLine("Launcher target: $targetLabel")
+            appendLine("Target package: $targetPackage")
+            appendLine("Resolved fallback: $resolvedFallback")
+            appendLine("Failure: $failure")
+            appendLine("Apply intent: $applyIntentSummary")
+            appendLine("Telemetry: not sent; this report was copied locally from the device.")
+        }
+    }
+
+    private fun Intent.diagnosticSummary(): String {
+        val parts = mutableListOf<String>()
+        action?.let { parts += "action=$it" }
+        getPackage()?.let { parts += "package=$it" }
+        component?.let { parts += "component=${it.flattenToShortString()}" }
+        dataString?.let { parts += "data=$it" }
+        return parts.ifEmpty { listOf("empty intent") }.joinToString(", ")
+    }
+
+    private fun ApplyTarget.fallbackDescription(): String = when {
+        fallbackPackage != null -> "market://details?id=$fallbackPackage; " +
+            "https://play.google.com/store/apps/details?id=$fallbackPackage"
+        fallbackUrl != null -> fallbackUrl
+        else -> "none"
+    }
+
+    private fun ApplyTarget.fallbackIntents(): List<Intent> = when {
+        fallbackPackage != null -> listOf(
+            Intent(Intent.ACTION_VIEW, Uri.parse("market://details?id=$fallbackPackage")),
+            Intent(
+                Intent.ACTION_VIEW,
+                Uri.parse("https://play.google.com/store/apps/details?id=$fallbackPackage"),
+            ),
+        )
+        fallbackUrl != null -> listOf(Intent(Intent.ACTION_VIEW, Uri.parse(fallbackUrl)))
+        else -> emptyList()
+    }
 
     private companion object {
         private const val SAMSUNG_THEME_PARK_URL =
@@ -180,6 +273,7 @@ class LauncherApplyActivity : Activity() {
             "samsung" to ApplyTarget(
                 label = "Samsung Theme Park",
                 fallbackUrl = SAMSUNG_THEME_PARK_URL,
+                targetPackage = "com.samsung.android.themedesigner or com.samsung.android.goodlock",
                 noticeResId = R.string.launcher_apply_samsung_notice,
             ) { context ->
                 context.packageManager.getLaunchIntentForPackage("com.samsung.android.themedesigner")

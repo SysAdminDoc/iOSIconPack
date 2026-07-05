@@ -11,6 +11,8 @@ All notable changes to iOSIconPack will be documented in this file.
   stale GitHub Release/Obtainium channel is visible before users download.
 - Added strict F-Droid Maven provenance mode with reviewed JitPack and
   buildscript metadata exceptions.
+- Added telemetry-free launcher apply diagnostics that copy local failure
+  context for GitHub bug reports.
 
 ## [v1.2.2] - 2026-07-02
 

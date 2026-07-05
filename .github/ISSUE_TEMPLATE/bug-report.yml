@@ -52,3 +52,10 @@ body:
       label: Logcat / crash trace (optional)
       description: Paste `adb logcat` output or crash trace inside the code fence below.
       render: shell
+
+  - type: textarea
+    id: launcher-diagnostics
+    attributes:
+      label: Launcher apply diagnostics (optional)
+      description: Paste the local-only launcher diagnostics that iOS Icon Pack copies after a failed apply action.
+      render: shell

@@ -1,6 +1,8 @@
 <resources>
     <string name="app_name" translatable="false">iOS Icon Pack</string>
     <string name="launcher_apply_samsung_notice">Samsung One UI applies third-party icon packs through Good Lock Theme Park.</string>
+    <string name="launcher_apply_diagnostics_clip_label" translatable="false">iOS Icon Pack launcher diagnostics</string>
     <string name="launcher_apply_unavailable">Could not open %1$s. Install the launcher or choose iOS Icon Pack in its icon settings.</string>
-    <string name="launcher_apply_unknown">This launcher shortcut is not available. Choose a supported launcher from the dashboard.</string>
+    <string name="launcher_apply_unavailable_report">Could not open %1$s. Launcher diagnostics were copied for a bug report. Install the launcher or choose iOS Icon Pack in its icon settings.</string>
+    <string name="launcher_apply_unknown_report">This launcher shortcut is not available. Launcher diagnostics were copied for a bug report.</string>
 </resources>

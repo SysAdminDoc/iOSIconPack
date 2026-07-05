@@ -102,6 +102,9 @@ CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
 ROADMAP_BLOCKED_MD = REPO_ROOT / "Roadmap_Blocked.md"
 RELEASE_CHANNEL_STATUS = REPO_ROOT / "docs/release-channel.json"
 HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
+LAUNCHER_APPLY_KT = REPO_ROOT / "app/src/main/kotlin/com/sysadmindoc/iosicons/LauncherApplyActivity.kt"
+STRINGS_XML = REPO_ROOT / "app/src/main/res/values/strings.xml"
+BUG_REPORT_TEMPLATE = REPO_ROOT / ".github/ISSUE_TEMPLATE/bug-report.yml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.json"
 PREVIEW_ICON_SIZE = 192
@@ -2381,6 +2384,53 @@ def _launcher_apply_deep_link_errors() -> list[str]:
     return ["LauncherApplyActivity is missing from AndroidManifest.xml"]
 
 
+def _launcher_apply_diagnostic_errors() -> list[str]:
+    errors: list[str] = []
+    try:
+        activity_text = LAUNCHER_APPLY_KT.read_text(encoding="utf-8")
+    except OSError as exc:
+        return [f"cannot read {_display_path(LAUNCHER_APPLY_KT)}: {exc}"]
+
+    required_activity_markers = {
+        "ClipData.newPlainText": "copyable clipboard diagnostics",
+        "BuildConfig.VERSION_NAME": "app version in launcher diagnostics",
+        "BuildConfig.VERSION_CODE": "app version code in launcher diagnostics",
+        "Build.VERSION.SDK_INT": "Android API level in launcher diagnostics",
+        "Launcher slug:": "launcher slug in launcher diagnostics",
+        "Target package:": "target launcher package in launcher diagnostics",
+        "Resolved fallback:": "resolved fallback in launcher diagnostics",
+        "Telemetry: not sent": "telemetry-free diagnostic disclosure",
+        "launcher_apply_unavailable_report": "failure toast that mentions copied diagnostics",
+    }
+    for marker, description in required_activity_markers.items():
+        if marker not in activity_text:
+            errors.append(f"LauncherApplyActivity missing {description}: {marker}")
+
+    try:
+        strings_text = STRINGS_XML.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"cannot read {_display_path(STRINGS_XML)}: {exc}")
+    else:
+        for marker in (
+            "launcher_apply_diagnostics_clip_label",
+            "launcher_apply_unavailable_report",
+            "launcher_apply_unknown_report",
+        ):
+            if marker not in strings_text:
+                errors.append(f"strings.xml missing launcher diagnostic string: {marker}")
+
+    try:
+        template_text = BUG_REPORT_TEMPLATE.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"cannot read {_display_path(BUG_REPORT_TEMPLATE)}: {exc}")
+    else:
+        for marker in ("launcher-diagnostics", "Launcher apply diagnostics", "local-only"):
+            if marker not in template_text:
+                errors.append(f"bug report template missing launcher diagnostic marker: {marker}")
+
+    return errors
+
+
 # ---------------------------------------------------------------------------
 # Commands
 # ---------------------------------------------------------------------------
@@ -2555,6 +2605,7 @@ def cmd_launcher_compat_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         errors.extend(f"launcher core resource missing: {item}" for item in core_missing)
     errors.extend(_home_apply_card_errors())
     errors.extend(_launcher_apply_deep_link_errors())
+    errors.extend(_launcher_apply_diagnostic_errors())
 
     checks: list[tuple[str, bool, str]] = [
         (

@@ -48,6 +48,9 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **Per-launcher apply cards** — Home-screen actions for Nova, Action, Smart,
   OnePlus, Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park
+- **Local launcher diagnostics** — Failed apply shortcuts copy launcher slug,
+  target package, fallback, app version, and Android version for issue reports
+  without automatic telemetry.
 - **AMOLED Dark Theme** — Native dark mode dashboard
 - **Icon Requests** — Request icons for apps not yet covered
 - **Free & Open Source** — No ads, no tracking, no IAP
