@@ -17,6 +17,7 @@ Commands
   wallpaper-generate  Generate or check bundled original wallpaper assets
   style-prototypes  Generate sharp/line/filled local themed-icon prototypes
   localization-check  Verify Crowdin config and localizable Android resources
+  pseudo-locale-check  Generate temporary expanded/RTL pseudo-locales
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
@@ -64,6 +65,7 @@ from __future__ import annotations
 
 import argparse
 import concurrent.futures
+import copy
 import hashlib
 import importlib.metadata
 import json
@@ -110,6 +112,10 @@ LAUNCHER_APPLY_KT = REPO_ROOT / "app/src/main/kotlin/com/sysadmindoc/iosicons/La
 STRINGS_XML = REPO_ROOT / "app/src/main/res/values/strings.xml"
 BUG_REPORT_TEMPLATE = REPO_ROOT / ".github/ISSUE_TEMPLATE/bug-report.yml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
+DOCS_PAGES: tuple[Path, ...] = (
+    REPO_ROOT / "docs/index.html",
+    REPO_ROOT / "docs/requests.html",
+)
 PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.json"
 PREVIEW_ICON_SIZE = 192
 PREVIEW_MASKS: tuple[str, ...] = ("full-square", "circle", "rounded-square", "squircle")
@@ -140,6 +146,77 @@ DOCS_VISUAL_VIEWPORTS: tuple[tuple[str, int, int], ...] = (
     ("mobile", 390, 844),
 )
 DOCS_VISUAL_THEMES: tuple[str, ...] = ("dark", "light")
+PSEUDO_LOCALES: tuple[tuple[str, str], ...] = (
+    ("values-en-rXA", "expanded"),
+    ("values-ar-rXB", "rtl"),
+)
+PSEUDO_DOC_DIRS: tuple[tuple[str, str], ...] = (
+    ("docs-en-rXA", "expanded"),
+    ("docs-ar-rXB", "rtl"),
+)
+PSEUDO_PROTECTED_RE = re.compile(
+    r"(%(?:\d+\$)?[-+# 0,(]*\d*(?:\.\d+)?[A-Za-z%])"
+    r"|(&[A-Za-z0-9#]+;)"
+    r"|(https?://[^\s<>\"]+)"
+    r"|(mailto:[^\s<>\"]+)"
+    r"|([A-Za-z0-9._%+-]+@[A-Za-z0-9.-]+\.[A-Za-z]{2,})"
+)
+PSEUDO_ACCENT_MAP = str.maketrans(
+    {
+        "A": "\u00c5",
+        "B": "\u0181",
+        "C": "\u00c7",
+        "D": "\u00d0",
+        "E": "\u00c8",
+        "F": "\u0191",
+        "G": "\u011c",
+        "H": "\u0124",
+        "I": "\u00ce",
+        "J": "\u0134",
+        "K": "\u0136",
+        "L": "\u013b",
+        "M": "\u1e40",
+        "N": "\u0143",
+        "O": "\u00d6",
+        "P": "\u01a4",
+        "Q": "\u01ea",
+        "R": "\u0158",
+        "S": "\u015c",
+        "T": "\u0162",
+        "U": "\u00db",
+        "V": "\u1e7c",
+        "W": "\u0174",
+        "X": "\u1e8a",
+        "Y": "\u0176",
+        "Z": "\u017d",
+        "a": "\u00e5",
+        "b": "\u0253",
+        "c": "\u00e7",
+        "d": "\u0111",
+        "e": "\u00e9",
+        "f": "\u0192",
+        "g": "\u011d",
+        "h": "\u0125",
+        "i": "\u00ee",
+        "j": "\u0135",
+        "k": "\u0137",
+        "l": "\u013c",
+        "m": "\u1e41",
+        "n": "\u0144",
+        "o": "\u00f6",
+        "p": "\u01a5",
+        "q": "\u01eb",
+        "r": "\u0159",
+        "s": "\u015d",
+        "t": "\u0163",
+        "u": "\u00fb",
+        "v": "\u1e7d",
+        "w": "\u0175",
+        "x": "\u1e8b",
+        "y": "\u0177",
+        "z": "\u017e",
+    }
+)
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
@@ -392,6 +469,256 @@ def _insert_before_close(content: str, close_tag: str, new_line: str) -> str:
         return content.rstrip("\n") + "\n" + new_line + "\n"
     before = content[:idx].rstrip("\n")
     return before + "\n" + new_line + "\n" + content[idx:]
+
+
+def _pseudo_tag_name(element: ET.Element) -> str:
+    return element.tag.rsplit("}", 1)[-1]
+
+
+def _pseudo_is_translatable(element: ET.Element) -> bool:
+    return element.attrib.get("translatable", "true").strip().lower() != "false"
+
+
+def _pseudo_source_paths(crowdin_path: Path = REPO_ROOT / "crowdin.yml") -> list[Path]:
+    if not crowdin_path.exists():
+        return []
+    content = crowdin_path.read_text(encoding="utf-8")
+    sources = re.findall(r"(?m)^\s*-\s*source:\s*\"?([^\"\n]+)\"?", content)
+    return [_repo_relative_path(source.replace("\\", "/").lstrip("/")) for source in sources]
+
+
+def _pseudo_protected_tokens(value: str) -> list[str]:
+    return [match.group(0) for match in PSEUDO_PROTECTED_RE.finditer(value)]
+
+
+def _pseudo_expand_segment(segment: str, mode: str) -> str:
+    if not segment:
+        return segment
+    transformed = segment.translate(PSEUDO_ACCENT_MAP)
+    if mode == "rtl":
+        transformed = transformed[::-1]
+    if not segment.strip():
+        return transformed
+    padding = "~" * max(2, len(segment.strip()) // 3)
+    return f"{transformed} {padding}"
+
+
+def _pseudo_transform_text(value: str, mode: str) -> str:
+    parts: list[str] = []
+    last = 0
+    for match in PSEUDO_PROTECTED_RE.finditer(value):
+        parts.append(_pseudo_expand_segment(value[last:match.start()], mode))
+        parts.append(match.group(0))
+        last = match.end()
+    parts.append(_pseudo_expand_segment(value[last:], mode))
+    joined = "".join(parts)
+    if mode == "rtl" and joined.strip():
+        return f"\u202e{joined}\u202c"
+    if joined.strip():
+        return f"[!! {joined} !!]"
+    return joined
+
+
+def _pseudo_clip_limit(path: Path, resource_name: str, tag: str) -> int:
+    lowered = resource_name.lower()
+    file_name = path.name
+    if tag == "string" and ("title" in lowered or "subject" in lowered):
+        return 72
+    if "quick" in lowered or "button" in lowered:
+        return 36
+    if lowered.endswith("_titles"):
+        return 56
+    if "description" in lowered or lowered.endswith("_descriptions"):
+        return 112
+    if file_name in {"home_setup.xml", "about_setup.xml"}:
+        return 96
+    return 88
+
+
+def _pseudo_add_warning(
+    warnings: list[dict[str, object]],
+    *,
+    source: Path,
+    name: str,
+    value: str,
+    pseudo: str,
+    limit: int,
+    index: int | None = None,
+) -> None:
+    if len(pseudo) <= limit:
+        return
+    item = {
+        "source": _display_path(source),
+        "name": name,
+        "length": len(value),
+        "pseudo_length": len(pseudo),
+        "limit": limit,
+    }
+    if index is not None:
+        item["index"] = index
+    warnings.append(item)
+
+
+def _pseudo_apply_android_resources(
+    source: Path,
+    destination: Path,
+    mode: str,
+    warnings: list[dict[str, object]],
+    errors: list[str],
+) -> int:
+    try:
+        root = ET.parse(source).getroot()
+    except OSError as exc:
+        errors.append(f"{_display_path(source)}: cannot read Android resource: {exc}")
+        return 0
+    except ET.ParseError as exc:
+        errors.append(f"{_display_path(source)}: invalid XML: {exc}")
+        return 0
+
+    output_root = copy.deepcopy(root)
+    transformed_count = 0
+
+    for element in output_root:
+        tag = _pseudo_tag_name(element)
+        if tag not in {"string", "string-array"} or not _pseudo_is_translatable(element):
+            continue
+        name = element.attrib.get("name", "")
+        if not name:
+            continue
+        limit = _pseudo_clip_limit(source, name, tag)
+        if tag == "string":
+            raw = element.text or ""
+            pseudo = _pseudo_transform_text(raw, mode)
+            if _pseudo_protected_tokens(raw) != _pseudo_protected_tokens(pseudo):
+                errors.append(f"{_display_path(source)}:{name}: pseudo-locale changed protected token(s)")
+            element.text = pseudo
+            transformed_count += 1
+            _pseudo_add_warning(warnings, source=source, name=name, value=raw, pseudo=pseudo, limit=limit)
+            continue
+        for index, child in enumerate(element):
+            if _pseudo_tag_name(child) != "item":
+                continue
+            raw = child.text or ""
+            pseudo = _pseudo_transform_text(raw, mode)
+            if _pseudo_protected_tokens(raw) != _pseudo_protected_tokens(pseudo):
+                errors.append(f"{_display_path(source)}:{name}[{index}]: pseudo-locale changed protected token(s)")
+            child.text = pseudo
+            transformed_count += 1
+            _pseudo_add_warning(
+                warnings,
+                source=source,
+                name=name,
+                value=raw,
+                pseudo=pseudo,
+                limit=limit,
+                index=index,
+            )
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    ET.ElementTree(output_root).write(destination, encoding="utf-8", xml_declaration=True)
+    try:
+        ET.parse(destination)
+    except ET.ParseError as exc:
+        errors.append(f"{_display_path(destination)}: generated pseudo XML is invalid: {exc}")
+    return transformed_count
+
+
+def _pseudo_html_parts(content: str) -> list[tuple[str, bool]]:
+    parts: list[tuple[str, bool]] = []
+    skip_depth = 0
+    for part in re.split(r"(<[^>]+>)", content):
+        if not part:
+            continue
+        if part.startswith("<"):
+            lower = part.lower()
+            if re.match(r"<\s*(script|style|svg)\b", lower):
+                skip_depth += 1
+            parts.append((part, False))
+            if re.match(r"<\s*/\s*(script|style|svg)\s*>", lower) and skip_depth:
+                skip_depth -= 1
+            continue
+        parts.append((part, skip_depth == 0 and bool(part.strip())))
+    return parts
+
+
+def _pseudo_apply_docs(
+    source: Path,
+    destination: Path,
+    mode: str,
+    warnings: list[dict[str, object]],
+    errors: list[str],
+) -> int:
+    try:
+        content = source.read_text(encoding="utf-8")
+    except OSError as exc:
+        errors.append(f"{_display_path(source)}: cannot read docs page: {exc}")
+        return 0
+
+    transformed_count = 0
+    output: list[str] = []
+    for index, (part, transform) in enumerate(_pseudo_html_parts(content)):
+        if not transform:
+            output.append(part)
+            continue
+        pseudo = _pseudo_transform_text(part, mode)
+        if _pseudo_protected_tokens(part) != _pseudo_protected_tokens(pseudo):
+            errors.append(f"{_display_path(source)}: text segment {index} changed protected token(s)")
+        if len(pseudo.strip()) > 160 and len(part.strip()) <= 120:
+            warnings.append(
+                {
+                    "source": _display_path(source),
+                    "name": f"text-segment-{index}",
+                    "length": len(part.strip()),
+                    "pseudo_length": len(pseudo.strip()),
+                    "limit": 160,
+                }
+            )
+        output.append(pseudo)
+        transformed_count += 1
+
+    destination.parent.mkdir(parents=True, exist_ok=True)
+    destination.write_text("".join(output), encoding="utf-8")
+    return transformed_count
+
+
+def _pseudo_locale_audit(
+    *,
+    source_paths: list[Path] | None = None,
+    docs_paths: tuple[Path, ...] = DOCS_PAGES,
+    output_dir: Path,
+) -> dict[str, object]:
+    sources = source_paths if source_paths is not None else _pseudo_source_paths()
+    errors: list[str] = []
+    warnings: list[dict[str, object]] = []
+    generated_files: list[str] = []
+    android_values = 0
+    docs_segments = 0
+
+    if not sources:
+        errors.append("crowdin.yml did not yield any Android source files")
+
+    for locale_dir, mode in PSEUDO_LOCALES:
+        for source in sources:
+            destination = output_dir / locale_dir / source.name
+            android_values += _pseudo_apply_android_resources(source, destination, mode, warnings, errors)
+            generated_files.append(_display_path(destination) if destination.is_relative_to(REPO_ROOT) else str(destination))
+
+    for docs_dir, mode in PSEUDO_DOC_DIRS:
+        for source in docs_paths:
+            destination = output_dir / docs_dir / source.name
+            docs_segments += _pseudo_apply_docs(source, destination, mode, warnings, errors)
+            generated_files.append(_display_path(destination) if destination.is_relative_to(REPO_ROOT) else str(destination))
+
+    return {
+        "android_source_count": len(sources),
+        "android_value_count": android_values,
+        "docs_page_count": len(docs_paths),
+        "docs_segment_count": docs_segments,
+        "generated_file_count": len(generated_files),
+        "generated_files": generated_files,
+        "warnings": warnings,
+        "errors": errors,
+    }
 
 
 # ---------------------------------------------------------------------------
@@ -3998,7 +4325,7 @@ def cmd_docs_visual_smoke(args: argparse.Namespace) -> int:
 
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
-    for script in ("validate_appfilter.py", "validate_drawables.py", "validate_localization.py"):
+    for script in ("validate_appfilter.py", "validate_drawables.py"):
         validator = REPO_ROOT / "scripts" / script
         if not validator.exists():
             print(f"warning: validator not found: {script}", file=sys.stderr)
@@ -4006,6 +4333,16 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
         result = subprocess.run([sys.executable, str(validator)])
         if result.returncode != 0:
             rc = result.returncode
+    localization_rc = cmd_localization_check(
+        argparse.Namespace(
+            skip_pseudo_locale=False,
+            pseudo_report=None,
+            fail_on_warnings=False,
+            warning_limit=20,
+        )
+    )
+    if localization_rc != 0:
+        rc = localization_rc
     gallery = REPO_ROOT / "scripts" / "gen_gallery.py"
     if gallery.exists():
         for flag in ("--check", "--a11y-check"):
@@ -4037,12 +4374,67 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     return rc
 
 
-def cmd_localization_check(args: argparse.Namespace) -> int:  # noqa: ARG001
+def cmd_pseudo_locale_check(args: argparse.Namespace) -> int:
+    report = getattr(args, "report", None) or getattr(args, "pseudo_report", None)
+    warning_limit = int(getattr(args, "warning_limit", 20) or 20)
+    fail_on_warnings = bool(getattr(args, "fail_on_warnings", False))
+
+    with tempfile.TemporaryDirectory(prefix="iosicons-pseudo-locale-") as tmp:
+        audit = _pseudo_locale_audit(output_dir=Path(tmp))
+
+    if report:
+        report_path = _repo_relative_path(report)
+        report_payload = {
+            key: value for key, value in audit.items() if key != "generated_files"
+        }
+        _write(report_path, json.dumps(report_payload, indent=2, sort_keys=True) + "\n")
+        print(f"pseudo-locale check: wrote report {_display_path(report_path)}")
+
+    errors = audit.get("errors") or []
+    warnings = audit.get("warnings") or []
+    if errors:
+        print("pseudo-locale check: FAIL", file=sys.stderr)
+        for error in list(errors)[:warning_limit]:
+            print(f"  - {error}", file=sys.stderr)
+        if len(errors) > warning_limit:
+            print(f"  - ... {len(errors) - warning_limit} more", file=sys.stderr)
+        return 1
+
+    if warnings:
+        print(f"pseudo-locale check: {len(warnings)} clipping-risk warning(s)")
+        for warning in list(warnings)[:warning_limit]:
+            index = warning.get("index")
+            index_text = f"[{index}]" if index is not None else ""
+            print(
+                "  - "
+                f"{warning.get('source')}:{warning.get('name')}{index_text} "
+                f"pseudo {warning.get('pseudo_length')} chars > limit {warning.get('limit')}"
+            )
+        if len(warnings) > warning_limit:
+            print(f"  - ... {len(warnings) - warning_limit} more")
+        if fail_on_warnings:
+            return 1
+
+    print(
+        "pseudo-locale check: OK "
+        f"({audit['android_value_count']} Android values, "
+        f"{audit['docs_segment_count']} docs text segments, "
+        f"{len(PSEUDO_LOCALES)} app locales, {len(PSEUDO_DOC_DIRS)} docs locales)"
+    )
+    return 0
+
+
+def cmd_localization_check(args: argparse.Namespace) -> int:
     validator = REPO_ROOT / "scripts" / "validate_localization.py"
     if not validator.exists():
         print("localization check: validator not found", file=sys.stderr)
         return 1
-    return subprocess.run([sys.executable, str(validator)]).returncode
+    result = subprocess.run([sys.executable, str(validator)])
+    if result.returncode != 0:
+        return result.returncode
+    if bool(getattr(args, "skip_pseudo_locale", False)):
+        return 0
+    return cmd_pseudo_locale_check(args)
 
 
 def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
@@ -5266,9 +5658,53 @@ def _build_parser() -> argparse.ArgumentParser:
     # --- localization-check ---
     localization_p = sub.add_parser(
         "localization-check",
-        help="Verify Crowdin config and localizable Android resources",
+        help="Verify Crowdin config, Android resources, and pseudo-locale expansion",
+    )
+    localization_p.add_argument(
+        "--skip-pseudo-locale",
+        action="store_true",
+        help="Run only the Crowdin/translatable-boundary validator.",
+    )
+    localization_p.add_argument(
+        "--pseudo-report",
+        default=None,
+        help="Optional JSON report path for pseudo-locale diagnostics.",
+    )
+    localization_p.add_argument(
+        "--fail-on-warnings",
+        action="store_true",
+        help="Treat pseudo-locale clipping-risk warnings as failures.",
+    )
+    localization_p.add_argument(
+        "--warning-limit",
+        type=int,
+        default=20,
+        help="Maximum pseudo-locale warnings/errors to print (default: 20).",
     )
     localization_p.set_defaults(func=cmd_localization_check)
+
+    # --- pseudo-locale-check ---
+    pseudo_p = sub.add_parser(
+        "pseudo-locale-check",
+        help="Generate temporary expanded/RTL pseudo-locales and report clipping risks",
+    )
+    pseudo_p.add_argument(
+        "--report",
+        default=None,
+        help="Optional JSON report path, e.g. build/pseudo-locale-report.json.",
+    )
+    pseudo_p.add_argument(
+        "--fail-on-warnings",
+        action="store_true",
+        help="Treat clipping-risk warnings as failures.",
+    )
+    pseudo_p.add_argument(
+        "--warning-limit",
+        type=int,
+        default=20,
+        help="Maximum warnings/errors to print (default: 20).",
+    )
+    pseudo_p.set_defaults(func=cmd_pseudo_locale_check)
 
     # --- launcher-compat-check ---
     launcher_p = sub.add_parser(

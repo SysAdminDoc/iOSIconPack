@@ -22,6 +22,8 @@ All notable changes to iOSIconPack will be documented in this file.
   across desktop/mobile and dark/light rendered control flows.
 - Added themed-icon tint contrast checks to `preview-regression` for Material
   You and Android auto-theming dark/light palette simulations.
+- Added temporary expanded/RTL pseudo-locale checks for Android resources and
+  docs copy, including protected-token validation and clipping-risk reporting.
 
 ## [v1.2.2] - 2026-07-02
 

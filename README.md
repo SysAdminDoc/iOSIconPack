@@ -170,8 +170,9 @@ python3 scripts/icontool.py preview-regression
 # Rank icons that need maintainer review without blocking on low-priority polish:
 python3 scripts/icontool.py icon-quality-audit --limit 25
 
-# Validate Crowdin config and Android translatable resource boundaries:
+# Validate Crowdin config, translatable boundaries, and pseudo-locale expansion:
 python3 scripts/icontool.py localization-check
+python3 scripts/icontool.py pseudo-locale-check --report build/pseudo-locale-report.json
 
 # Push/pull dashboard strings through Crowdin CLI when credentials are set:
 crowdin upload sources
