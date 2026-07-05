@@ -9,6 +9,8 @@ All notable changes to iOSIconPack will be documented in this file.
   blocked release targets aligned with the current app version.
 - Added generated release-channel status for the gallery and install docs so a
   stale GitHub Release/Obtainium channel is visible before users download.
+- Added strict F-Droid Maven provenance mode with reviewed JitPack and
+  buildscript metadata exceptions.
 
 ## [v1.2.2] - 2026-07-02
 

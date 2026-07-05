@@ -178,6 +178,55 @@ JITPACK_HINT_PREFIXES = (
     "com.github.",
     "com.jahirfiquitiva",
 )
+FDROID_JITPACK_EXCEPTIONS: dict[str, str] = {
+    "com.github.LeonardoSM04:HarmonicColorExtractor:1.0.0": "Blueprint 2.5.1 transitive runtime dependency; POM includes license and source.",
+    "com.github.MikeOrtiz:TouchImageView:3.7.1": "Blueprint/Frames image-view transitive; POM includes MIT license and source.",
+    "com.github.jahirfiquitiva:RecyclerView-FastScroll:9463d46": "Blueprint dashboard transitive pinned to upstream commit.",
+    "com.github.javiersantos:PiracyChecker:1.2.8": "Blueprint transitive; app disables piracy checks but dependency remains in runtime graph.",
+    "com.github.sarsamurmu:AdaptiveIconBitmap:1.0.2": "Blueprint adaptive-icon helper transitive pinned by the dashboard stack.",
+    "com.jahirfiquitiva:sectioned-recyclerview:ea9a5cb": "Blueprint sectioned-list transitive pinned to upstream commit.",
+}
+FDROID_MISSING_METADATA_ALLOWLIST: dict[str, str] = {
+    "com.google.auto.value:auto-value-annotations:1.6.2": "buildscript-only AGP/Kotlin transitive; not packaged in the APK runtime graph.",
+    "com.google.guava:failureaccess:1.0.2": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "com.google.guava:guava:33.3.1-jre": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "com.google.guava:listenablefuture:1.0": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "com.google.guava:listenablefuture:9999.0-empty-to-avoid-conflict-with-guava": "buildscript-only dependency-resolution placeholder; not packaged in the APK runtime graph.",
+    "com.google.jimfs:jimfs:1.1": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "com.google.protobuf:protobuf-java-util:3.25.5": "buildscript-only AGP/protobuf transitive; not packaged in the APK runtime graph.",
+    "com.google.protobuf:protobuf-java:3.25.5": "buildscript-only AGP/protobuf transitive; not packaged in the APK runtime graph.",
+    "com.sun.activation:javax.activation:1.2.0": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "com.sun.istack:istack-commons-runtime:3.0.8": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "com.sun.xml.fastinfoset:FastInfoset:1.2.16": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "commons-codec:commons-codec:1.11": "buildscript-only Apache/HTTP transitive; not packaged in the APK runtime graph.",
+    "commons-io:commons-io:2.16.1": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "commons-logging:commons-logging:1.2": "buildscript-only Apache/HTTP transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-buffer:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-codec-http2:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-codec-http:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-codec-socks:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-codec:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-common:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-handler-proxy:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-handler:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-resolver:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-transport-native-unix-common:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "io.netty:netty-transport:4.1.110.Final": "buildscript-only gRPC/Netty transitive; not packaged in the APK runtime graph.",
+    "jakarta.activation:jakarta.activation-api:1.2.1": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "jakarta.xml.bind:jakarta.xml.bind-api:2.3.2": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "org.apache.commons:commons-compress:1.21": "buildscript-only Gradle/AGP transitive; not packaged in the APK runtime graph.",
+    "org.apache.httpcomponents:httpclient:4.5.14": "buildscript-only Apache/HTTP transitive; not packaged in the APK runtime graph.",
+    "org.apache.httpcomponents:httpcore:4.4.16": "buildscript-only Apache/HTTP transitive; not packaged in the APK runtime graph.",
+    "org.apache.httpcomponents:httpmime:4.5.6": "buildscript-only Apache/HTTP transitive; not packaged in the APK runtime graph.",
+    "org.codehaus.mojo:animal-sniffer-annotations:1.24": "buildscript-only Maven tooling transitive; not packaged in the APK runtime graph.",
+    "org.glassfish.jaxb:jaxb-runtime:2.3.2": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "org.glassfish.jaxb:txw2:2.3.2": "buildscript-only JAXB transitive; not packaged in the APK runtime graph.",
+    "org.slf4j:slf4j-api:1.7.30": "buildscript-only logging transitive; not packaged in the APK runtime graph.",
+    "com.google.guava:listenablefuture:1.0": "AndroidX concurrent runtime transitive from Google Guava; reviewed Apache-2.0 shim whose POM omits license/source metadata.",
+}
+FDROID_RUNTIME_MISSING_METADATA_ALLOWLIST = {
+    "com.google.guava:listenablefuture:1.0",
+}
 
 COVERAGE_GAP_PUBLIC_SOURCES: tuple[dict[str, str], ...] = (
     {
@@ -3064,11 +3113,14 @@ def cmd_coverage_gap(args: argparse.Namespace) -> int:
 
 
 def cmd_maven_provenance_check(args: argparse.Namespace) -> int:
+    strict_fdroid = bool(getattr(args, "strict_fdroid", False))
     declared_repos, errors = _declared_maven_repositories()
     if not declared_repos:
         errors.append("no documented Maven repositories found in build.gradle")
 
     print("maven provenance check")
+    if strict_fdroid:
+        print("  strict F-Droid mode: enabled")
     print("  declared repositories:")
     for repo in declared_repos:
         print(f"    - {repo['name']} ({repo['url']})")
@@ -3132,23 +3184,123 @@ def cmd_maven_provenance_check(args: argparse.Namespace) -> int:
             f"repo={item['repository']} license={item['license']} source={item['source']}"
         )
 
-    missing_metadata = [
-        item["coordinate"]
+    metadata_gaps = [
+        item
         for item in resolved
         if item["repository"] != "unresolved"
         and (item["license"] == "missing" or item["source"] == "missing")
     ]
+    missing_metadata = [item["coordinate"] for item in metadata_gaps]
     unresolved = [
         f"{item['coordinate']} ({item['status']})"
         for item in resolved
         if item["repository"] == "unresolved"
     ]
+    jitpack_items = [item for item in resolved if item["repository"] == "jitpack"]
+    allowed_metadata_gaps: list[tuple[dict[str, str], str]] = []
+    unallowlisted_metadata_gaps: list[dict[str, str]] = []
+    allowed_jitpack: list[tuple[dict[str, str], str]] = []
+    unreviewed_jitpack: list[dict[str, str]] = []
 
     errors = []
     if unresolved:
         errors.append(f"{len(unresolved)} artifact POM(s) could not be resolved from declared repositories")
     if jitpack_declared and not jitpack_used:
         errors.append("JitPack is declared but no resolved artifact required it; remove the repository or update the documented rationale")
+
+    if strict_fdroid:
+        metadata = _current_app_metadata(errors)
+        fdroid_text = _read(FDROID_METADATA) if FDROID_METADATA.exists() else ""
+        strict_fields = {
+            "RepoType": r"^RepoType:\s*(\S+)",
+            "Repo": r"^Repo:\s*(\S+)",
+            "AutoUpdateMode": r"^AutoUpdateMode:\s*(.+)$",
+            "UpdateCheckMode": r"^UpdateCheckMode:\s*(.+)$",
+            "CurrentVersion": r"^CurrentVersion:\s*'?([^'\r\n]+)'?",
+            "CurrentversionCode": r"^CurrentversionCode:\s*(\d+)",
+        }
+        fdroid_values: dict[str, str] = {}
+        for label, pattern in strict_fields.items():
+            match = re.search(pattern, fdroid_text, re.MULTILINE)
+            if match:
+                fdroid_values[label] = match.group(1).strip()
+            else:
+                errors.append(f"F-Droid metadata: missing {label}")
+
+        expected_fdroid = {
+            "RepoType": "git",
+            "Repo": "https://github.com/SysAdminDoc/iOSIconPack",
+            "AutoUpdateMode": "Version v%v",
+            "UpdateCheckMode": "Tags",
+            "CurrentVersion": metadata["version_name"],
+            "CurrentversionCode": metadata["version_code"],
+        }
+        for label, expected in expected_fdroid.items():
+            actual = fdroid_values.get(label, "")
+            if actual and expected and actual != expected:
+                errors.append(f"F-Droid metadata {label}: {actual} != {expected}")
+
+        for item in metadata_gaps:
+            coordinate = item["coordinate"]
+            scopes = set(item.get("scopes", "").split(","))
+            reason = FDROID_MISSING_METADATA_ALLOWLIST.get(coordinate, "")
+            if reason and (
+                scopes == {"buildscriptClasspath"}
+                or coordinate in FDROID_RUNTIME_MISSING_METADATA_ALLOWLIST
+            ):
+                allowed_metadata_gaps.append((item, reason))
+            else:
+                unallowlisted_metadata_gaps.append(item)
+
+        for item in jitpack_items:
+            coordinate = item["coordinate"]
+            reason = FDROID_JITPACK_EXCEPTIONS.get(coordinate, "")
+            if reason:
+                allowed_jitpack.append((item, reason))
+            else:
+                unreviewed_jitpack.append(item)
+
+        if unallowlisted_metadata_gaps:
+            errors.append(f"{len(unallowlisted_metadata_gaps)} unallowlisted artifact(s) have missing license/source metadata")
+        if unreviewed_jitpack:
+            errors.append(f"{len(unreviewed_jitpack)} JitPack artifact(s) are not in the reviewed Blueprint exception list")
+
+        print("\nStrict F-Droid metadata")
+        for label in strict_fields:
+            print(f"  - {label}: {fdroid_values.get(label, 'missing')}")
+
+        print("\nStrict F-Droid JitPack exceptions")
+        if allowed_jitpack:
+            for item, reason in allowed_jitpack:
+                print(f"  - {item['coordinate']} [{item['scopes']}]: {reason}")
+        else:
+            print("  - none")
+
+        print("\nStrict F-Droid missing-metadata allowlist")
+        if allowed_metadata_gaps:
+            for item, reason in allowed_metadata_gaps[: args.warning_limit]:
+                print(f"  - {item['coordinate']} [{item['scopes']}]: {reason}")
+            if len(allowed_metadata_gaps) > args.warning_limit:
+                print(f"  - ... {len(allowed_metadata_gaps) - args.warning_limit} more")
+        else:
+            print("  - none")
+
+        if unallowlisted_metadata_gaps:
+            print("\nUnallowlisted missing metadata")
+            for item in unallowlisted_metadata_gaps[: args.warning_limit]:
+                print(
+                    f"  - {item['coordinate']} [{item['scopes']}] "
+                    f"repo={item['repository']} license={item['license']} source={item['source']}"
+                )
+            if len(unallowlisted_metadata_gaps) > args.warning_limit:
+                print(f"  - ... {len(unallowlisted_metadata_gaps) - args.warning_limit} more")
+
+        if unreviewed_jitpack:
+            print("\nUnreviewed JitPack artifacts")
+            for item in unreviewed_jitpack[: args.warning_limit]:
+                print(f"  - {item['coordinate']} [{item['scopes']}]")
+            if len(unreviewed_jitpack) > args.warning_limit:
+                print(f"  - ... {len(unreviewed_jitpack) - args.warning_limit} more")
 
     if missing_metadata:
         print("\nMetadata warnings")
@@ -3948,6 +4100,11 @@ def _build_parser() -> argparse.ArgumentParser:
         type=int,
         default=25,
         help="Maximum missing-metadata/unresolved rows to print per section (default: 25)",
+    )
+    maven_provenance_p.add_argument(
+        "--strict-fdroid",
+        action="store_true",
+        help="Fail on unallowlisted missing metadata and unreviewed JitPack artifacts for F-Droid review.",
     )
     maven_provenance_p.set_defaults(func=cmd_maven_provenance_check)
 
