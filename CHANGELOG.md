@@ -18,6 +18,8 @@ All notable changes to iOSIconPack will be documented in this file.
   thresholds.
 - Added `package-inventory-import` to convert local ADB/package inventories into
   icon-request records and candidate appfilter rows without network upload.
+- Added Playwright-backed `docs-visual-smoke` checks for gallery/request pages
+  across desktop/mobile and dark/light rendered control flows.
 
 ## [v1.2.2] - 2026-07-02
 

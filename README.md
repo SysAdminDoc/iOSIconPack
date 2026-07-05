@@ -82,6 +82,8 @@ Nova, Lawnchair, Apex, Smart Launcher, OnePlus, Samsung One UI, LG Home, Sony, P
 ## Build
 
 ```bash
+python3 -m pip install -r requirements.txt
+python3 -m playwright install chromium
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
 JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
 python3 scripts/icontool.py preflight
@@ -139,6 +141,9 @@ python3 scripts/icontool.py check
 # Validate generated gallery freshness and accessibility semantics:
 python3 scripts/gen_gallery.py --check
 python3 scripts/gen_gallery.py --a11y-check
+
+# Render docs pages across desktop/mobile and dark/light control flows:
+python3 scripts/icontool.py docs-visual-smoke
 
 # Validate launcher intent filters and icon-pack resource signals:
 python3 scripts/icontool.py launcher-compat-check

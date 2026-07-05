@@ -22,6 +22,7 @@ Commands
   release-channel-check  Verify GitHub Releases latest tag/assets
   preview-regression  Diff icon renders under common launcher masks
   icon-quality-audit  Rank shipped icons that need maintainer review
+  docs-visual-smoke  Render docs pages across viewports/themes and test controls
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
   package-inventory-import  Convert local package inventories into icon-request records
@@ -120,6 +121,11 @@ ICON_QUALITY_CORNER_REGION = 15
 ICON_QUALITY_CORNER_OPAQUE_PX = 80
 ICON_QUALITY_SQUIRCLE_LEAK_RATIO = 0.08
 ICON_QUALITY_SEVERITY_RANK = {"low": 1, "medium": 2, "high": 3, "critical": 4}
+DOCS_VISUAL_VIEWPORTS: tuple[tuple[str, int, int], ...] = (
+    ("desktop", 1280, 720),
+    ("mobile", 390, 844),
+)
+DOCS_VISUAL_THEMES: tuple[str, ...] = ("dark", "light")
 GITHUB_REPO = "SysAdminDoc/iOSIconPack"
 GITHUB_API_ROOT = "https://api.github.com"
 OSV_QUERYBATCH_URL = "https://api.osv.dev/v1/querybatch"
@@ -3409,6 +3415,201 @@ def cmd_icon_quality_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def _docs_visual_start_server():
+    import functools
+    import threading
+    from http.server import SimpleHTTPRequestHandler, ThreadingHTTPServer
+
+    class QuietHandler(SimpleHTTPRequestHandler):
+        def log_message(self, format: str, *args: object) -> None:  # noqa: A002
+            return
+
+    handler = functools.partial(QuietHandler, directory=str(REPO_ROOT))
+    server = ThreadingHTTPServer(("127.0.0.1", 0), handler)
+    thread = threading.Thread(target=server.serve_forever, daemon=True)
+    thread.start()
+    return server, server.server_address[1]
+
+
+def _docs_visual_route(route) -> None:
+    import base64
+
+    url = route.request.url
+    if url.startswith(f"{GITHUB_API_ROOT}/repos/{GITHUB_REPO}/issues"):
+        route.fulfill(
+            status=200,
+            content_type="application/json",
+            body="[]",
+            headers={"Access-Control-Allow-Origin": "*"},
+        )
+        return
+    if url.startswith("https://raw.githubusercontent.com/"):
+        transparent_png = base64.b64decode(
+            "iVBORw0KGgoAAAANSUhEUgAAAAEAAAABCAYAAAAfFcSJAAAADUlEQVR42mP8z8BQDwAFgwJ/l3Fo"
+            "GQAAAABJRU5ErkJggg=="
+        )
+        route.fulfill(status=200, content_type="image/png", body=transparent_png)
+        return
+    route.continue_()
+
+
+def _docs_visual_check_base(page, page_name: str) -> list[str]:
+    errors: list[str] = []
+    title = page.title()
+    if page_name == "index.html" and "Icon Browser" not in title:
+        errors.append(f"{page_name}: title mismatch: {title!r}")
+    if page_name == "requests.html" and "Icon Requests" not in title:
+        errors.append(f"{page_name}: title mismatch: {title!r}")
+    body_text = page.evaluate("() => document.body.innerText.trim()")
+    if len(body_text) < 40:
+        errors.append(f"{page_name}: rendered body is unexpectedly small")
+    horizontal_overflow = page.evaluate("() => document.documentElement.scrollWidth > window.innerWidth + 1")
+    if horizontal_overflow:
+        errors.append(f"{page_name}: horizontal overflow detected")
+    return errors
+
+
+def _docs_visual_check_gallery(page) -> list[str]:
+    errors: list[str] = []
+    page.locator("#search").fill("safari")
+    search_value = page.evaluate("() => document.querySelector('#search')?.value || ''")
+    if search_value != "safari":
+        errors.append("docs/index.html: search input did not retain typed query")
+    status = page.evaluate("() => document.querySelector('#gallery-result-status')?.textContent || ''")
+    if "Showing" not in status:
+        errors.append(f"docs/index.html: gallery status did not update after search: {status!r}")
+
+    filter_button = page.locator('.filter-btn[data-era="ios-17"]')
+    filter_button.click()
+    filter_pressed = page.evaluate("() => document.querySelector('.filter-btn[data-era=\"ios-17\"]')?.getAttribute('aria-pressed')")
+    if filter_pressed != "true":
+        errors.append("docs/index.html: era filter did not set aria-pressed=true")
+
+    compare_tab = page.locator("#tab-compare")
+    compare_tab.click()
+    compare_visible = page.evaluate("() => !document.querySelector('#compare-view')?.hidden")
+    if not compare_visible:
+        errors.append("docs/index.html: compare tab did not reveal compare view")
+    browse_tab = page.locator("#tab-browse")
+    browse_tab.click()
+    browse_visible = page.evaluate("() => !document.querySelector('#browse-view')?.hidden")
+    if not browse_visible:
+        errors.append("docs/index.html: browse tab did not restore browse view")
+    return errors
+
+
+def _docs_visual_check_requests(page) -> list[str]:
+    errors: list[str] = []
+    page.locator("#search").fill("cafe")
+    search_value = page.evaluate("() => document.querySelector('#search')?.value || ''")
+    if search_value != "cafe":
+        errors.append("docs/requests.html: search input did not retain typed query")
+    page.locator("#sort").select_option("newest")
+    sort_value = page.evaluate("() => document.querySelector('#sort')?.value || ''")
+    if sort_value != "newest":
+        errors.append("docs/requests.html: sort select did not accept newest")
+    label_filter_count = page.locator("#label-filter").count()
+    if label_filter_count != 1:
+        errors.append("docs/requests.html: label filter is missing")
+    status = page.evaluate("() => document.querySelector('#request-status')?.textContent || ''")
+    if "requests shown" not in status:
+        errors.append(f"docs/requests.html: request status did not update: {status!r}")
+    return errors
+
+
+def cmd_docs_visual_smoke(args: argparse.Namespace) -> int:
+    try:
+        from playwright.sync_api import Error as PlaywrightError
+        from playwright.sync_api import TimeoutError as PlaywrightTimeoutError
+        from playwright.sync_api import sync_playwright
+    except ImportError:
+        print(
+            "docs visual smoke: Playwright is required. Install with "
+            "`python -m pip install -r requirements.txt` and `python -m playwright install chromium`.",
+            file=sys.stderr,
+        )
+        return 1
+
+    screenshot_dir = _repo_relative_path(args.screenshot_dir) if args.screenshot_dir else None
+    if screenshot_dir:
+        screenshot_dir.mkdir(parents=True, exist_ok=True)
+
+    server, port = _docs_visual_start_server()
+    errors: list[str] = []
+    rows: list[str] = []
+    try:
+        with sync_playwright() as playwright:
+            browser = playwright.chromium.launch(headless=True)
+            for page_name in ("index.html", "requests.html"):
+                for theme in DOCS_VISUAL_THEMES:
+                    for viewport_name, width, height in DOCS_VISUAL_VIEWPORTS:
+                        label = f"docs/{page_name} {theme} {viewport_name}"
+                        context = browser.new_context(
+                            viewport={"width": width, "height": height},
+                            color_scheme=theme,
+                        )
+                        context.route("**/*", _docs_visual_route)
+                        page = context.new_page()
+                        console_messages: list[str] = []
+                        page.on(
+                            "console",
+                            lambda msg, bucket=console_messages: (
+                                bucket.append(f"{msg.type}: {msg.text}")
+                                if msg.type in {"error", "warning", "warn"}
+                                else None
+                            ),
+                        )
+                        page.on("pageerror", lambda exc, bucket=console_messages: bucket.append(f"pageerror: {exc}"))
+                        try:
+                            page.goto(f"http://127.0.0.1:{port}/docs/{page_name}", wait_until="domcontentloaded")
+                            try:
+                                page.wait_for_load_state("networkidle", timeout=5000)
+                            except PlaywrightTimeoutError:
+                                pass
+                            page_errors = _docs_visual_check_base(page, page_name)
+                            if page_name == "index.html":
+                                page_errors.extend(_docs_visual_check_gallery(page))
+                            else:
+                                page_errors.extend(_docs_visual_check_requests(page))
+                            page_errors.extend(f"{page_name}: console {message}" for message in console_messages)
+                            if screenshot_dir:
+                                screenshot = screenshot_dir / f"{page_name.removesuffix('.html')}-{theme}-{viewport_name}.png"
+                                page.screenshot(path=str(screenshot), full_page=False)
+                        except (PlaywrightError, OSError) as exc:
+                            page_errors = [f"{label}: {exc}"]
+                        finally:
+                            context.close()
+
+                        if page_errors:
+                            errors.extend(f"{label}: {error}" for error in page_errors)
+                            rows.append(f"FAIL {label}")
+                        else:
+                            rows.append(f"OK   {label}")
+            browser.close()
+    except PlaywrightError as exc:
+        errors.append(
+            "Playwright could not launch Chromium. Run "
+            "`python -m playwright install chromium` if the browser bundle is missing. "
+            f"Details: {exc}"
+        )
+    finally:
+        server.shutdown()
+        server.server_close()
+
+    print("docs visual smoke")
+    for row in rows:
+        print(f"  {row}")
+    if screenshot_dir:
+        print(f"  screenshots: {_display_path(screenshot_dir)}")
+    if errors:
+        print("docs visual smoke: FAIL", file=sys.stderr)
+        for error in errors:
+            print(f"  - {error}", file=sys.stderr)
+        return 1
+    print("docs visual smoke: OK")
+    return 0
+
+
 def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
     rc = 0
     for script in ("validate_appfilter.py", "validate_drawables.py", "validate_localization.py"):
@@ -4803,6 +5004,18 @@ def _build_parser() -> argparse.ArgumentParser:
         help=f"Visible pixels outside squircle mask before review (default: {ICON_QUALITY_SQUIRCLE_LEAK_RATIO}).",
     )
     icon_quality_p.set_defaults(func=cmd_icon_quality_audit)
+
+    # --- docs-visual-smoke ---
+    docs_visual_p = sub.add_parser(
+        "docs-visual-smoke",
+        help="Render docs pages across desktop/mobile and dark/light themes, then exercise controls",
+    )
+    docs_visual_p.add_argument(
+        "--screenshot-dir",
+        default=None,
+        help="Optional directory for captured screenshots, e.g. build/docs-visual-smoke.",
+    )
+    docs_visual_p.set_defaults(func=cmd_docs_visual_smoke)
 
     # --- developer-verification-check ---
     developer_verification_p = sub.add_parser(

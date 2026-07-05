@@ -3,3 +3,4 @@
 #     python3 -m venv .venv && source .venv/bin/activate
 #     pip install -r requirements.txt
 Pillow>=10.0.0
+playwright>=1.60.0
