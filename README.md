@@ -146,6 +146,9 @@ python3 scripts/icontool.py launcher-compat-check
 # Audit open icon requests without mutating GitHub:
 python3 scripts/icontool.py request-audit
 
+# Import a saved ADB/package inventory into local request records without upload:
+python3 scripts/icontool.py package-inventory-import --input inventory.txt
+
 # Rank missing packages from icon requests and public icon-pack coverage:
 python3 scripts/icontool.py coverage-gap
 

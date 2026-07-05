@@ -24,6 +24,7 @@ Commands
   icon-quality-audit  Rank shipped icons that need maintainer review
   developer-verification-check  Report Android developer verification readiness
   request-audit  Audit open icon requests against appfilter.xml
+  package-inventory-import  Convert local package inventories into icon-request records
   coverage-gap  Score high-value missing package coverage from requests and public icon packs
   maven-provenance-check  Verify Maven repository/artifact provenance
   dependency-audit  Check core dependency versions and OSV advisories
@@ -1924,6 +1925,270 @@ def _coverage_issue_signals(raw_issues: list[dict[str, object]], include_all: bo
     return signals
 
 
+def _inventory_package_from_line(line: str) -> str:
+    stripped = line.strip()
+    lower = stripped.lower()
+    if lower.startswith("package:"):
+        value = stripped.split(":", 1)[1].strip()
+        if "=" in value:
+            value = value.rsplit("=", 1)[1].strip()
+        return value
+
+    package_match = re.search(r"Package\s+\[([A-Za-z0-9._]+)\]", stripped)
+    if package_match:
+        return package_match.group(1)
+
+    key_match = re.search(r"\b(?:packageName|package)\s*[:=]\s*['\"]?([A-Za-z0-9._]+)", stripped)
+    if key_match:
+        return key_match.group(1)
+
+    return _package_from_play_url(stripped)
+
+
+def _inventory_label_from_line(line: str) -> str:
+    stripped = line.strip()
+    for pattern in (
+        r"application-label(?:-[a-zA-Z0-9_]+)?\s*:\s*['\"]?(.+?)['\"]?$",
+        r"(?:app\s*name|app_name|appLabel|label|title)\s*[:=]\s*['\"]?(.+?)['\"]?$",
+    ):
+        match = re.search(pattern, stripped, re.IGNORECASE)
+        if match:
+            return match.group(1).strip().strip("'\"")
+    return ""
+
+
+def _inventory_users_from_line(line: str) -> tuple[set[str], bool]:
+    users: set[str] = set()
+    work_profile = bool(re.search(r"\bwork[- ]?profile\b", line, re.IGNORECASE))
+    for match in re.finditer(r"\buser(?:Id)?\s*[:= ]\s*(\d+)", line, re.IGNORECASE):
+        users.add(match.group(1))
+    for match in re.finditer(r"\bprofile\s*[:= ]\s*(\d+)", line, re.IGNORECASE):
+        users.add(match.group(1))
+    if any(user != "0" for user in users):
+        work_profile = True
+    return users, work_profile
+
+
+def _inventory_new_record(package_name: str) -> dict[str, object]:
+    return {
+        "package": package_name,
+        "labels": set(),
+        "components": set(),
+        "users": set(),
+        "work_profile": False,
+    }
+
+
+def _inventory_record_key(package_name: str) -> str:
+    return package_name.strip().lower()
+
+
+def _inventory_add_record(
+    records: dict[str, dict[str, object]],
+    package_name: str,
+) -> dict[str, object]:
+    key = _inventory_record_key(package_name)
+    record = records.setdefault(key, _inventory_new_record(package_name.strip()))
+    return record
+
+
+def _inventory_add_component(record: dict[str, object], component: str) -> None:
+    try:
+        normalized = _norm_component(component)
+    except ValueError:
+        return
+    components = record["components"]
+    if isinstance(components, set):
+        components.add(normalized)
+
+
+def _inventory_add_label(record: dict[str, object], label: str) -> None:
+    label = label.strip()
+    if not label:
+        return
+    labels = record["labels"]
+    if isinstance(labels, set):
+        labels.add(label)
+
+
+def _inventory_add_users(record: dict[str, object], users: set[str], work_profile: bool) -> None:
+    current = record["users"]
+    if isinstance(current, set):
+        current.update(users)
+    if work_profile:
+        record["work_profile"] = True
+
+
+def _inventory_json_items(raw: object) -> list[dict[str, object]]:
+    if isinstance(raw, dict):
+        for key in ("packages", "apps", "inventory", "items", "requests"):
+            value = raw.get(key)
+            if isinstance(value, list):
+                return [item for item in value if isinstance(item, dict)]
+        return [raw]
+    if isinstance(raw, list):
+        return [item for item in raw if isinstance(item, dict)]
+    return []
+
+
+def _inventory_records_from_json(raw: object) -> list[dict[str, object]]:
+    records: dict[str, dict[str, object]] = {}
+    for item in _inventory_json_items(raw):
+        package_name = str(
+            item.get("package")
+            or item.get("packageName")
+            or item.get("package_name")
+            or item.get("id")
+            or ""
+        ).strip()
+        component = str(
+            item.get("component")
+            or item.get("componentInfo")
+            or item.get("component_info")
+            or item.get("activity")
+            or ""
+        ).strip()
+        if component and not package_name:
+            try:
+                package_name, _ = _parse_component(_norm_component(component))
+            except ValueError:
+                package_name = ""
+        if not package_name:
+            package_name = _package_from_play_url(str(item.get("playStoreUrl") or item.get("play_store_url") or ""))
+        if not package_name:
+            continue
+
+        record = _inventory_add_record(records, package_name)
+        if component:
+            _inventory_add_component(record, component)
+        for label_key in ("label", "appLabel", "app_name", "appName", "name", "title"):
+            _inventory_add_label(record, str(item.get(label_key) or ""))
+        users: set[str] = set()
+        for user_key in ("user", "userId", "user_id", "profile", "profileId", "profile_id"):
+            value = item.get(user_key)
+            if isinstance(value, list):
+                users.update(str(part) for part in value if str(part).strip())
+            elif value is not None and str(value).strip():
+                users.add(str(value).strip())
+        work_profile = bool(item.get("workProfile") or item.get("work_profile"))
+        if any(user != "0" for user in users):
+            work_profile = True
+        _inventory_add_users(record, users, work_profile)
+
+    return _inventory_finalize_records(records)
+
+
+def _inventory_records_from_text(text: str) -> list[dict[str, object]]:
+    records: dict[str, dict[str, object]] = {}
+    current: dict[str, object] | None = None
+
+    for line in text.splitlines():
+        package_name = _inventory_package_from_line(line)
+        if package_name:
+            current = _inventory_add_record(records, package_name)
+
+        for component_match in _COMPONENT_INFO_RE.finditer(line):
+            component = f"ComponentInfo{{{component_match.group(1)}/{component_match.group(2)}}}"
+            try:
+                component_package, _ = _parse_component(_norm_component(component))
+            except ValueError:
+                continue
+            component_record = _inventory_add_record(records, component_package)
+            _inventory_add_component(component_record, component)
+            current = component_record
+
+        if current is not None:
+            label = _inventory_label_from_line(line)
+            if label:
+                _inventory_add_label(current, label)
+            users, work_profile = _inventory_users_from_line(line)
+            _inventory_add_users(current, users, work_profile)
+
+    return _inventory_finalize_records(records)
+
+
+def _inventory_finalize_records(records: dict[str, dict[str, object]]) -> list[dict[str, object]]:
+    finalized: list[dict[str, object]] = []
+    for record in records.values():
+        labels = sorted(str(label) for label in record.get("labels", set()) if str(label).strip())
+        components = sorted(str(component) for component in record.get("components", set()) if str(component).strip())
+        users = sorted(str(user) for user in record.get("users", set()) if str(user).strip())
+        work_profile = bool(record.get("work_profile")) or any(user != "0" for user in users)
+        finalized.append(
+            {
+                "package": str(record.get("package") or ""),
+                "labels": labels,
+                "app_name": labels[0] if labels else str(record.get("package") or ""),
+                "components": components,
+                "users": users,
+                "work_profile_ambiguous": work_profile or len(users) > 1,
+            }
+        )
+    return sorted(finalized, key=lambda item: str(item["package"]))
+
+
+def _inventory_load(path: Path) -> tuple[list[dict[str, object]], str]:
+    text = path.read_text(encoding="utf-8-sig")
+    stripped = text.lstrip()
+    if stripped.startswith(("{", "[")):
+        try:
+            raw = json.loads(text)
+        except json.JSONDecodeError:
+            raw = None
+        if raw is not None:
+            return _inventory_records_from_json(raw), "json"
+    return _inventory_records_from_text(text), "text"
+
+
+def _inventory_issue_url(package_name: str) -> str:
+    return f"https://play.google.com/store/apps/details?id={package_name}"
+
+
+def _inventory_classify_records(
+    records: list[dict[str, object]],
+    by_component: dict[str, str],
+    by_package: dict[str, list[tuple[str, str]]],
+) -> list[dict[str, object]]:
+    classified: list[dict[str, object]] = []
+    for record in records:
+        package_name = str(record.get("package") or "")
+        components = [str(component) for component in record.get("components", [])]
+        covered_by = _coverage_local_evidence(package_name, set(components), by_component, by_package)
+        component = components[0] if components else ""
+        status = "covered" if covered_by else ("ready-to-map" if component else "needs-component")
+        suggested_appfilter = (
+            f'<item component="{component}" drawable="TODO_DRAWABLE" />'
+            if component and not covered_by
+            else ""
+        )
+        classified.append(
+            {
+                "app_name": str(record.get("app_name") or package_name),
+                "package": package_name,
+                "component_info": component,
+                "components": components,
+                "play_store_url": _inventory_issue_url(package_name),
+                "status": status,
+                "covered_by": covered_by,
+                "work_profile_ambiguous": bool(record.get("work_profile_ambiguous")),
+                "users": list(record.get("users", [])),
+                "candidate_appfilter_item": suggested_appfilter,
+                "request_record": {
+                    "App name": str(record.get("app_name") or package_name),
+                    "Package name": package_name,
+                    "ComponentInfo (optional)": component,
+                    "Play Store URL": _inventory_issue_url(package_name),
+                    "Notes / reference imagery": (
+                        "Imported from local package inventory; verify personal/work-profile component before mapping."
+                        if record.get("work_profile_ambiguous")
+                        else "Imported from local package inventory."
+                    ),
+                },
+            }
+        )
+    return classified
+
+
 def _coverage_local_evidence(
     package_name: str,
     components: set[str],
@@ -3416,6 +3681,80 @@ def cmd_request_audit(args: argparse.Namespace) -> int:
     return 0
 
 
+def cmd_package_inventory_import(args: argparse.Namespace) -> int:
+    input_path = _repo_relative_path(args.input)
+    try:
+        records, source_format = _inventory_load(input_path)
+    except OSError as exc:
+        print(f"package inventory import: cannot read input: {exc}", file=sys.stderr)
+        return 1
+
+    appfilter = _read(APPFILTER_RES)
+    by_component, by_package = _af_component_index(appfilter)
+    classified = _inventory_classify_records(records, by_component, by_package)
+    if not args.include_covered:
+        classified = [record for record in classified if record["status"] != "covered"]
+
+    status_counts: dict[str, int] = {}
+    for record in classified:
+        status = str(record["status"])
+        status_counts[status] = status_counts.get(status, 0) + 1
+
+    payload = {
+        "schema": 1,
+        "source": str(input_path),
+        "source_format": source_format,
+        "network": False,
+        "input_records": len(records),
+        "emitted_records": len(classified),
+        "status_counts": status_counts,
+        "records": classified,
+    }
+
+    if args.json_output:
+        output_path = _repo_relative_path(args.json_output)
+        _write(output_path, json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True) + "\n")
+        print(f"package inventory import: wrote {_display_path(output_path)}")
+
+    if args.json:
+        print(json.dumps(payload, indent=2, ensure_ascii=False, sort_keys=True))
+        return 0
+
+    rows = classified[: max(1, int(args.limit))]
+    print("package inventory import")
+    print(f"  source: {_display_path(input_path)} ({source_format})")
+    print("  network upload: disabled")
+    print(f"  parsed records: {len(records)}")
+    print(f"  emitted records: {len(classified)}")
+    print(
+        "  statuses: "
+        + ", ".join(f"{status}={count}" for status, count in sorted(status_counts.items()))
+        if status_counts
+        else "  statuses: none"
+    )
+
+    if not rows:
+        print("\nNo missing request records found.")
+        return 0
+
+    print("\nCandidate request records")
+    for index, record in enumerate(rows, start=1):
+        marker = " work-profile?" if record["work_profile_ambiguous"] else ""
+        print(f"  {index:>2}. {record['app_name']} ({record['package']}) [{record['status']}]{marker}")
+        if record["component_info"]:
+            print(f"      component: {record['component_info']}")
+        else:
+            print("      component: needs ComponentInfo")
+        if record["users"]:
+            print("      users/profiles: " + ", ".join(str(user) for user in record["users"]))
+        if record["candidate_appfilter_item"]:
+            print(f"      appfilter: {record['candidate_appfilter_item']}")
+        print(f"      issue fields: {record['request_record']}")
+    if len(classified) > len(rows):
+        print(f"  ... {len(classified) - len(rows)} more record(s); rerun with --limit {len(classified)} for all")
+    return 0
+
+
 def cmd_coverage_gap(args: argparse.Namespace) -> int:
     errors: list[str] = []
     warnings: list[str] = []
@@ -4498,6 +4837,39 @@ def _build_parser() -> argparse.ArgumentParser:
         help="Read saved GitHub issue JSON from this file instead of fetching live issues",
     )
     request_audit_p.set_defaults(func=cmd_request_audit)
+
+    # --- package-inventory-import ---
+    package_inventory_p = sub.add_parser(
+        "package-inventory-import",
+        help="Convert a local ADB/package inventory into icon-request records without network upload",
+    )
+    package_inventory_p.add_argument(
+        "--input",
+        required=True,
+        help="ADB text dump or saved JSON package inventory to import.",
+    )
+    package_inventory_p.add_argument(
+        "--json",
+        action="store_true",
+        help="Print the full imported request records as JSON.",
+    )
+    package_inventory_p.add_argument(
+        "--json-output",
+        default=None,
+        help="Optional path to write the full imported request records as JSON.",
+    )
+    package_inventory_p.add_argument(
+        "--include-covered",
+        action="store_true",
+        help="Include packages already covered by local appfilter mappings.",
+    )
+    package_inventory_p.add_argument(
+        "--limit",
+        type=int,
+        default=25,
+        help="Maximum records to print in console mode (default: 25).",
+    )
+    package_inventory_p.set_defaults(func=cmd_package_inventory_import)
 
     # --- coverage-gap ---
     coverage_gap_p = sub.add_parser(

@@ -16,6 +16,8 @@ All notable changes to iOSIconPack will be documented in this file.
 - Added `icon-quality-audit` to rank low-resolution sources, contrast risks,
   mask/corner review candidates, and variant gaps with configurable release
   thresholds.
+- Added `package-inventory-import` to convert local ADB/package inventories into
+  icon-request records and candidate appfilter rows without network upload.
 
 ## [v1.2.2] - 2026-07-02
 

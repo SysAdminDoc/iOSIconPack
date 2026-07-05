@@ -34,6 +34,7 @@ body:
       description: |
         Output of `adb shell pm dump <pkg> | grep -A 1 "MAIN"` — the `ComponentInfo{…}` value.
         Helps us map launch activities that differ from the package name.
+        Maintainers can import saved package dumps with `python3 scripts/icontool.py package-inventory-import --input inventory.txt`.
       placeholder: "ComponentInfo{md.obsidian/md.obsidian.MainActivity}"
 
   - type: dropdown

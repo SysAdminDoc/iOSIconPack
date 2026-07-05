@@ -158,6 +158,19 @@ h1 {
 }
 .submit-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
 
+.import-hint {
+    color: var(--muted);
+    font-size: 0.8rem;
+    max-width: 70rem;
+}
+.import-hint code {
+    color: var(--text);
+    background: var(--bg);
+    border: 1px solid var(--border);
+    border-radius: 6px;
+    padding: 0.1rem 0.3rem;
+}
+
 .controls {
     display: flex;
     gap: 0.75rem;
@@ -439,6 +452,7 @@ main {
       </a>
     </div>
   </div>
+  <p class="import-hint">Maintainers can turn a saved ADB package dump into local request records with <code>python3 scripts/icontool.py package-inventory-import --input inventory.txt</code>.</p>
   <div class="controls">
     <div class="control-field">
       <label class="sr-only" for="search">Search requests by title or number</label>
