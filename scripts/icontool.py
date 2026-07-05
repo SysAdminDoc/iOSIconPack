@@ -20,7 +20,7 @@ Commands
   launcher-compat-check  Verify launcher intent/resource compatibility signals
   release-check  Verify release version metadata and git tag alignment
   release-channel-check  Verify GitHub Releases latest tag/assets
-  preview-regression  Diff icon renders under common launcher masks
+  preview-regression  Diff icon renders and themed-icon tint contrast
   icon-quality-audit  Rank shipped icons that need maintainer review
   docs-visual-smoke  Render docs pages across viewports/themes and test controls
   developer-verification-check  Report Android developer verification readiness
@@ -88,6 +88,7 @@ RES_XML = REPO_ROOT / "app/src/main/res/xml"
 ASSETS = REPO_ROOT / "app/src/main/assets"
 DRAWABLE_HDPI = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 DRAWABLE_VEC = REPO_ROOT / "app/src/main/res/drawable"
+RES_VALUES = REPO_ROOT / "app/src/main/res/values"
 
 APPFILTER_RES = RES_XML / "appfilter.xml"
 APPFILTER_ASSET = ASSETS / "appfilter.xml"
@@ -113,6 +114,19 @@ PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.j
 PREVIEW_ICON_SIZE = 192
 PREVIEW_MASKS: tuple[str, ...] = ("full-square", "circle", "rounded-square", "squircle")
 PREVIEW_SCHEMA_VERSION = 1
+TINT_CONTRAST_SCHEMA_VERSION = 1
+TINT_CONTRAST_MIN_RATIO = 3.0
+TINT_MONO_MIN_PATH_DATA_CHARS = 16
+TINT_WALLPAPER_SIMULATIONS: tuple[tuple[str, str, str, str, str], ...] = (
+    ("light-blue", "light", "blue", "#0B57D0", "#D3E3FD"),
+    ("dark-blue", "dark", "blue", "#A8C7FA", "#0842A0"),
+    ("light-green", "light", "green", "#146C2E", "#C4EED0"),
+    ("dark-green", "dark", "green", "#8DDCA4", "#0A3818"),
+    ("light-amber", "light", "amber", "#7C4A00", "#FFE0A3"),
+    ("dark-amber", "dark", "amber", "#FFDFA6", "#4A2D00"),
+    ("light-neutral", "light", "neutral", "#42474E", "#E1E2E8"),
+    ("dark-neutral", "dark", "neutral", "#C4C6CF", "#2F3037"),
+)
 ICON_QUALITY_ERAS: tuple[str, ...] = ("ios14", "ios15", "ios16", "ios17", "ios18", "ios26_lg")
 ICON_QUALITY_SOURCE_MIN_PX = 512
 ICON_QUALITY_WEAK_CONTRAST_RATIO = 1.35
@@ -931,6 +945,350 @@ def _quality_luminance(red: int, green: int, blue: int) -> float:
         + 0.7152 * _quality_linear_channel(green)
         + 0.0722 * _quality_linear_channel(blue)
     )
+
+
+def _xml_local_name(element: ET.Element) -> str:
+    return str(element.tag).rsplit("}", 1)[-1]
+
+
+def _android_attr(element: ET.Element, name: str, default: str | None = None) -> str | None:
+    return element.get(f"{ANDROID_NS}{name}") or element.get(name) or default
+
+
+def _parse_android_float(raw: str | None, default: float = 0.0) -> float:
+    if raw is None:
+        return default
+    value = raw.strip().removesuffix("dp").removesuffix("px").strip()
+    try:
+        return float(value)
+    except ValueError:
+        return default
+
+
+def _parse_android_color(raw: str) -> tuple[int, int, int, int] | None:
+    value = raw.strip()
+    if not value.startswith("#"):
+        return None
+    hex_value = value[1:]
+    if len(hex_value) == 3:
+        red, green, blue = (int(char * 2, 16) for char in hex_value)
+        return red, green, blue, 255
+    if len(hex_value) == 4:
+        alpha, red, green, blue = (int(char * 2, 16) for char in hex_value)
+        return red, green, blue, alpha
+    if len(hex_value) == 6:
+        red = int(hex_value[0:2], 16)
+        green = int(hex_value[2:4], 16)
+        blue = int(hex_value[4:6], 16)
+        return red, green, blue, 255
+    if len(hex_value) == 8:
+        alpha = int(hex_value[0:2], 16)
+        red = int(hex_value[2:4], 16)
+        green = int(hex_value[4:6], 16)
+        blue = int(hex_value[6:8], 16)
+        return red, green, blue, alpha
+    return None
+
+
+def _load_color_resources(values_dir: Path = RES_VALUES) -> dict[str, str]:
+    colors: dict[str, str] = {}
+    for path in sorted(values_dir.glob("*.xml")):
+        try:
+            root = ET.parse(path).getroot()
+        except ET.ParseError:
+            continue
+        for color in root.iter():
+            if _xml_local_name(color) != "color":
+                continue
+            name = color.get("name")
+            text = (color.text or "").strip()
+            if name and text:
+                colors[name] = text
+    return colors
+
+
+def _resolve_android_color(
+    raw: str | None,
+    resources: dict[str, str],
+    seen: set[str] | None = None,
+) -> tuple[int, int, int, int] | None:
+    if raw is None:
+        return None
+    value = raw.strip()
+    android_named = {
+        "@android:color/black": "#FF000000",
+        "@android:color/white": "#FFFFFFFF",
+        "@android:color/transparent": "#00000000",
+    }
+    if value in android_named:
+        value = android_named[value]
+    if value.startswith("@color/"):
+        name = value.removeprefix("@color/")
+        if seen is None:
+            seen = set()
+        if name in seen:
+            return None
+        seen.add(name)
+        return _resolve_android_color(resources.get(name), resources, seen)
+    return _parse_android_color(value)
+
+
+def _android_color_hex(color: tuple[int, int, int, int] | None) -> str | None:
+    if color is None:
+        return None
+    red, green, blue, alpha = color
+    return f"#{alpha:02X}{red:02X}{green:02X}{blue:02X}"
+
+
+def _contrast_ratio(
+    first: tuple[int, int, int, int],
+    second: tuple[int, int, int, int],
+) -> float:
+    first_luma = _quality_luminance(first[0], first[1], first[2])
+    second_luma = _quality_luminance(second[0], second[1], second[2])
+    high = max(first_luma, second_luma)
+    low = min(first_luma, second_luma)
+    return (high + 0.05) / (low + 0.05)
+
+
+def _tint_path_visible(
+    element: ET.Element,
+    resources: dict[str, str],
+) -> tuple[bool, bool, bool]:
+    fill = _resolve_android_color(_android_attr(element, "fillColor"), resources)
+    stroke = _resolve_android_color(_android_attr(element, "strokeColor"), resources)
+    fill_alpha = _parse_android_float(_android_attr(element, "fillAlpha"), 1.0)
+    stroke_alpha = _parse_android_float(_android_attr(element, "strokeAlpha"), 1.0)
+    stroke_width = _parse_android_float(_android_attr(element, "strokeWidth"), 0.0)
+
+    fill_visible = bool(fill and fill[3] > 8 and fill_alpha > 0.04)
+    stroke_visible = bool(stroke and stroke[3] > 8 and stroke_alpha > 0.04 and stroke_width > 0)
+    return fill_visible or stroke_visible, fill_visible, stroke_visible
+
+
+def _tint_vector_metrics(path: Path, resources: dict[str, str]) -> dict[str, object]:
+    root = ET.parse(path).getroot()
+    viewport_width = _parse_android_float(_android_attr(root, "viewportWidth"), 0.0)
+    viewport_height = _parse_android_float(_android_attr(root, "viewportHeight"), 0.0)
+    visible_paths = 0
+    filled_paths = 0
+    stroked_paths = 0
+    path_data_chars = 0
+    path_commands = 0
+
+    for element in root.iter():
+        if _xml_local_name(element) != "path":
+            continue
+        path_data = _android_attr(element, "pathData", "") or ""
+        visible, fill_visible, stroke_visible = _tint_path_visible(element, resources)
+        if not visible:
+            continue
+        visible_paths += 1
+        if fill_visible:
+            filled_paths += 1
+        if stroke_visible:
+            stroked_paths += 1
+        compact_path_data = re.sub(r"\s+", "", path_data)
+        path_data_chars += len(compact_path_data)
+        path_commands += len(re.findall(r"[AaCcHhLlMmQqSsTtVvZz]", compact_path_data))
+
+    return {
+        "viewport": [viewport_width, viewport_height],
+        "visible_paths": visible_paths,
+        "filled_paths": filled_paths,
+        "stroked_paths": stroked_paths,
+        "path_data_chars": path_data_chars,
+        "path_commands": path_commands,
+    }
+
+
+def _tint_wrapper_metrics(path: Path, resources: dict[str, str]) -> dict[str, object]:
+    root = ET.parse(path).getroot()
+    background_ref = None
+    foreground_ref = None
+    monochrome_ref = None
+    for child in root:
+        name = _xml_local_name(child)
+        drawable = _android_attr(child, "drawable")
+        if name == "background":
+            background_ref = drawable
+        elif name == "foreground":
+            foreground_ref = drawable
+        elif name == "monochrome":
+            monochrome_ref = drawable
+
+    background = _resolve_android_color(background_ref, resources)
+    return {
+        "background": background_ref,
+        "background_color": _android_color_hex(background),
+        "foreground": foreground_ref,
+        "monochrome": monochrome_ref,
+    }
+
+
+def _tint_simulation_results(
+    simulations: tuple[tuple[str, str, str, str, str], ...],
+    min_contrast_ratio: float,
+) -> tuple[list[dict[str, object]], list[dict[str, object]]]:
+    results: list[dict[str, object]] = []
+    failures: list[dict[str, object]] = []
+    for name, theme, wallpaper, foreground_raw, background_raw in simulations:
+        foreground = _parse_android_color(foreground_raw)
+        background = _parse_android_color(background_raw)
+        if foreground is None or background is None:
+            ratio = 0.0
+        else:
+            ratio = _contrast_ratio(foreground, background)
+        result = {
+            "name": name,
+            "theme": theme,
+            "wallpaper": wallpaper,
+            "foreground": foreground_raw.upper(),
+            "background": background_raw.upper(),
+            "contrast_ratio": round(ratio, 3),
+        }
+        results.append(result)
+        if ratio < min_contrast_ratio:
+            failures.append(result)
+    return results, failures
+
+
+def _tint_add_finding(
+    findings: dict[str, dict[str, object]],
+    drawable: str,
+    severity: str,
+    reason: str,
+) -> None:
+    existing = findings.get(drawable)
+    if existing is None:
+        findings[drawable] = {"drawable": drawable, "severity": severity, "reasons": [reason]}
+        return
+    if ICON_QUALITY_SEVERITY_RANK[severity] > ICON_QUALITY_SEVERITY_RANK[str(existing["severity"])]:
+        existing["severity"] = severity
+    reasons = existing.setdefault("reasons", [])
+    if isinstance(reasons, list) and reason not in reasons:
+        reasons.append(reason)
+
+
+def _tint_contrast_audit(
+    drawable_dir: Path = DRAWABLE_VEC,
+    values_dir: Path = RES_VALUES,
+    *,
+    simulations: tuple[tuple[str, str, str, str, str], ...] = TINT_WALLPAPER_SIMULATIONS,
+    min_contrast_ratio: float = TINT_CONTRAST_MIN_RATIO,
+    min_path_data_chars: int = TINT_MONO_MIN_PATH_DATA_CHARS,
+) -> dict[str, object]:
+    resources = _load_color_resources(values_dir)
+    simulation_results, simulation_failures = _tint_simulation_results(simulations, min_contrast_ratio)
+    findings: dict[str, dict[str, object]] = {}
+    entries: dict[str, dict[str, object]] = {}
+
+    for mono_path in sorted(drawable_dir.glob("*_mono.xml")):
+        drawable = mono_path.stem.removesuffix("_mono")
+        try:
+            vector = _tint_vector_metrics(mono_path, resources)
+        except ET.ParseError as exc:
+            _tint_add_finding(findings, drawable, "critical", f"{mono_path.name} is malformed: {exc}")
+            continue
+
+        themed_path = drawable_dir / f"{drawable}_themed.xml"
+        wrapper: dict[str, object] = {}
+        if themed_path.exists():
+            try:
+                wrapper = _tint_wrapper_metrics(themed_path, resources)
+            except ET.ParseError as exc:
+                _tint_add_finding(findings, drawable, "critical", f"{themed_path.name} is malformed: {exc}")
+        else:
+            _tint_add_finding(findings, drawable, "high", f"missing themed wrapper: {themed_path.name}")
+
+        viewport = vector["viewport"]
+        if viewport != [float(PREVIEW_ICON_SIZE), float(PREVIEW_ICON_SIZE)]:
+            _tint_add_finding(
+                findings,
+                drawable,
+                "high",
+                f"monochrome viewport {viewport} does not match {PREVIEW_ICON_SIZE}x{PREVIEW_ICON_SIZE}",
+            )
+        if int(vector["visible_paths"]) <= 0:
+            _tint_add_finding(findings, drawable, "critical", "monochrome vector has no visible fill or stroke paths")
+        if int(vector["path_data_chars"]) < min_path_data_chars:
+            _tint_add_finding(
+                findings,
+                drawable,
+                "high",
+                f"monochrome path data is too sparse for tinted readability ({vector['path_data_chars']} chars)",
+            )
+
+        expected_mono = f"@drawable/{drawable}_mono"
+        if wrapper and wrapper.get("monochrome") != expected_mono:
+            _tint_add_finding(
+                findings,
+                drawable,
+                "high",
+                f"themed wrapper monochrome points to {wrapper.get('monochrome') or 'missing'}, expected {expected_mono}",
+            )
+        if wrapper and not wrapper.get("background_color"):
+            _tint_add_finding(
+                findings,
+                drawable,
+                "medium",
+                f"themed wrapper background {wrapper.get('background') or 'missing'} could not be resolved",
+            )
+
+        for simulation in simulation_failures:
+            _tint_add_finding(
+                findings,
+                drawable,
+                "high",
+                (
+                    f"{simulation['name']} tint contrast {simulation['contrast_ratio']}:1 "
+                    f"below {min_contrast_ratio:.1f}:1"
+                ),
+            )
+
+        entries[drawable] = {
+            "mono": str(mono_path.relative_to(REPO_ROOT)) if mono_path.is_relative_to(REPO_ROOT) else str(mono_path),
+            "themed": str(themed_path.relative_to(REPO_ROOT)) if themed_path.is_relative_to(REPO_ROOT) else str(themed_path),
+            "vector": vector,
+            "wrapper": wrapper,
+        }
+
+    sorted_findings = sorted(
+        findings.values(),
+        key=lambda item: (
+            -ICON_QUALITY_SEVERITY_RANK[str(item["severity"])],
+            str(item["drawable"]),
+        ),
+    )
+    min_observed = min((float(result["contrast_ratio"]) for result in simulation_results), default=0.0)
+    return {
+        "schema": TINT_CONTRAST_SCHEMA_VERSION,
+        "source": "app/src/main/res/drawable",
+        "entry_count": len(entries),
+        "simulation_count": len(simulation_results),
+        "min_contrast_ratio": min_contrast_ratio,
+        "min_observed_contrast_ratio": round(min_observed, 3),
+        "simulations": simulation_results,
+        "findings": sorted_findings,
+        "entries": entries,
+    }
+
+
+def _print_tint_contrast_findings(audit: dict[str, object], limit: int) -> None:
+    findings = audit.get("findings") or []
+    if not isinstance(findings, list):
+        return
+    for finding in findings[:limit]:
+        if not isinstance(finding, dict):
+            continue
+        print(
+            f"  - {finding.get('drawable')} [{finding.get('severity')}]",
+            file=sys.stderr,
+        )
+        reasons = finding.get("reasons") or []
+        if isinstance(reasons, list):
+            for reason in reasons[:4]:
+                print(f"      {reason}", file=sys.stderr)
 
 
 def _quality_pixels(image):
@@ -3296,6 +3654,7 @@ def cmd_preview_regression(args: argparse.Namespace) -> int:
     )
     current_output = getattr(args, "current_output", None)
     diff_limit = int(getattr(args, "diff_limit", 20) or 20)
+    skip_tint_contrast = bool(getattr(args, "skip_tint_contrast", False))
 
     try:
         manifest = _preview_regression_manifest()
@@ -3303,10 +3662,30 @@ def cmd_preview_regression(args: argparse.Namespace) -> int:
         print(f"preview regression check: FAIL ({exc})", file=sys.stderr)
         return 1
 
+    tint_audit: dict[str, object] | None = None
+    if not skip_tint_contrast:
+        try:
+            tint_audit = _tint_contrast_audit()
+        except (OSError, ET.ParseError, ValueError) as exc:
+            print(f"tint contrast check: FAIL ({exc})", file=sys.stderr)
+            return 1
+
     if current_output:
         output_path = _repo_relative_path(current_output)
-        _write(output_path, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
+        output_manifest = dict(manifest)
+        if tint_audit is not None:
+            output_manifest["tint_contrast"] = {
+                key: value for key, value in tint_audit.items() if key != "entries"
+            }
+        _write(output_path, json.dumps(output_manifest, indent=2, sort_keys=True) + "\n")
         print(f"preview regression check: wrote current manifest {_display_path(output_path)}")
+
+    if tint_audit is not None and tint_audit.get("findings"):
+        findings = tint_audit.get("findings")
+        count = len(findings) if isinstance(findings, list) else 0
+        print(f"tint contrast check: FAIL ({count} findings)", file=sys.stderr)
+        _print_tint_contrast_findings(tint_audit, diff_limit)
+        return 1
 
     if getattr(args, "update_baseline", False):
         _write(baseline, json.dumps(manifest, indent=2, sort_keys=True) + "\n")
@@ -3337,6 +3716,13 @@ def cmd_preview_regression(args: argparse.Namespace) -> int:
         return 1
 
     print(f"preview regression check: OK ({manifest['entry_count']} drawables x {len(PREVIEW_MASKS)} masks)")
+    if tint_audit is not None:
+        print(
+            "tint contrast check: OK "
+            f"({tint_audit['entry_count']} monochrome drawables x "
+            f"{tint_audit['simulation_count']} wallpaper/theme simulations; "
+            f"min {tint_audit['min_observed_contrast_ratio']}:1)"
+        )
     return 0
 
 
@@ -3636,6 +4022,7 @@ def cmd_check(args: argparse.Namespace) -> int:  # noqa: ARG001
             baseline=str(PREVIEW_REGRESSION_BASELINE),
             current_output=None,
             diff_limit=20,
+            skip_tint_contrast=False,
             update_baseline=False,
         )
     )
@@ -4920,7 +5307,7 @@ def _build_parser() -> argparse.ArgumentParser:
     # --- preview-regression ---
     preview_p = sub.add_parser(
         "preview-regression",
-        help="Diff rendered icon previews under common launcher masks against a local baseline",
+        help="Diff icon renders and themed-icon tint contrast against local gates",
     )
     preview_p.add_argument(
         "--baseline",
@@ -4942,6 +5329,11 @@ def _build_parser() -> argparse.ArgumentParser:
         "--update-baseline",
         action="store_true",
         help="Overwrite the baseline with the current accepted renders.",
+    )
+    preview_p.add_argument(
+        "--skip-tint-contrast",
+        action="store_true",
+        help="Skip Android themed-icon tint contrast/readability checks.",
     )
     preview_p.set_defaults(func=cmd_preview_regression)
 

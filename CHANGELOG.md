@@ -20,6 +20,8 @@ All notable changes to iOSIconPack will be documented in this file.
   icon-request records and candidate appfilter rows without network upload.
 - Added Playwright-backed `docs-visual-smoke` checks for gallery/request pages
   across desktop/mobile and dark/light rendered control flows.
+- Added themed-icon tint contrast checks to `preview-regression` for Material
+  You and Android auto-theming dark/light palette simulations.
 
 ## [v1.2.2] - 2026-07-02
 

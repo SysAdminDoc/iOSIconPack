@@ -43,7 +43,7 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 - **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
 - **Mix & Match** — Apply different generations to different apps
 - **367 raster icons + 367 transparent glyph variants + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
-- **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era
+- **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era, with local dark/light tint contrast checks
 - **6 Original Wallpapers** - bundled WebP backgrounds inspired by each shipped iOS era
 - **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
 - **Per-launcher apply cards** — Home-screen actions for Nova, Action, Smart,
@@ -164,7 +164,7 @@ python3 scripts/icontool.py maven-provenance-check --strict-fdroid
 # Check current vs latest core dependency versions and OSV advisories:
 python3 scripts/icontool.py dependency-audit
 
-# Diff rendered icon previews under common launcher masks:
+# Diff rendered icon previews and themed-icon tint contrast:
 python3 scripts/icontool.py preview-regression
 
 # Rank icons that need maintainer review without blocking on low-priority polish:
