@@ -117,6 +117,25 @@ a.gh-link:hover { color: var(--accent); }
     max-width: 62rem;
 }
 
+.release-warning {
+    background: #3b2300;
+    border: 1px solid #9a6700;
+    border-radius: 8px;
+    color: #ffd8a8;
+    display: flex;
+    flex-direction: column;
+    gap: 0.25rem;
+    font-size: 0.82rem;
+    line-height: 1.45;
+    max-width: 64rem;
+    padding: 0.65rem 0.75rem;
+}
+.release-warning strong { color: #ffdfb3; }
+.release-warning a {
+    color: #ffd8a8;
+    font-weight: 700;
+}
+
 .sr-only {
     position: absolute;
     width: 1px;
@@ -475,6 +494,11 @@ footer a { color: var(--accent); text-decoration: none; }
             </a>
           </div>
           <p class="header-copy">Browse shipped Android launcher icons by iOS era, compare artwork across generations, and jump to structured icon requests when coverage is missing.</p>
+          <aside class="release-warning" role="status" aria-live="polite">
+  <strong>Install channel is stale</strong>
+  <span>GitHub Releases latest is v1.1.9, but this source tree expects v1.2.2 and iOSIconPack-v1.2.2-release.apk. Obtainium and manual installs may fetch an older APK until the signed release asset is published.</span>
+  <span><a href="release-channel.json">View generated channel status</a>.</span>
+</aside>
           <div class="search-wrap">
             <label class="sr-only" for="search">Search icons by drawable name</label>
             <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false" aria-controls="browse-view" aria-describedby="gallery-result-status">

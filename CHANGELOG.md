@@ -7,6 +7,8 @@ All notable changes to iOSIconPack will be documented in this file.
 ### Added
 - Added a local release metadata guard that keeps ignored working notes and
   blocked release targets aligned with the current app version.
+- Added generated release-channel status for the gallery and install docs so a
+  stale GitHub Release/Obtainium channel is visible before users download.
 
 ## [v1.2.2] - 2026-07-02
 

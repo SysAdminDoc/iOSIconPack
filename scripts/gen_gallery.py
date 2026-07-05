@@ -17,6 +17,8 @@ fail when docs/index.html is stale.
 from __future__ import annotations
 
 import argparse
+import html as html_lib
+import json
 import re
 import sys
 import textwrap
@@ -28,6 +30,7 @@ DRAWABLE_XML = REPO_ROOT / "app/src/main/res/xml/drawable.xml"
 APPFILTER_XML = REPO_ROOT / "app/src/main/res/xml/appfilter.xml"
 PACK_DIR = REPO_ROOT / "app/src/main/res/drawable-xxxhdpi"
 OUT_FILE = REPO_ROOT / "docs/index.html"
+RELEASE_CHANNEL_STATUS = REPO_ROOT / "docs/release-channel.json"
 GALLERY_EXCLUDED_CATEGORIES = {"Glyph"}
 
 RAW_BASE = (
@@ -128,6 +131,33 @@ def _parse_component_counts() -> dict[str, int]:
     for m in re.finditer(r'drawable="([^"]+)"', text):
         counts[m.group(1)] += 1
     return dict(counts)
+
+
+def _release_channel_notice() -> str:
+    """Return a visible install-channel warning when the generated status is stale."""
+    if not RELEASE_CHANNEL_STATUS.exists():
+        return ""
+    try:
+        status = json.loads(RELEASE_CHANNEL_STATUS.read_text(encoding="utf-8"))
+    except (OSError, json.JSONDecodeError):
+        return textwrap.dedent(f"""\
+          <aside class="release-warning" role="status" aria-live="polite">
+            <strong>Install channel status unavailable</strong>
+            <span>Regenerate <code>{html_lib.escape(RELEASE_CHANNEL_STATUS.name)}</code> before changing install copy.</span>
+          </aside>""")
+
+    if status.get("ok") is True:
+        return ""
+
+    expected_tag = html_lib.escape(str(status.get("expected_tag") or "the current tag"))
+    latest_tag = html_lib.escape(str(status.get("latest_release_tag") or "missing"))
+    expected_asset = html_lib.escape(str(status.get("expected_asset") or "the release APK"))
+    return textwrap.dedent(f"""\
+      <aside class="release-warning" role="status" aria-live="polite">
+        <strong>Install channel is stale</strong>
+        <span>GitHub Releases latest is {latest_tag}, but this source tree expects {expected_tag} and {expected_asset}. Obtainium and manual installs may fetch an older APK until the signed release asset is published.</span>
+        <span><a href="release-channel.json">View generated channel status</a>.</span>
+      </aside>""")
 
 
 # ---------------------------------------------------------------------------
@@ -244,6 +274,25 @@ def _css() -> str:
             font-size: 0.82rem;
             line-height: 1.45;
             max-width: 62rem;
+        }
+
+        .release-warning {
+            background: #3b2300;
+            border: 1px solid #9a6700;
+            border-radius: 8px;
+            color: #ffd8a8;
+            display: flex;
+            flex-direction: column;
+            gap: 0.25rem;
+            font-size: 0.82rem;
+            line-height: 1.45;
+            max-width: 64rem;
+            padding: 0.65rem 0.75rem;
+        }
+        .release-warning strong { color: #ffdfb3; }
+        .release-warning a {
+            color: #ffd8a8;
+            font-weight: 700;
         }
 
         .sr-only {
@@ -832,6 +881,7 @@ def _generate_html() -> str:
     categories = _parse_drawables()
     counts     = _parse_component_counts()
     total_icons = sum(len(icons) for _, icons in categories)
+    release_notice = _release_channel_notice()
 
     filter_buttons = [
         '<button class="filter-btn active" type="button" data-era="all" '
@@ -889,6 +939,7 @@ def _generate_html() -> str:
             </a>
           </div>
           <p class="header-copy">Browse shipped Android launcher icons by iOS era, compare artwork across generations, and jump to structured icon requests when coverage is missing.</p>
+          {release_notice}
           <div class="search-wrap">
             <label class="sr-only" for="search">Search icons by drawable name</label>
             <input id="search" type="search" placeholder="Search icons…" autocomplete="off" spellcheck="false" aria-controls="browse-view" aria-describedby="gallery-result-status">
@@ -962,7 +1013,14 @@ def _accessibility_errors(html: str) -> list[str]:
         ("keyboard roving focus handles arrow keys", "event.key === 'ArrowRight'"),
         ("keyboard tab activation handles Enter", "event.key === 'Enter'"),
     ]
-    return [description for description, needle in checks if needle not in html]
+    errors = [description for description, needle in checks if needle not in html]
+    if 'class="release-warning"' in html:
+        warning_checks = [
+            ("release warning has status semantics", 'class="release-warning" role="status" aria-live="polite"'),
+            ("release warning links to release channel docs", "release-channel.json"),
+        ]
+        errors.extend(description for description, needle in warning_checks if needle not in html)
+    return errors
 
 
 def generate(dry_run: bool = False) -> str:

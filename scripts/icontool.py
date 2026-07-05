@@ -100,6 +100,7 @@ FDROID_METADATA = REPO_ROOT / "fdroid/metadata/com.sysadmindoc.iosicons.yml"
 CHANGELOG_XML = RES_XML / "changelog.xml"
 CLAUDE_MD = REPO_ROOT / "CLAUDE.md"
 ROADMAP_BLOCKED_MD = REPO_ROOT / "Roadmap_Blocked.md"
+RELEASE_CHANNEL_STATUS = REPO_ROOT / "docs/release-channel.json"
 HOME_SETUP_XML = REPO_ROOT / "app/src/main/res/values/home_setup.xml"
 DEV_KEYSTORE = REPO_ROOT / "iosicons.jks"
 PREVIEW_REGRESSION_BASELINE = REPO_ROOT / "scripts/preview_regression_baseline.json"
@@ -1168,17 +1169,31 @@ def _github_json(repo: str, endpoint: str, errors: list[str]) -> object | None:
     return None
 
 
-def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
+def _release_channel_status(repo: str) -> dict[str, object]:
     metadata_errors, version_name, expected_tag = _release_metadata_errors()
     errors = list(metadata_errors)
+    status: dict[str, object] = {
+        "repo": repo,
+        "version_name": version_name,
+        "expected_tag": expected_tag,
+        "latest_release_tag": "",
+        "expected_release_found": False,
+        "expected_asset": f"iOSIconPack-{expected_tag}-release.apk" if expected_tag else "",
+        "expected_asset_found": False,
+        "expected_asset_size": 0,
+        "expected_asset_digest": "",
+        "errors": errors,
+        "ok": False,
+    }
     if not version_name:
-        return errors, "", ""
+        return status
 
     latest = _github_json(repo, "releases/latest", errors)
     releases = _github_json(repo, "releases?per_page=100", errors)
 
     if isinstance(latest, dict):
         latest_tag = str(latest.get("tag_name") or "")
+        status["latest_release_tag"] = latest_tag
         if latest_tag != expected_tag:
             errors.append(f"GitHub latest release tag: {latest_tag or 'missing'} != {expected_tag}")
 
@@ -1200,9 +1215,10 @@ def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
             errors.append(f"GitHub release missing: {expected_tag}")
 
     if expected_release is not None:
+        status["expected_release_found"] = True
         assets = expected_release.get("assets")
         asset_list = assets if isinstance(assets, list) else []
-        expected_asset = f"iOSIconPack-{expected_tag}-release.apk"
+        expected_asset = str(status["expected_asset"])
         matching_asset: dict[str, object] | None = None
         for item in asset_list:
             if isinstance(item, dict) and item.get("name") == expected_asset:
@@ -1218,13 +1234,32 @@ def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
             errors.append(f"GitHub release {expected_tag}: missing asset {expected_asset} (assets: {actual})")
         else:
             size = int(matching_asset.get("size") or 0)
+            digest = str(matching_asset.get("digest") or "")
+            status["expected_asset_found"] = True
+            status["expected_asset_size"] = size
+            status["expected_asset_digest"] = digest
             if size <= 0:
                 errors.append(f"GitHub release {expected_tag}: asset {expected_asset} is empty")
-            digest = str(matching_asset.get("digest") or "")
             if not re.fullmatch(r"sha256:[A-Fa-f0-9]{64}", digest):
                 errors.append(f"GitHub release {expected_tag}: asset {expected_asset} missing sha256 digest")
 
-    return errors, version_name, expected_tag
+    status["ok"] = not errors
+    return status
+
+
+def _release_channel_errors(repo: str) -> tuple[list[str], str, str]:
+    status = _release_channel_status(repo)
+    return (
+        list(status.get("errors") or []),
+        str(status.get("version_name") or ""),
+        str(status.get("expected_tag") or ""),
+    )
+
+
+def _write_release_channel_status(status: dict[str, object], path: Path) -> None:
+    payload = json.dumps(status, indent=2, sort_keys=True) + "\n"
+    path.parent.mkdir(parents=True, exist_ok=True)
+    _write(path, payload)
 
 
 def _current_app_metadata(errors: list[str]) -> dict[str, str]:
@@ -2699,7 +2734,15 @@ def cmd_release_check(args: argparse.Namespace) -> int:  # noqa: ARG001
 
 
 def cmd_release_channel_check(args: argparse.Namespace) -> int:
-    errors, version_name, expected_tag = _release_channel_errors(args.repo)
+    status = _release_channel_status(args.repo)
+    if args.write_status:
+        status_path = _repo_relative_path(args.write_status)
+        _write_release_channel_status(status, status_path)
+        print(f"release channel status wrote {_display_path(status_path)}")
+
+    errors = list(status.get("errors") or [])
+    version_name = str(status.get("version_name") or "")
+    expected_tag = str(status.get("expected_tag") or "")
     if errors:
         print("release channel check: FAIL", file=sys.stderr)
         for error in errors:
@@ -3749,6 +3792,14 @@ def _build_parser() -> argparse.ArgumentParser:
         "--repo",
         default=GITHUB_REPO,
         help=f"GitHub owner/repo to inspect (default: {GITHUB_REPO})",
+    )
+    release_channel_p.add_argument(
+        "--write-status",
+        default="",
+        help=(
+            "Write deterministic release-channel status JSON "
+            f"(default path suggestion: {_display_path(RELEASE_CHANNEL_STATUS)})"
+        ),
     )
     release_channel_p.set_defaults(func=cmd_release_channel_check)
 

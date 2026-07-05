@@ -23,6 +23,12 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app â€
 
 ## Install
 
+> **Install channel status:** the source tree and metadata are currently
+> v1.2.2, but GitHub Releases may still serve an older APK until the signed
+> v1.2.2 asset is published. Run
+> `python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json`
+> before changing install copy.
+
 **Obtainium (recommended â€” auto-updates):**
 
 1. Install [Obtainium](https://github.com/ImranR98/Obtainium/releases/latest)
@@ -185,6 +191,7 @@ python3 scripts/icontool.py release-check
 
 # Validate the public GitHub release channel before publishing/install docs:
 python3 scripts/icontool.py release-channel-check
+python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json
 
 # Report Android developer verification readiness for sideload/store channels:
 python3 scripts/icontool.py developer-verification-check
