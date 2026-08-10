@@ -445,3 +445,22 @@ All notable changes to iOSIconPack will be documented in this file.
   PNGs total: 110 stock era icons + 25 third-party).
 - Gradle 8.13 + AGP 8.12.0 upgrade, SplashScreen style parent fix, signing
   config wired to `iosicons.jks`.
+
+## Roadmap archive — 2026-08-10 — ROADMAP.md
+
+<details>
+<summary>Original roadmap snapshot</summary>
+
+```markdown
+# ROADMAP - v1.2.1 - updated 2026-07-02
+
+Actionable work only. True blockers live in `Roadmap_Blocked.md`.
+
+## P2
+
+## P3 Research
+
+## Research-Driven Additions
+```
+
+</details>
