@@ -2116,7 +2116,7 @@ def _ignored_release_state_errors(version_name: str) -> list[str]:
         (
             ROADMAP_BLOCKED_MD,
             "Roadmap_Blocked heading",
-            r"^# Roadmap Blocked - v([0-9]+(?:\.[0-9]+){2})\b",
+            r"^# Roadmap Blocked: v([0-9]+(?:\.[0-9]+){2})\b",
             True,
         ),
         (

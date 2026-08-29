@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.3" date="2026-08-29">
+        <text>Replaced the launcher icon with new adaptive and themed artwork</text>
+    </version>
+
     <version title="1.2.2" date="2026-07-02">
         <text>Polished the icon gallery and request dashboard states</text>
         <text>Improved mobile layout, keyboard focus, and light/dark web surfaces</text>

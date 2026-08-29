@@ -1,16 +1,16 @@
 {
   "errors": [
-    "GitHub latest release tag: v1.1.9 != v1.2.2",
-    "GitHub release missing: v1.2.2"
+    "GitHub latest release tag: v1.1.9 != v1.2.3",
+    "GitHub release missing: v1.2.3"
   ],
-  "expected_asset": "iOSIconPack-v1.2.2-release.apk",
+  "expected_asset": "iOSIconPack-v1.2.3-release.apk",
   "expected_asset_digest": "",
   "expected_asset_found": false,
   "expected_asset_size": 0,
   "expected_release_found": false,
-  "expected_tag": "v1.2.2",
+  "expected_tag": "v1.2.3",
   "latest_release_tag": "v1.1.9",
   "ok": false,
   "repo": "SysAdminDoc/iOSIconPack",
-  "version_name": "1.2.2"
+  "version_name": "1.2.3"
 }

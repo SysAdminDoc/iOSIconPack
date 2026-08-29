@@ -1,7 +1,7 @@
 <h1 align="center">iOS Icon Pack</h1>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v1.2.2-58A6FF?style=for-the-badge">
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.2.3-58A6FF?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
   <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
   <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26_(Android_8.0)-58A6FF?style=for-the-badge">
@@ -19,17 +19,17 @@
   </a>
 </p>
 
-The ultimate iOS-style icon pack for Android. Every iOS generation in one app — pick and choose which era's icons to apply per-app.
+The ultimate iOS-style icon pack for Android. Every iOS generation in one app: pick and choose which era's icons to apply per-app.
 
 ## Install
 
 > **Install channel status:** the source tree and metadata are currently
-> v1.2.2, but GitHub Releases may still serve an older APK until the signed
-> v1.2.2 asset is published. Run
+> v1.2.3, but GitHub Releases may still serve an older APK until the signed
+> v1.2.3 asset is published. Run
 > `python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json`
 > before changing install copy.
 
-**Obtainium (recommended — auto-updates):**
+**Obtainium (recommended: auto-updates):**
 
 1. Install [Obtainium](https://github.com/ImranR98/Obtainium/releases/latest)
 2. Tap this link on your phone:
@@ -40,20 +40,20 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 
 ## Features
 
-- **6 iOS Eras** — iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
-- **Mix & Match** — Apply different generations to different apps
-- **367 raster icons + 367 transparent glyph variants + 671 appfilter entries** — 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
-- **367 Material You themed vectors** — Android 13+ dynamic themed-icon support across every era, with local dark/light tint contrast checks
-- **6 Original Wallpapers** - bundled WebP backgrounds inspired by each shipped iOS era
-- **30+ Launcher Support** — Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
-- **Per-launcher apply cards** — Home-screen actions for Nova, Action, Smart,
+- **6 iOS Eras**: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
+- **Mix & Match**: Apply different generations to different apps
+- **367 raster icons + 367 transparent glyph variants + 671 appfilter entries**: 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
+- **367 Material You themed vectors**: Android 13+ dynamic themed-icon support across every era, with local dark/light tint contrast checks
+- **6 Original Wallpapers**: bundled WebP backgrounds inspired by each shipped iOS era
+- **30+ Launcher Support**: Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
+- **Per-launcher apply cards**: Home-screen actions for Nova, Action, Smart,
   OnePlus, Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park
-- **Local launcher diagnostics** — Failed apply shortcuts copy launcher slug,
+- **Local launcher diagnostics**: Failed apply shortcuts copy launcher slug,
   target package, fallback, app version, and Android version for issue reports
   without automatic telemetry.
-- **AMOLED Dark Theme** — Native dark mode dashboard
-- **Icon Requests** — Request icons for apps not yet covered
-- **Free & Open Source** — No ads, no tracking, no IAP
+- **AMOLED Dark Theme**: Native dark mode dashboard
+- **Icon Requests**: Request icons for apps not yet covered
+- **Free & Open Source**: No ads, no tracking, no IAP
 
 ## iOS Generations
 
@@ -64,7 +64,7 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app �
 | iOS 16 | Bold colors, refined squircle | 57 |
 | iOS 17 | Refined flat | 57 |
 | iOS 18 | Tinted/dark mode, refined gradients | 57 |
-| iOS 26 | Liquid Glass — frosted translucent | 57 |
+| iOS 26 | Liquid Glass: frosted translucent | 57 |
 
 The pack applies **iOS 18** by default. Contributors can switch the active era at build time:
 
@@ -119,7 +119,7 @@ data is used only to triage and build icon coverage for this project.
 
 ## Contributing Icons
 
-Use `icontool` — it wires all XML files in one command:
+Use `icontool`: it wires all XML files in one command:
 
 ```bash
 # Add a new iOS stock icon (PNG must already be in drawable-xxxhdpi/):
@@ -232,4 +232,4 @@ See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions
 
 ## License
 
-MIT — see [LICENSE](LICENSE).
+MIT: see [LICENSE](LICENSE).
