@@ -1,7 +1,7 @@
 <h1 align="center">iOS Icon Pack</h1>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v1.2.3-58A6FF?style=for-the-badge">
+  <img alt="Version" src="https://img.shields.io/badge/version-v1.2.4-58A6FF?style=for-the-badge">
   <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
   <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
   <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26_(Android_8.0)-58A6FF?style=for-the-badge">
@@ -24,8 +24,8 @@ The ultimate iOS-style icon pack for Android. Every iOS generation in one app: p
 ## Install
 
 > **Install channel status:** the source tree and metadata are currently
-> v1.2.3, but GitHub Releases may still serve an older APK until the signed
-> v1.2.3 asset is published. Run
+> v1.2.4, but GitHub Releases may still serve an older APK until the signed
+> v1.2.4 asset is published. Run
 > `python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json`
 > before changing install copy.
 

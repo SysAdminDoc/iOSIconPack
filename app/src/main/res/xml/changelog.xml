@@ -1,5 +1,10 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.4" date="2026-08-29">
+        <text>Fixed release signing verification for current Android build tools</text>
+        <text>Included the new adaptive, themed, and legacy launcher artwork</text>
+    </version>
+
     <version title="1.2.3" date="2026-08-29">
         <text>Replaced the launcher icon with new adaptive and themed artwork</text>
     </version>

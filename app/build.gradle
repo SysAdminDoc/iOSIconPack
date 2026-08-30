@@ -205,7 +205,7 @@ tasks.register('verifyPublishReleaseSigning') {
             commandLine apksigner.absolutePath, 'verify', '--print-certs', apk.absolutePath
             standardOutput = stdout
         }
-        def matcher = stdout.toString('UTF-8') =~ /Signer #1 certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)/
+        def matcher = stdout.toString('UTF-8') =~ /(?:Signer #1|V\d+ Signer):?\s+certificate SHA-256 digest:\s*([A-Fa-f0-9:]+)/
         if (!matcher.find()) {
             throw new GradleException("Could not read APK signer SHA-256 digest from apksigner output.")
         }

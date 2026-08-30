@@ -2,6 +2,14 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.2.4], 2026-08-29
+
+### Fixed
+- Publish signing verification now accepts the signer labels emitted by current Android build tools.
+
+### Changed
+- The release includes the adaptive, themed, and legacy launcher artwork introduced in v1.2.3.
+
 ## [v1.2.3], 2026-08-29
 
 ### Changed
