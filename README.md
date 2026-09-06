@@ -1,5 +1,9 @@
 <p align="center">
-  <img src="logo.png" width="136" alt="iOS Icon Pack stacked-square logo">
+  <picture>
+    <source media="(prefers-color-scheme: dark)" srcset="ios-icon-pack-icon-set/ios-icon-pack-dark.png">
+    <source media="(prefers-color-scheme: light)" srcset="ios-icon-pack-icon-set/ios-icon-pack-light.png">
+    <img src="ios-icon-pack-icon-set/ios-icon-pack-light.png" width="136" alt="iOS Icon Pack stacked-square logo">
+  </picture>
 </p>
 
 <h1 align="center">iOS Icon Pack</h1>

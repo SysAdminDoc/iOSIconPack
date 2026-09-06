@@ -30,7 +30,7 @@ iOS Icon Pack should not compete on raw icon count alone. Its advantage is a coh
 
 ### Keep the existing app mark
 
-The stacked-square mark is compact, recognizable, and readable at launcher size. It also fits the blue Android launcher artwork already shipped by the project. Decorative replacement concepts were rejected because they weakened small-size clarity.
+The stacked-square mark is compact, recognizable, and readable at launcher size. It also fits the blue Android launcher artwork already shipped by the project. The README uses the matched light and dark exports for clean contrast on either GitHub theme. Decorative replacement concepts were rejected because they weakened small-size clarity.
 
 ### Show the real product
 
