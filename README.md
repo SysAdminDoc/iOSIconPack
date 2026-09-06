@@ -1,235 +1,113 @@
+<p align="center">
+  <img src="logo.png" width="136" alt="iOS Icon Pack stacked-square logo">
+</p>
+
 <h1 align="center">iOS Icon Pack</h1>
 
 <p align="center">
-  <img alt="Version" src="https://img.shields.io/badge/version-v1.2.4-58A6FF?style=for-the-badge">
-  <img alt="License" src="https://img.shields.io/badge/license-MIT-4ade80?style=for-the-badge">
-  <img alt="Platform" src="https://img.shields.io/badge/platform-Android-58A6FF?style=for-the-badge">
-  <img alt="minSdk" src="https://img.shields.io/badge/minSdk-26_(Android_8.0)-58A6FF?style=for-the-badge">
+  Give Android an iOS-inspired home screen. Choose from six visual eras with themed icons and original wallpapers.
 </p>
 
 <p align="center">
-  <a href="https://sysadmindoc.github.io/iOSIconPack/">
-    <img alt="Icon Gallery" src="https://img.shields.io/badge/Gallery-Browse_Icons-4ade80?style=for-the-badge">
-  </a>
-  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22:%22com.sysadmindoc.iosicons%22,%22url%22:%22https://github.com/SysAdminDoc/iOSIconPack%22,%22author%22:%22SysAdminDoc%22,%22name%22:%22iOS%20Icon%20Pack%22,%22additionalSettings%22:%22%7B%5C%22apkFilterRegEx%5C%22:%5C%22release%5C%22%7D%22%7D">
-    <img alt="Get it on Obtainium" src="https://img.shields.io/badge/Obtainium-Install-3B7DD8?style=for-the-badge">
-  </a>
-  <a href="https://github.com/SysAdminDoc/iOSIconPack/releases/latest">
-    <img alt="GitHub Release" src="https://img.shields.io/github/v/release/SysAdminDoc/iOSIconPack?style=for-the-badge&label=Download&color=58A6FF">
-  </a>
+  <img alt="Version 1.2.5" src="https://img.shields.io/badge/version-v1.2.5-007AFF?style=for-the-badge">
+  <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-34C759?style=for-the-badge">
+  <img alt="Android" src="https://img.shields.io/badge/platform-Android-007AFF?style=for-the-badge">
+  <img alt="Android 8 or newer" src="https://img.shields.io/badge/Android-8%2B-34C759?style=for-the-badge">
 </p>
 
-The ultimate iOS-style icon pack for Android. Every iOS generation in one app: pick and choose which era's icons to apply per-app.
+<p align="center">
+  <a href="https://sysadmindoc.github.io/iOSIconPack/"><strong>Browse all icons</strong></a>
+  &nbsp;&middot;&nbsp;
+  <a href="https://github.com/SysAdminDoc/iOSIconPack/releases/latest"><strong>Download the APK</strong></a>
+  &nbsp;&middot;&nbsp;
+  <a href="https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22:%22com.sysadmindoc.iosicons%22,%22url%22:%22https://github.com/SysAdminDoc/iOSIconPack%22,%22author%22:%22SysAdminDoc%22,%22name%22:%22iOS%20Icon%20Pack%22,%22additionalSettings%22:%22%7B%5C%22apkFilterRegEx%5C%22:%5C%22release%5C%22%7D%22%7D"><strong>Add to Obtainium</strong></a>
+</p>
+
+## See it in action
+
+| Home | Icon browser | Wallpapers |
+|:---:|:---:|:---:|
+| <img src="assets/screenshots/home.png" width="250" alt="iOS Icon Pack dashboard"> | <img src="assets/screenshots/icons.png" width="250" alt="Icon browser showing multiple iOS eras"> | <img src="assets/screenshots/wallpapers.png" width="250" alt="Gallery of six original wallpapers"> |
+| **Wallpaper preview** | **Apply the pack** | **Request an icon** |
+| <img src="assets/screenshots/wallpaper-preview.png" width="250" alt="Full-screen wallpaper preview"> | <img src="assets/screenshots/apply.png" width="250" alt="Supported launcher choices"> | <img src="assets/screenshots/request.png" width="250" alt="Icon request screen"> |
+
+## What you get
+
+- **Six iOS eras.** Browse iOS 14, 15, 16, 17, 18, and the iOS 26 Liquid Glass look. Each era includes 57 matching icons.
+- **367 raster icons.** The catalog combines 342 era variants with 25 exact icons for popular third-party apps.
+- **Broad app coverage.** 671 component mappings connect the artwork to common Android apps and system tools.
+- **Android themed icons.** Every catalog icon includes a monochrome vector and a transparent glyph variant.
+- **Six original wallpapers.** Each included background was designed for this pack and works offline.
+- **No ads or tracking.** There are no analytics SDKs, in-app purchases, or license checks.
+
+The default app mapping uses the iOS 18 set. You can still browse every era in the dashboard and choose individual alternatives through launchers that provide an icon picker.
 
 ## Install
 
-> **Install channel status:** the source tree and metadata are currently
-> v1.2.4, but GitHub Releases may still serve an older APK until the signed
-> v1.2.4 asset is published. Run
-> `python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json`
-> before changing install copy.
+You need a launcher that accepts third-party icon packs. Nova, Lawnchair, Niagara, Action Launcher, Smart Launcher, Apex, ADW, OnePlus Launcher, and Projectivy are supported. Samsung users can apply packs through Theme Park. Stock Pixel Launcher does not offer a third-party icon-pack picker.
 
-**Obtainium (recommended: auto-updates):**
+### Obtainium
 
-1. Install [Obtainium](https://github.com/ImranR98/Obtainium/releases/latest)
-2. Tap this link on your phone:
-   [`obtainium://add/https://github.com/SysAdminDoc/iOSIconPack`](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22:%22com.sysadmindoc.iosicons%22,%22url%22:%22https://github.com/SysAdminDoc/iOSIconPack%22,%22author%22:%22SysAdminDoc%22,%22name%22:%22iOS%20Icon%20Pack%22,%22additionalSettings%22:%22%7B%5C%22apkFilterRegEx%5C%22:%5C%22release%5C%22%7D%22%7D)
-3. Install the latest APK and apply the icon pack in your launcher
+1. Install [Obtainium](https://github.com/ImranR98/Obtainium/releases/latest).
+2. Open the [iOS Icon Pack Obtainium link](https://apps.obtainium.imranr.dev/redirect?r=obtainium://app/%7B%22id%22:%22com.sysadmindoc.iosicons%22,%22url%22:%22https://github.com/SysAdminDoc/iOSIconPack%22,%22author%22:%22SysAdminDoc%22,%22name%22:%22iOS%20Icon%20Pack%22,%22additionalSettings%22:%22%7B%5C%22apkFilterRegEx%5C%22:%5C%22release%5C%22%7D%22%7D) on your phone.
+3. Install the latest signed release, then select iOS Icon Pack in your launcher's appearance settings.
 
-**Manual:** Download the APK from [Releases](https://github.com/SysAdminDoc/iOSIconPack/releases/latest), install, then select the pack in your launcher's icon pack settings.
+### Manual install
 
-## Features
+Download `iOSIconPack-v1.2.5-release.apk` from [GitHub Releases](https://github.com/SysAdminDoc/iOSIconPack/releases/latest). Android 8.0 or newer is required.
 
-- **6 iOS Eras**: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
-- **Mix & Match**: Apply different generations to different apps
-- **367 raster icons + 367 transparent glyph variants + 671 appfilter entries**: 342 era variants across iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass, plus 25 exact third-party icons
-- **367 Material You themed vectors**: Android 13+ dynamic themed-icon support across every era, with local dark/light tint contrast checks
-- **6 Original Wallpapers**: bundled WebP backgrounds inspired by each shipped iOS era
-- **30+ Launcher Support**: Nova, Lawnchair, Smart Launcher, OnePlus, Samsung, Niagara, Microsoft Launcher, POCO, Pixel, and more
-- **Per-launcher apply cards**: Home-screen actions for Nova, Action, Smart,
-  OnePlus, Lawnchair, Niagara, Projectivy, ADW, Apex, and Samsung Theme Park
-- **Local launcher diagnostics**: Failed apply shortcuts copy launcher slug,
-  target package, fallback, app version, and Android version for issue reports
-  without automatic telemetry.
-- **AMOLED Dark Theme**: Native dark mode dashboard
-- **Icon Requests**: Request icons for apps not yet covered
-- **Free & Open Source**: No ads, no tracking, no IAP
+## Icon coverage
 
-## iOS Generations
+| Collection | Count | Purpose |
+|---|---:|---|
+| Era artwork | 342 | 57 icons across each of six iOS styles |
+| Exact third-party artwork | 25 | Recognizable icons for apps without an Apple counterpart |
+| App component mappings | 671 | Package and activity matches used by Android launchers |
+| Monochrome vectors | 367 | Material You themed-icon support |
+| Transparent glyphs | 367 | Alternate artwork for supported launchers and widgets |
+| Original wallpapers | 6 | Offline backgrounds matched to the six eras |
 
-| Era | Style | Icons |
-|-----|-------|-------|
-| iOS 14 | Flat + gradient backgrounds | 57 |
-| iOS 15 | Flat, subtle shadows | 57 |
-| iOS 16 | Bold colors, refined squircle | 57 |
-| iOS 17 | Refined flat | 57 |
-| iOS 18 | Tinted/dark mode, refined gradients | 57 |
-| iOS 26 | Liquid Glass: frosted translucent | 57 |
-
-The pack applies **iOS 18** by default. Contributors can switch the active era at build time:
-
-```bash
-python3 scripts/set_era.py --list        # see active era
-python3 scripts/set_era.py ios17         # switch to iOS 17
-python3 scripts/set_era.py ios26         # iOS 26 Liquid Glass
-python3 scripts/set_era.py ios18         # reset to default
-```
-
-## Supported Launchers
-
-Nova, Lawnchair, Apex, Smart Launcher, OnePlus, Samsung One UI, LG Home, Sony, Projectivy, GO Launcher, ADW, Holo, Niagara, and 20+ more.
-
-## Build
-
-```bash
-python3 -m pip install -r requirements.txt
-python3 -m playwright install chromium
-JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleDebug
-JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
-python3 scripts/icontool.py preflight
-```
-
-`assembleRelease` uses the committed development keystore only for local sanity
-builds. Official publish builds must set `IOSICONS_PUBLISH_RELEASE=1`,
-`IOSICONS_KEYSTORE_PATH`, `IOSICONS_STORE_PASSWORD`, `IOSICONS_KEY_ALIAS`,
-`IOSICONS_KEY_PASSWORD`, and the documented `IOSICONS_RELEASE_CERT_SHA256`, then
-run:
-
-```bash
-JAVA_HOME="C:/Program Files/Android/Android Studio/jbr" ./gradlew assembleRelease
-python3 scripts/icontool.py publish-check
-python3 scripts/icontool.py release-channel-check
-python3 scripts/icontool.py developer-verification-check
-```
-
-## Backup Policy
-
-iOS Icon Pack does not back up or transfer app-private data. The dashboard state
-is disposable, and launcher icon choices can be reapplied from the shipped icon
-catalog after reinstall. Android 11 and lower use `@xml/backup_rules`; Android
-12+ uses `@xml/data_extraction_rules`.
+The [live gallery](https://sysadmindoc.github.io/iOSIconPack/) lists every shipped icon and makes it easy to compare eras before installing.
 
 ## Privacy
 
-iOS Icon Pack has no ads, tracking SDKs, analytics, or in-app purchases. When
-you use the in-app icon request flow, the dashboard may collect the selected
-installed-app package/component names plus basic device details such as Android
-version and screen dimensions so missing icons can be mapped accurately. Request
-data is used only to triage and build icon coverage for this project.
+iOS Icon Pack does not collect analytics, show ads, or sell data. The optional icon-request flow can include package names and basic device details so missing apps can be mapped correctly. Nothing is uploaded unless you submit the GitHub request.
 
-## Contributing Icons
+## Build locally
 
-Use `icontool`: it wires all XML files in one command:
+Android Studio, its bundled JDK, Python 3, and Pillow are required.
 
 ```bash
-# Add a new iOS stock icon (PNG must already be in drawable-xxxhdpi/):
-python3 scripts/icontool.py add ios18_appname \
-    -c "com.example.app/com.example.app.MainActivity"
-
-# Add a third-party icon:
-python3 scripts/icontool.py add tp_appname \
-    -c "com.example.app/com.example.app.MainActivity"
-
-# Generate a temporary letter-tile placeholder for an uncovered app:
-python3 scripts/icontool.py placeholder --drawable ph_example_app \
-    --label "Example App" \
-    -c "com.example.app/com.example.app.MainActivity"
-
-# Validate appfilter, drawables, and release metadata:
-python3 scripts/icontool.py check
-
-# Validate generated gallery freshness and accessibility semantics:
-python3 scripts/gen_gallery.py --check
-python3 scripts/gen_gallery.py --a11y-check
-
-# Render docs pages across desktop/mobile and dark/light control flows:
-python3 scripts/icontool.py docs-visual-smoke
-
-# Validate launcher intent filters and icon-pack resource signals:
-python3 scripts/icontool.py launcher-compat-check
-
-# Audit open icon requests without mutating GitHub:
-python3 scripts/icontool.py request-audit
-
-# Import a saved ADB/package inventory into local request records without upload:
-python3 scripts/icontool.py package-inventory-import --input inventory.txt
-
-# Rank missing packages from icon requests and public icon-pack coverage:
-python3 scripts/icontool.py coverage-gap
-
-# Audit Gradle repository and artifact provenance for F-Droid review:
-python3 scripts/icontool.py maven-provenance-check
-python3 scripts/icontool.py maven-provenance-check --strict-fdroid
-
-# Check current vs latest core dependency versions and OSV advisories:
-python3 scripts/icontool.py dependency-audit
-
-# Rehearse core toolchain upgrades without touching tracked files:
-python3 scripts/icontool.py toolchain-upgrade-rehearsal
-python3 scripts/icontool.py toolchain-upgrade-rehearsal --execute
-
-# Diff rendered icon previews and themed-icon tint contrast:
-python3 scripts/icontool.py preview-regression
-
-# Rank icons that need maintainer review without blocking on low-priority polish:
-python3 scripts/icontool.py icon-quality-audit --limit 25
-
-# Validate Crowdin config, translatable boundaries, and pseudo-locale expansion:
-python3 scripts/icontool.py localization-check
-python3 scripts/icontool.py pseudo-locale-check --report build/pseudo-locale-report.json
-
-# Push/pull dashboard strings through Crowdin CLI when credentials are set:
-crowdin upload sources
-crowdin download
-
-# Regenerate transparent glyph-only dashboard variants from monochrome vectors:
-python3 scripts/gen_glyph_variants.py --force --prune
-python3 scripts/icontool.py rebuild
-
-# Prototype sharp, line, and filled themed-icon style variants under build/:
-python3 scripts/icontool.py style-prototypes --limit 24
-
-# Refresh and verify source-art provenance for shipped PNG icons:
-python3 fetch_icons.py --write-provenance
-python3 fetch_icons.py --provenance-check
-
-# Convert raw SVG sources in app/src/main/svg into generated vector drawables:
-./gradlew :app:convertSvgSources
-
-# Export PNG icon assets for Kustom/KWGT and Rainmeter widget workflows:
-python3 scripts/icontool.py widget-export
-
-# Regenerate and validate bundled original wallpapers:
-python3 scripts/icontool.py wallpaper-generate --force
-python3 scripts/icontool.py wallpaper-generate --check
-
-# Run the full local release preflight with lint, packaging, and APK size gate:
-python3 scripts/icontool.py preflight
-
-# Validate only release metadata and tag alignment:
-python3 scripts/icontool.py release-check
-
-# Validate the public GitHub release channel before publishing/install docs:
-python3 scripts/icontool.py release-channel-check
-python3 scripts/icontool.py release-channel-check --write-status docs/release-channel.json
-
-# Report Android developer verification readiness for sideload/store channels:
-python3 scripts/icontool.py developer-verification-check
+python -m pip install -r requirements.txt
+./gradlew test lintRelease assembleDebug
+python scripts/icontool.py check
+python scripts/gen_gallery.py --check
 ```
 
-`convertSvgSources` accepts simple SVG paths and shapes (`path`, `rect`,
-`circle`, `ellipse`, `line`, `polygon`, `polyline`) and writes generated Android
-vectors under `app/build/generated/res/svgProcessor/main/drawable`. Gradients,
-paint servers, and transforms fail fast so source art is corrected before it
-enters the icon catalog.
+Maintainers can run the complete local release gate with:
 
-See [CONTRIBUTING.md](CONTRIBUTING.md) for the full workflow, naming conventions, and PR checklist.
+```bash
+python scripts/icontool.py preflight
+```
+
+Official APKs use the maintainer's release key. The committed development keystore is only for local test builds.
+
+## Contribute an icon
+
+The contributor tool updates the icon catalog and package mappings together:
+
+```bash
+python scripts/icontool.py add ios18_appname \
+  -c "com.example.app/com.example.app.MainActivity"
+python scripts/icontool.py check
+```
+
+Read [CONTRIBUTING.md](CONTRIBUTING.md) for artwork sizing, naming, provenance, and review checks. Missing something? [Open an icon request](https://github.com/SysAdminDoc/iOSIconPack/issues/new?template=icon-request.yml&labels=icon-request).
 
 ## Credits
 
-- Dashboard: [Blueprint](https://github.com/jahirfiquitiva/Blueprint) by Jahir Fiquitiva
-- Built with Kotlin and the Android SDK
+The Android dashboard is built with [Blueprint](https://github.com/jahirfiquitiva/Blueprint) by Jahir Fiquitiva.
 
 ## License
 
-MIT: see [LICENSE](LICENSE).
+Released under the [MIT License](LICENSE).

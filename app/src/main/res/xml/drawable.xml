@@ -302,7 +302,7 @@
     <item drawable="ios14_youtube" />
     <item drawable="ios14_zoom" />
 
-    <category title="iOS 26 - Liquid Glass" />
+    <category title="iOS 26 Liquid Glass" />
     <item drawable="ios26_lg_safari" />
     <item drawable="ios26_lg_messages" />
     <item drawable="ios26_lg_photos" />

@@ -7,7 +7,8 @@
     <string name="quick_apply_custom_text">Apply Icons</string>
 
     <string-array name="home_list_titles">
-        <item>Project Home</item>
+        <item>Browse 367 Icons</item>
+        <item>Download the Latest Release</item>
         <item>Request an Icon</item>
         <item>Nova Launcher</item>
         <item>Action Launcher</item>
@@ -21,8 +22,9 @@
         <item>Samsung One UI</item>
     </string-array>
     <string-array name="home_list_descriptions">
-        <item>Browse releases, source, and contributor workflow</item>
-        <item>Open the structured GitHub request form</item>
+        <item>See every era and compare styles in the live gallery</item>
+        <item>Get the signed APK from GitHub Releases</item>
+        <item>Send the app name and package details on GitHub</item>
         <item>Apply this pack through Nova Launcher</item>
         <item>Apply this pack through Action Launcher</item>
         <item>Apply this pack through Smart Launcher</item>
@@ -35,8 +37,9 @@
         <item>Open Samsung Theme Park guidance for One UI</item>
     </string-array>
     <string-array name="home_list_icons" translatable="false">
-        <item>ic_na_launcher</item>
-        <item>ic_na_launcher</item>
+        <item>ios18_photos</item>
+        <item>ios18_appstore</item>
+        <item>ios18_messages</item>
         <item>ic_na_launcher</item>
         <item>ic_na_launcher</item>
         <item>ic_na_launcher</item>
@@ -49,7 +52,8 @@
         <item>ic_na_launcher</item>
     </string-array>
     <string-array name="home_list_links" translatable="false">
-        <item>https://github.com/SysAdminDoc/iOSIconPack</item>
+        <item>https://sysadmindoc.github.io/iOSIconPack/</item>
+        <item>https://github.com/SysAdminDoc/iOSIconPack/releases/latest</item>
         <item>https://github.com/SysAdminDoc/iOSIconPack/issues/new?template=icon-request.yml&amp;labels=icon-request</item>
         <item>iosiconpack://apply/nova</item>
         <item>iosiconpack://apply/action</item>

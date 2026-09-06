@@ -3,9 +3,9 @@
 <head>
   <meta charset="utf-8">
   <meta name="viewport" content="width=device-width, initial-scale=1">
-  <meta name="description" content="iOS Icon Pack — Open icon requests. Vote for icons you want.">
+  <meta name="description" content="Browse open iOS Icon Pack requests and vote for the apps you want covered next.">
   <meta name="theme-color" content="#0d1117">
-  <title>iOS Icon Pack — Icon Requests</title>
+  <title>iOS Icon Pack: Icon Requests</title>
   <style>
 *, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
 
@@ -157,19 +157,6 @@ h1 {
     white-space: nowrap;
 }
 .submit-btn:hover { filter: brightness(1.05); transform: translateY(-1px); }
-
-.import-hint {
-    color: var(--muted);
-    font-size: 0.8rem;
-    max-width: 70rem;
-}
-.import-hint code {
-    color: var(--text);
-    background: var(--bg);
-    border: 1px solid var(--border);
-    border-radius: 6px;
-    padding: 0.1rem 0.3rem;
-}
 
 .controls {
     display: flex;
@@ -437,10 +424,7 @@ main {
 <header>
   <div class="header-top">
     <h1>
-      <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" aria-hidden="true">
-        <circle cx="12" cy="12" r="10"/><path d="M12 8v4l3 3"/>
-      </svg>
-      iOS Icon Pack — Requests
+      iOS Icon Pack: Requests
     </h1>
     <div class="nav-links">
       <a href="index.html">Gallery</a>
@@ -452,7 +436,6 @@ main {
       </a>
     </div>
   </div>
-  <p class="import-hint">Maintainers can turn a saved ADB package dump into local request records with <code>python3 scripts/icontool.py package-inventory-import --input inventory.txt</code>.</p>
   <div class="controls">
     <div class="control-field">
       <label class="sr-only" for="search">Search requests by title or number</label>
@@ -475,14 +458,14 @@ main {
     </div>
   </div>
   <div class="stats-bar" id="stats-bar">
-    <span id="stat-open">— open requests</span>
-    <span id="stat-shown">— shown</span>
+    <span id="stat-open">0 open requests</span>
+    <span id="stat-shown">0 shown</span>
   </div>
 </header>
 
 <main>
   <div class="rate-warn" id="rate-warn">
-    GitHub API rate limit reached. Showing cached data. Resets in <span id="rate-reset">—</span>.
+    GitHub API rate limit reached. Showing cached data. Reset time: <span id="rate-reset">unknown</span>.
   </div>
   <p id="request-status" class="sr-only" role="status" aria-live="polite">Loading icon requests.</p>
   <div id="issue-list" role="list" aria-live="polite" aria-busy="true" aria-label="Icon requests"></div>

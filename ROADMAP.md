@@ -1,5 +1,5 @@
-# ROADMAP - v1.2.1 - updated 2026-07-02
+# Roadmap: v1.2.5, updated 2026-09-06
 
-Actionable work only. Historical and completed roadmap material is archived in CHANGELOG.md; blocked work is kept in Roadmap_Blocked.md.
+Actionable work only. Completed work is recorded in CHANGELOG.md. Operator-gated items are kept in the local Roadmap_Blocked.md notes.
 
 No actionable roadmap items remain.

@@ -2,6 +2,22 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.2.5], 2026-09-06
+
+### Added
+- Added six original wallpapers with full-screen previews, local saving, and Android wallpaper application.
+- Added verified product screenshots to the project page and install guide.
+
+### Changed
+- Reworked the dashboard shortcuts around the live icon gallery, current signed release, and icon request form.
+- Replaced the old procedural wallpaper set with professionally art-directed originals for each shipped era.
+- Allowed screenshots of the wallpaper viewer so users can share and review the included artwork.
+- Rewrote the icon-request consent message to say what stays local and when data is sent.
+- Updated the store copy, GitHub Pages metadata, distribution notes, and catalog totals.
+
+### Removed
+- Removed inherited Google Play billing and license-check permissions. The app has no purchases or license gate.
+
 ## [v1.2.4], 2026-08-29
 
 ### Fixed

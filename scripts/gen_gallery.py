@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""gen_gallery.py — generate docs/index.html icon browser for GitHub Pages.
+"""Generate the docs/index.html icon browser for GitHub Pages.
 
 Reads drawable.xml (era categories + icon list) and appfilter.xml (component
 counts) to produce a single self-contained HTML file.  Icon images are loaded
@@ -45,7 +45,7 @@ ERA_COLOURS: dict[str, str] = {
     "iOS 16":                 "#34D399",
     "iOS 15":                 "#FBBF24",
     "iOS 14":                 "#F87171",
-    "iOS 26 - Liquid Glass":  "#67E8F9",
+    "iOS 26 Liquid Glass":    "#67E8F9",
     "Third Party":            "#9CA3AF",
 }
 
@@ -55,7 +55,7 @@ ERA_SHORT: dict[str, str] = {
     "iOS 16":                "16",
     "iOS 15":                "15",
     "iOS 14":                "14",
-    "iOS 26 - Liquid Glass": "26",
+    "iOS 26 Liquid Glass":   "26",
     "Third Party":           "TP",
 }
 
@@ -66,7 +66,7 @@ PREFIX_TO_ERA: dict[str, str] = {
     "ios16_":    "iOS 16",
     "ios15_":    "iOS 15",
     "ios14_":    "iOS 14",
-    "ios26_lg_": "iOS 26 - Liquid Glass",
+    "ios26_lg_": "iOS 26 Liquid Glass",
 }
 COMPARE_ERAS: list[tuple[str, str]] = [
     ("ios14_",    "iOS 14"),
@@ -853,7 +853,7 @@ def _comparison_html() -> str:
                     f'style="border-color:{colour}33"></td>'
                 )
             else:
-                cells += '<td><span class="cmp-missing">—</span></td>'
+                cells += '<td><span class="cmp-missing">N/A</span></td>'
         rows.append(
             f'<tr><th class="cmp-label" scope="row">{base}</th>{cells}</tr>'
         )
@@ -918,9 +918,9 @@ def _generate_html() -> str:
         <head>
           <meta charset="utf-8">
           <meta name="viewport" content="width=device-width, initial-scale=1">
-          <meta name="description" content="iOS Icon Pack — {total_icons} icons across 6 iOS design generations for Android launchers">
+          <meta name="description" content="Browse {total_icons} iOS-inspired icons across six design generations for Android launchers.">
           <meta name="theme-color" content="#0d1117">
-          <title>iOS Icon Pack — Icon Browser</title>
+          <title>iOS Icon Pack: Icon Browser</title>
           <style>
         {_css()}
           </style>
@@ -931,14 +931,14 @@ def _generate_html() -> str:
         <header>
           <div class="header-top">
             <h1>
-              iOS Icon Pack — Icon Browser
+              iOS Icon Pack: Icon Browser
               <span class="icon-count">{total_icons} icons</span>
             </h1>
             <a class="gh-link" href="{GITHUB_URL}" target="_blank" rel="noopener">
               ↗ GitHub
             </a>
           </div>
-          <p class="header-copy">Browse shipped Android launcher icons by iOS era, compare artwork across generations, and jump to structured icon requests when coverage is missing.</p>
+          <p class="header-copy">Browse every icon by era. Compare generations, then request anything that's missing.</p>
           {release_notice}
           <div class="search-wrap">
             <label class="sr-only" for="search">Search icons by drawable name</label>
@@ -1062,13 +1062,13 @@ def main(argv: list[str] | None = None) -> int:
     if args.check:
         generated = _generate_html()
         if not OUT_FILE.exists():
-            print("docs/index.html does not exist — run: python3 scripts/gen_gallery.py", file=sys.stderr)
+            print("docs/index.html does not exist. Run: python3 scripts/gen_gallery.py", file=sys.stderr)
             return 1
         on_disk = OUT_FILE.read_text(encoding="utf-8")
         if on_disk == generated:
             print("docs/index.html is up-to-date.")
             return 0
-        print("docs/index.html is STALE — run: python3 scripts/gen_gallery.py", file=sys.stderr)
+        print("docs/index.html is stale. Run: python3 scripts/gen_gallery.py", file=sys.stderr)
         return 1
 
     generate(dry_run=args.dry_run)

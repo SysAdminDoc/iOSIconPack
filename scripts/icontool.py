@@ -377,7 +377,7 @@ ERA_CATEGORY: dict[str, str] = {
     "ios16_": "iOS 16",
     "ios15_": "iOS 15",
     "ios14_": "iOS 14",
-    "ios26_lg_": "iOS 26 - Liquid Glass",
+    "ios26_lg_": "iOS 26 Liquid Glass",
     "tp_": "Third Party",
 }
 
@@ -388,7 +388,7 @@ CATEGORY_ORDER: list[str] = [
     "iOS 16",
     "iOS 15",
     "iOS 14",
-    "iOS 26 - Liquid Glass",
+    "iOS 26 Liquid Glass",
     "Third Party",
     "Glyph",
 ]
@@ -406,7 +406,7 @@ ERA_ARRAY_NAMES: dict[str, str] = {
     "iOS 16": "ios16",
     "iOS 15": "ios15",
     "iOS 14": "ios14",
-    "iOS 26 - Liquid Glass": "ios26_liquid_glass",
+    "iOS 26 Liquid Glass": "ios26_liquid_glass",
     "Glyph": "glyph",
 }
 
@@ -3923,7 +3923,7 @@ def cmd_add(args: argparse.Namespace) -> int:
     _sync_icon_pack_xml(dw)
     _write(APPMAP_XML, am)
     print(f"  wrote {APPMAP_XML.relative_to(REPO_ROOT)}")
-    print(f"\nDone — {added} component(s) added for '{drawable}'.")
+    print(f"\nDone: {added} component(s) added for '{drawable}'.")
     return 0
 
 
@@ -3950,7 +3950,7 @@ def cmd_link(args: argparse.Namespace) -> int:
     _write_pair(APPFILTER_RES, APPFILTER_ASSET, af)
     _write(APPMAP_XML, am)
     print(f"  wrote {APPMAP_XML.relative_to(REPO_ROOT)}")
-    print(f"\nDone — {added} component(s) linked to '{drawable}'.")
+    print(f"\nDone: {added} component(s) linked to '{drawable}'.")
     return 0
 
 
@@ -4018,7 +4018,7 @@ def cmd_remove(args: argparse.Namespace) -> int:
     _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
     _write(APPMAP_XML, am)
     print(f"  wrote {APPMAP_XML.relative_to(REPO_ROOT)}")
-    print(f"\nDone — {removed} component(s) removed.")
+    print(f"\nDone: {removed} component(s) removed.")
     return 0
 
 
@@ -5558,7 +5558,7 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
     stale: list[str] = sorted(in_xml - on_disk) if prune else []
 
     if not missing and not stale:
-        print("drawable.xml is already in sync with disk — nothing to do.")
+        print("drawable.xml is already in sync with disk. Nothing to do.")
         if not dry_run:
             _sync_icon_pack_xml(dw)
         return 0
@@ -5592,7 +5592,7 @@ def cmd_rebuild(args: argparse.Namespace) -> int:
 
     _write_pair(DRAWABLE_XML_RES, DRAWABLE_XML_ASSET, dw)
     _sync_icon_pack_xml(dw)
-    print(f"\nDone — {len(missing)} added, {len(stale)} removed.")
+    print(f"\nDone: {len(missing)} added, {len(stale)} removed.")
     return 0
 
 
@@ -5696,7 +5696,7 @@ def cmd_stats(args: argparse.Namespace) -> int:  # noqa: ARG001
     }
 
     print("=" * 42)
-    print("iOS Icon Pack — Stats")
+    print("iOS Icon Pack: Stats")
     print("=" * 42)
     print(f"{'Era':<24} {'Icons':>6}  {'Mappings':>8}")
     print("-" * 42)

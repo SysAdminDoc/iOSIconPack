@@ -1,5 +1,13 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.5" date="2026-09-06">
+        <text>Added six new original wallpapers with offline previews</text>
+        <text>Improved the home screen with direct gallery, download, and request actions</text>
+        <text>Made wallpaper previews shareable and verified saving and application</text>
+        <text>Clarified what the icon request reads and when data is sent</text>
+        <text>Removed unused billing and license-check permissions</text>
+    </version>
+
     <version title="1.2.4" date="2026-08-29">
         <text>Fixed release signing verification for current Android build tools</text>
         <text>Included the new adaptive, themed, and legacy launcher artwork</text>

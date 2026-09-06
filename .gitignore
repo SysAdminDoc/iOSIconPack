@@ -11,6 +11,7 @@
 *.keystore
 build
 buildSrc/build
+buildSrc/.kotlin/
 icons_raw/
 gen_icons.py
 CLAUDE.md
@@ -28,6 +29,7 @@ __pycache__/
 # Markdown files local-only (except README)
 *.md
 !README.md
+!CONTRIBUTING.md
 
 # AI config
 AGENTS.md

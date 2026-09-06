@@ -1,5 +1,9 @@
 <resources>
     <string name="app_name" translatable="false">iOS Icon Pack</string>
+    <string name="icon_request_consent_title">Before you continue</string>
+    <string name="icon_request_consent">To build a request, %1$s reads app names, package IDs, Android version, and screen size. Nothing is sent until you choose apps and submit. See the Privacy Policy in Settings.</string>
+    <string name="icon_request_consent_accept">Continue</string>
+    <string name="icon_request_consent_deny">Not now</string>
     <string name="launcher_apply_samsung_notice">Samsung One UI applies third-party icon packs through Good Lock Theme Park.</string>
     <string name="launcher_apply_diagnostics_clip_label" translatable="false">iOS Icon Pack launcher diagnostics</string>
     <string name="launcher_apply_unavailable">Could not open %1$s. Install the launcher or choose iOS Icon Pack in its icon settings.</string>

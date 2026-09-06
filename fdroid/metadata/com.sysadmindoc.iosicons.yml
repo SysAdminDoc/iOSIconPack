@@ -9,24 +9,23 @@ IssueTracker: https://github.com/SysAdminDoc/iOSIconPack/issues
 
 AutoName: iOS Icon Pack
 
-Summary: iOS-style Android icon pack across iOS 14-18 and iOS 26 Liquid Glass
+Summary: Six eras of iOS-inspired icons and original wallpapers for Android
 
 Description: |-
-  iOS Icon Pack replaces your Android launcher icons with iOS-style artwork
-  spanning six design eras: iOS 14 through iOS 18 and the iOS 26 Liquid Glass
-  aesthetic. It works with any launcher that supports icon packs (Nova, Lawnchair,
-  Niagara, Action, Smart Launcher, and more) via the standard Blueprint dashboard.
+  iOS Icon Pack gives supported Android launchers an iOS-inspired look across
+  six visual eras: iOS 14 through iOS 18, plus iOS 26 Liquid Glass. Browse every
+  style in the app, use the iOS 18 mapping by default, or choose individual
+  alternatives through a launcher's icon picker.
 
   Features:
-  * Six distinct iOS design eras: iOS 14, 15, 16, 17, 18, and iOS 26 Liquid Glass
-  * 367 icons covering the most common apps; 671 appfilter component entries
-  * Blueprint dashboard with per-era browsing, icon search, launcher apply shortcuts,
-    and structured icon requests
-  * Third-party icon set (tp_*) for popular apps that don't have a direct iOS analogue
-  * AMOLED dark theme throughout
+  * 342 era variants and 25 exact icons for popular third-party apps
+  * 671 app component mappings for common apps and Android system tools
+  * 367 monochrome vectors for Material You themed icons
+  * Six original offline wallpapers with preview, save, and apply controls
+  * AMOLED dark dashboard with search, launcher shortcuts, and icon requests
 
-  This is an open-source project under MIT. No ads, tracking, or in-app purchases.
-  See CONTRIBUTING.md for how to add icons using the icontool CLI.
+  The app has no ads, analytics, in-app purchases, or license checks. It is open
+  source under the MIT License.
 
 RepoType: git
 Repo: https://github.com/SysAdminDoc/iOSIconPack
@@ -102,7 +101,14 @@ Builds:
     gradle:
       - release
 
+  - versionName: '1.2.5'
+    versionCode: 17
+    commit: v1.2.5
+    subdir: app
+    gradle:
+      - release
+
 AutoUpdateMode: Version v%v
 UpdateCheckMode: Tags
-CurrentVersion: '1.2.4'
-CurrentversionCode: 16
+CurrentVersion: '1.2.5'
+CurrentversionCode: 17

@@ -242,7 +242,7 @@ def main() -> int:
 
     drawables = _collect_drawables()
     if not drawables:
-        errors.append("no drawables discovered — repo layout changed?")
+        errors.append("no drawables discovered. Has the repo layout changed?")
 
     for label in ("appfilter.xml",):
         xml_path = RES_XML / label
