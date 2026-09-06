@@ -1,13 +1,13 @@
 {
   "errors": [],
-  "expected_asset": "iOSIconPack-v1.2.4-release.apk",
-  "expected_asset_digest": "sha256:291b8fb3d0db263b1d76526fca326ddb88dd95f28b67ae551091224dce4ca921",
+  "expected_asset": "iOSIconPack-v1.2.5-release.apk",
+  "expected_asset_digest": "sha256:53535b5a36253bb28cca8ba9bd7b49cdba18d89e4325cf489d7887946e3af5ce",
   "expected_asset_found": true,
-  "expected_asset_size": 12586773,
+  "expected_asset_size": 12617253,
   "expected_release_found": true,
-  "expected_tag": "v1.2.4",
-  "latest_release_tag": "v1.2.4",
+  "expected_tag": "v1.2.5",
+  "latest_release_tag": "v1.2.5",
   "ok": true,
   "repo": "SysAdminDoc/iOSIconPack",
-  "version_name": "1.2.4"
+  "version_name": "1.2.5"
 }
