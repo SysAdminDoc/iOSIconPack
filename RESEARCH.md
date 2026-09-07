@@ -18,7 +18,7 @@ The public pitch should lead with the product, not the maintenance tooling. User
 - Six original wallpapers stored in the APK for offline use
 - No ads, analytics, in-app purchases, billing permission, or license-check permission
 
-The Android 15 test pass covered the dashboard, icon browser, search, launcher list, request screen, wallpaper preview, local save, and system wallpaper application. The screenshot set in `assets/screenshots/` comes from the running app.
+The Android 15 test pass used the signed v1.2.6 APK and covered the dashboard, icon browser, launcher list, request screen, wallpaper preview, local save, and system wallpaper application. The screenshot set in `assets/screenshots/` comes from that running build.
 
 ## Competitive signal
 

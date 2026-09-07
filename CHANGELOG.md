@@ -7,6 +7,7 @@ All notable changes to iOSIconPack will be documented in this file.
 ### Added
 - Preserved the original logo and wallpaper explorations in a versioned brand concept archive.
 - Added a selection record that distinguishes the approved mark and shipped wallpaper sources from alternate studies.
+- Recaptured the six product screens from the signed release on Android 15.
 
 ### Changed
 - Refreshed the release version, store metadata, and in-app changelog for the archived brand work.
