@@ -1,6 +1,6 @@
 # Product and Marketing Review
 
-Date: 2026-09-06
+Date: 2026-09-07
 
 ## Positioning
 
@@ -31,6 +31,8 @@ iOS Icon Pack should not compete on raw icon count alone. Its advantage is a coh
 ### Keep the existing app mark
 
 The stacked-square mark is compact, recognizable, and readable at launcher size. It also fits the blue Android launcher artwork already shipped by the project. The README uses the matched light and dark exports for clean contrast on either GitHub theme. Decorative replacement concepts were rejected because they weakened small-size clarity.
+
+The original logo study and every wallpaper direction are preserved under `assets/brand/concepts/`. `selection.json` records the approved mark and the six wallpaper sources that reached production, while the two alternate wallpaper explorations remain available for future campaigns.
 
 ### Show the real product
 

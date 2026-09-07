@@ -1,0 +1,19 @@
+{
+  "schemaVersion": 1,
+  "project": "iOSIconPack",
+  "selectedConcepts": [
+    "direction-09-selected-stacked-square-logo.png"
+  ],
+  "selectedMasters": [
+    "../iosiconpack-selected-master.png"
+  ],
+  "selectedSupportingConcepts": [
+    "wallpaper-01-selected-ios14-flow.png",
+    "wallpaper-03-selected-ios16-orbit.png",
+    "wallpaper-05-selected-ios18-tint.png",
+    "wallpaper-06-selected-ios26-glass.png",
+    "wallpaper-07-selected-ios15-bloom.png",
+    "wallpaper-08-selected-ios17-mist.png"
+  ],
+  "guidance": "These files preserve the original visual exploration. Use selectedConcepts to identify the approved direction. Production assets elsewhere in the repository remain the files used by the product."
+}

@@ -13,7 +13,7 @@
 </p>
 
 <p align="center">
-  <img alt="Version 1.2.5" src="https://img.shields.io/badge/version-v1.2.5-007AFF?style=for-the-badge">
+  <img alt="Version 1.2.6" src="https://img.shields.io/badge/version-v1.2.6-007AFF?style=for-the-badge">
   <img alt="MIT license" src="https://img.shields.io/badge/license-MIT-34C759?style=for-the-badge">
   <img alt="Android" src="https://img.shields.io/badge/platform-Android-007AFF?style=for-the-badge">
   <img alt="Android 8 or newer" src="https://img.shields.io/badge/Android-8%2B-34C759?style=for-the-badge">
@@ -58,7 +58,7 @@ You need a launcher that accepts third-party icon packs. Nova, Lawnchair, Niagar
 
 ### Manual install
 
-Download `iOSIconPack-v1.2.5-release.apk` from [GitHub Releases](https://github.com/SysAdminDoc/iOSIconPack/releases/latest). Android 8.0 or newer is required.
+Download `iOSIconPack-v1.2.6-release.apk` from [GitHub Releases](https://github.com/SysAdminDoc/iOSIconPack/releases/latest). Android 8.0 or newer is required.
 
 ## Icon coverage
 
@@ -107,6 +107,10 @@ python scripts/icontool.py check
 ```
 
 Read [CONTRIBUTING.md](CONTRIBUTING.md) for artwork sizing, naming, provenance, and review checks. Missing something? [Open an icon request](https://github.com/SysAdminDoc/iOSIconPack/issues/new?template=icon-request.yml&labels=icon-request).
+
+## Brand archive
+
+The [brand concepts](assets/brand/concepts/) preserve every original logo and wallpaper exploration. The selection record identifies the approved stacked-square mark and the six source wallpapers used by the app.
 
 ## Credits
 

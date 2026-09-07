@@ -2,6 +2,15 @@
 
 All notable changes to iOSIconPack will be documented in this file.
 
+## [v1.2.6], 2026-09-07
+
+### Added
+- Preserved the original logo and wallpaper explorations in a versioned brand concept archive.
+- Added a selection record that distinguishes the approved mark and shipped wallpaper sources from alternate studies.
+
+### Changed
+- Refreshed the release version, store metadata, and in-app changelog for the archived brand work.
+
 ## [v1.2.5], 2026-09-06
 
 ### Added

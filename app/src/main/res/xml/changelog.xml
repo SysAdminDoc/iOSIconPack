@@ -1,5 +1,9 @@
 <?xml version="1.0" encoding="utf-8"?>
 <changelog>
+    <version title="1.2.6" date="2026-09-07">
+        <text>Preserved the original logo and wallpaper concepts with the approved selections clearly recorded</text>
+    </version>
+
     <version title="1.2.5" date="2026-09-06">
         <text>Added six new original wallpapers with offline previews</text>
         <text>Improved the home screen with direct gallery, download, and request actions</text>
